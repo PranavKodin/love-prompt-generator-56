@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Great+Vibes&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -208,5 +207,13 @@
   
   .hover-scale:hover {
     @apply transform scale-105;
+  }
+
+  .search-glow {
+    box-shadow: 0 0 20px rgba(244, 114, 182, 0.4);
+  }
+  
+  .dark .search-glow {
+    box-shadow: 0 0 20px rgba(219, 39, 119, 0.4);
   }
 }

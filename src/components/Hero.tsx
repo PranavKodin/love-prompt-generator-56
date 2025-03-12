@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown, Heart, Sparkles, Image, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,7 +66,7 @@ export function Hero() {
   };
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center hero-gradient overflow-hidden px-4">
+    <div className="relative w-full min-h-[calc(100vh-6rem)] flex flex-col items-center justify-center hero-gradient overflow-hidden px-4 mt-8">
       {/* Floating elements with more pronounced animations */}
       <div className="absolute top-1/4 left-1/5 w-32 h-32 rounded-full bg-love-200/40 dark:bg-love-800/30 blur-3xl animate-float" />
       <div className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full bg-love-300/30 dark:bg-love-700/30 blur-3xl animate-float" style={{animationDelay: "1s"}} />
@@ -87,7 +86,7 @@ export function Hero() {
         </div>
         
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight md:leading-tight">
-          Create the <span className="gradient-text animate-pulse-slow">Perfect Compliment</span> for Someone Special
+          Create the <span className="gradient-text animate-pulse-slow font-great-vibes">Perfect Compliment</span> for Someone Special
         </h1>
         
         <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
@@ -100,7 +99,7 @@ export function Hero() {
         >
           <div className={cn(
             "relative w-full glass rounded-full overflow-hidden flex items-center transition-all duration-500 shadow-glass animate-scale-in",
-            searchFocused ? "ring-2 ring-love-400 dark:ring-love-600 scale-105" : ""
+            searchFocused ? "ring-2 ring-love-400 dark:ring-love-600 scale-105 search-glow" : ""
           )}>
             <div className="absolute left-5 text-foreground/50">
               <Search size={20} className={cn(
@@ -119,7 +118,6 @@ export function Hero() {
               className="border-none bg-transparent pl-12 pr-6 py-6 text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
             />
             
-            {/* Hidden file input */}
             <input
               type="file"
               ref={fileInputRef}
@@ -128,7 +126,6 @@ export function Hero() {
               className="hidden"
             />
             
-            {/* Image Upload Button */}
             <Button
               type="button"
               variant="ghost"
