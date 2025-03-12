@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -141,20 +142,25 @@ export default {
 				'text-shimmer': {
 					'0%': { backgroundPosition: '0% 50%' },
 					'100%': { backgroundPosition: '100% 50%' },
+				},
+				'bounce': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.4s ease-out',
+				'fade-in': 'fade-in 0.6s ease-out',
 				'fade-out': 'fade-out 0.4s ease-out',
-				'slide-in': 'slide-in 0.5s ease-out',
+				'slide-in': 'slide-in 0.6s ease-out',
 				'slide-out': 'slide-out 0.5s ease-out',
-				'scale-in': 'scale-in 0.3s ease-out',
-				'blur-in': 'blur-in 0.5s ease-out',
+				'scale-in': 'scale-in 0.5s ease-out',
+				'blur-in': 'blur-in 0.6s ease-out',
 				'pulse-slow': 'pulse-slow 3s infinite',
 				'float': 'float 6s ease-in-out infinite',
 				'text-shimmer': 'text-shimmer 3s infinite linear',
+				'bounce': 'bounce 2s ease-in-out infinite',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -168,6 +174,14 @@ export default {
 				'card-hover': '0 10px 30px rgba(0, 0, 0, 0.08)',
 				'button': '0 5px 15px rgba(0, 0, 0, 0.1)',
 				'button-hover': '0 8px 25px rgba(0, 0, 0, 0.15)',
+			},
+			transitionProperty: {
+				'height': 'height',
+				'spacing': 'margin, padding',
+			},
+			transitionTimingFunction: {
+				'bounce-in': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+				'bounce-out': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
 			},
 		}
 	},

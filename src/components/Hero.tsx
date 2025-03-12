@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown, Heart, Sparkles, Image, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -66,36 +67,60 @@ export function Hero() {
   };
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-6rem)] flex flex-col items-center justify-center hero-gradient overflow-hidden px-4 mt-8">
-      {/* Floating elements with more pronounced animations */}
-      <div className="absolute top-1/4 left-1/5 w-32 h-32 rounded-full bg-love-200/40 dark:bg-love-800/30 blur-3xl animate-float" />
-      <div className="absolute bottom-1/3 right-1/4 w-40 h-40 rounded-full bg-love-300/30 dark:bg-love-700/30 blur-3xl animate-float" style={{animationDelay: "1s"}} />
-      <div className="absolute top-1/2 right-1/5 w-24 h-24 rounded-full bg-love-200/40 dark:bg-love-800/30 blur-3xl animate-float" style={{animationDelay: "2s"}} />
-      <div className="absolute bottom-1/4 left-1/4 w-36 h-36 rounded-full bg-love-400/20 dark:bg-love-600/20 blur-3xl animate-float" style={{animationDelay: "3s"}} />
+    <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden animate-fade-in">
+      {/* Enhanced background with multiple animated gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-love-50/40 via-background to-love-100/20 dark:from-midnight-900/60 dark:via-background dark:to-love-900/10 z-0"></div>
+      <div className="absolute w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGwtb3BhY2l0eT0iLjA1IiBmaWxsPSJjdXJyZW50Q29sb3IiIGN4PSIxMCIgY3k9IjEwIiByPSIxIi8+PC9nPjwvc3ZnPg==')] opacity-50 dark:opacity-30 z-0"></div>
       
-      <div className="max-w-4xl mx-auto text-center space-y-6 z-10 animate-slide-in">
-        <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-4 py-1 mb-4 overflow-hidden group">
+      {/* Floating elements with enhanced animations */}
+      <div className="absolute top-1/5 left-1/4 w-64 h-64 rounded-full bg-love-200/30 dark:bg-love-800/20 blur-3xl animate-float opacity-70"></div>
+      <div className="absolute bottom-1/4 right-1/5 w-80 h-80 rounded-full bg-love-300/20 dark:bg-love-700/20 blur-3xl animate-float opacity-60" style={{animationDelay: "2s"}}></div>
+      <div className="absolute top-1/3 right-1/4 w-48 h-48 rounded-full bg-love-100/30 dark:bg-love-900/20 blur-3xl animate-float opacity-50" style={{animationDelay: "3s"}}></div>
+      <div className="absolute bottom-1/3 left-1/5 w-56 h-56 rounded-full bg-love-400/10 dark:bg-love-600/10 blur-3xl animate-float opacity-60" style={{animationDelay: "4s"}}></div>
+      
+      {/* Hearts floating animation */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {[...Array(10)].map((_, i) => (
+          <div 
+            key={i}
+            className="absolute text-love-400/20 dark:text-love-600/10"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              fontSize: `${Math.random() * 2 + 1}rem`,
+              animation: `float ${Math.random() * 10 + 10}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 5}s`
+            }}
+          >
+            ❤
+          </div>
+        ))}
+      </div>
+      
+      <div className="max-w-4xl mx-auto text-center space-y-8 z-10 px-4 animate-scale-in">
+        <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-5 py-1.5 mb-4 overflow-hidden group">
           <span className={cn(
             "text-sm font-medium text-love-800 dark:text-love-300 flex items-center transition-opacity duration-500",
             phraseFade ? "opacity-0" : "opacity-100"
           )}>
-            <Heart size={14} className="mr-1 animate-pulse-slow" />
+            <Heart size={14} className="mr-1.5 animate-pulse-slow" />
             <span>{currentPhrase}</span>
-            <Sparkles size={14} className="ml-1 animate-pulse-slow" style={{animationDelay: "1s"}} />
+            <Sparkles size={14} className="ml-1.5 animate-pulse-slow" style={{animationDelay: "1s"}} />
           </span>
         </div>
         
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight md:leading-tight">
-          Create the <span className="gradient-text animate-pulse-slow font-great-vibes">Perfect Compliment</span> for Someone Special
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight md:leading-tight lg:leading-tight mb-6">
+          Create the <span className="font-great-vibes text-5xl md:text-7xl lg:text-8xl gradient-text animate-pulse-slow">Perfect Compliment</span>
+          <br className="md:hidden" /> for Someone Special
         </h1>
         
-        <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
+        <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-4">
           Craft personalized, heartfelt compliments tailored to your special someone with our advanced AI technology.
         </p>
         
         <form 
           onSubmit={handleSearch}
-          className="flex items-center relative mt-8 max-w-xl w-full mx-auto"
+          className="flex items-center relative mt-10 max-w-xl w-full mx-auto"
         >
           <div className={cn(
             "relative w-full glass rounded-full overflow-hidden flex items-center transition-all duration-500 shadow-glass animate-scale-in",
@@ -169,7 +194,7 @@ export function Hero() {
               <PopoverContent 
                 side="bottom" 
                 align="end" 
-                className="w-64 p-2 bg-white/80 dark:bg-midnight-800/80 backdrop-blur-lg border border-border rounded-xl shadow-xl animate-fade-in"
+                className="w-64 p-3 bg-white/90 dark:bg-midnight-800/90 backdrop-blur-lg border border-border rounded-xl shadow-xl animate-fade-in"
               >
                 <div className="space-y-4">
                   <div className="space-y-2 px-2">
@@ -223,7 +248,7 @@ export function Hero() {
           </div>
         </form>
         
-        <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground mt-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground mt-6">
           <span>Try:</span>
           {["smile", "kindness", "eyes", "laughter", "intelligence", "caring"].map((term) => (
             <button
@@ -237,14 +262,14 @@ export function Hero() {
         </div>
       </div>
       
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 text-center">
         <Button 
           variant="ghost" 
-          className="text-foreground/60 hover:text-foreground transition-all duration-300 hover:bg-transparent"
+          className="text-foreground/60 hover:text-foreground transition-all duration-300 hover:bg-transparent flex flex-col items-center"
           onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
         >
-          <span>Explore Features</span>
-          <ChevronDown size={16} className="ml-1 animate-pulse-slow" />
+          <span className="mb-1">Explore Features</span>
+          <ChevronDown size={16} className="animate-bounce" />
         </Button>
       </div>
     </div>

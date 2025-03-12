@@ -30,7 +30,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
     { name: "Home", href: "/" },
     { name: "About", href: "#about" },
     { name: "Features", href: "#features" },
-    { name: "API Access", href: "#api" },
     { name: "Contact", href: "#contact" },
   ];
 
@@ -38,47 +37,47 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
     <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3 flex justify-center pointer-events-none">
       <nav 
         className={cn(
-          "max-w-6xl w-full bg-white/60 dark:bg-midnight-900/60 backdrop-blur-xl border border-border",
-          "rounded-2xl transition-all duration-500 shadow-sm pointer-events-auto",
+          "max-w-6xl w-full bg-white/30 dark:bg-midnight-900/30 backdrop-blur-md border border-white/20 dark:border-midnight-800/30",
+          "rounded-full transition-all duration-500 shadow-glass animate-fade-in pointer-events-auto",
           scrolled ? "py-1" : "py-2"
         )}
       >
-        <div className="px-4 flex items-center justify-between h-12">
+        <div className="px-4 flex items-center justify-between h-10">
           <div className="flex items-center">
             <Button
               onClick={toggleSidebar}
               variant="ghost"
               size="icon"
-              className="mr-2 relative z-50 rounded-full"
+              className="mr-2 relative z-50 rounded-full hover:bg-white/20 dark:hover:bg-midnight-800/20"
             >
               <Menu size={20} />
             </Button>
             <a href="/" className="flex items-center space-x-2 group">
               <div className="relative w-8 h-8 flex items-center justify-center">
-                <Heart className="absolute text-love-600 dark:text-love-400 transition-all duration-300 group-hover:scale-110 animate-pulse-slow" size={24} />
+                <Heart className="absolute text-love-600 dark:text-love-400 transition-all duration-300 group-hover:scale-110 animate-pulse-slow" size={22} />
               </div>
-              <span className="font-bold text-xl gradient-text transition-all duration-300 group-hover:opacity-80">
+              <span className="font-bold text-lg gradient-text transition-all duration-300 group-hover:opacity-80">
                 LovelyAI
               </span>
             </a>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             <div className="flex space-x-1">
-              {navLinks.map((link, index) => (
+              {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="relative px-3 py-2 text-foreground/80 hover:text-love-600 dark:hover:text-love-400 font-medium transition-colors overflow-hidden group rounded-lg"
+                  className="relative px-3 py-1.5 text-foreground/90 hover:text-love-600 dark:hover:text-love-400 font-medium transition-colors overflow-hidden group rounded-full"
                 >
                   <span className="relative z-10">{link.name}</span>
-                  <span className="absolute bottom-0 left-0 w-full h-0 bg-love-100 dark:bg-love-900/30 transition-all duration-300 group-hover:h-full z-0 rounded-lg"></span>
+                  <span className="absolute inset-0 bg-white/30 dark:bg-midnight-800/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></span>
                 </a>
               ))}
             </div>
             <ThemeToggle />
-            <Button className="bg-gradient-love hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-love-500/20 dark:hover:shadow-love-700/20">
+            <Button className="bg-gradient-love hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-love-500/20 dark:hover:shadow-love-700/20 rounded-full">
               <span className="animate-pulse-slow">Get Started</span>
             </Button>
           </div>
@@ -86,7 +85,7 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
           {/* Mobile Navigation Toggle */}
           <div className="flex items-center space-x-2 md:hidden">
             <ThemeToggle />
-            <Button onClick={toggleMenu} variant="ghost" size="icon" className="relative z-50 rounded-full">
+            <Button onClick={toggleMenu} variant="ghost" size="icon" className="relative z-50 rounded-full hover:bg-white/20 dark:hover:bg-midnight-800/20">
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </Button>
           </div>
@@ -95,11 +94,11 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
         {/* Mobile Menu */}
         <div 
           className={cn(
-            "fixed inset-0 z-40 bg-white/90 dark:bg-midnight-900/90 backdrop-blur-lg transform transition-all duration-500 ease-in-out md:hidden",
+            "fixed inset-0 z-40 bg-white/80 dark:bg-midnight-900/80 backdrop-blur-xl transform transition-all duration-500 ease-in-out md:hidden",
             isMenuOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
           )}
         >
-          <div className="flex flex-col h-full pt-24 px-8 space-y-8">
+          <div className="flex flex-col h-full pt-24 px-8 space-y-6">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -110,7 +109,7 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
                 {link.name}
               </a>
             ))}
-            <Button className="bg-gradient-love hover:opacity-90 mt-6 transition-all duration-300 animate-pulse-slow w-full">
+            <Button className="bg-gradient-love hover:opacity-90 mt-6 transition-all duration-300 animate-pulse-slow w-full rounded-full">
               Get Started
             </Button>
           </div>
