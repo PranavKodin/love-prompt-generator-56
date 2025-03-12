@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
 import { Hero } from "@/components/Hero";
@@ -9,13 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export default function Index() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar toggleSidebar={toggleSidebar} />
       <main className="flex-1 pt-16">
         <div className="flex">
-          <Sidebar />
-          <div className="w-full md:ml-64">
+          <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+          <div className="w-full">
             {/* Hero Section */}
             <Hero />
             

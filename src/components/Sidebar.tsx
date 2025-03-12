@@ -4,22 +4,14 @@ import { ChevronLeft, Heart, History, User, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
+export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (open: boolean) => void }) {
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const sidebar = document.getElementById('mobile-sidebar');
-      const button = document.getElementById('sidebar-toggle');
       
-      if (sidebar && button && 
-          !sidebar.contains(event.target as Node) &&
-          !button.contains(event.target as Node) && 
+      if (sidebar && 
+          !sidebar.contains(event.target as Node) && 
           isOpen) {
         setIsOpen(false);
       }
@@ -27,7 +19,7 @@ export function Sidebar() {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, setIsOpen]);
 
   const sidebarItems = [
     { name: "Saved Compliments", icon: Heart },
@@ -41,17 +33,16 @@ export function Sidebar() {
       {/* Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 z-40 md:hidden backdrop-blur-sm"
-          onClick={toggleSidebar}
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 z-40 backdrop-blur-sm"
+          onClick={() => setIsOpen(false)}
         />
       )}
       
       <div
         id="mobile-sidebar"
         className={cn(
-          "fixed top-24 bottom-4 left-4 z-40 w-72 bg-white/90 dark:bg-midnight-900/90 backdrop-blur-lg rounded-2xl border border-border transition-all duration-500 ease-in-out transform shadow-xl",
-          isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
-          "md:opacity-100 md:shadow-none md:translate-x-0 md:static md:w-64 md:h-auto md:bg-transparent md:dark:bg-transparent md:backdrop-blur-none md:border-none"
+          "fixed top-24 bottom-4 left-4 z-50 w-72 bg-white/90 dark:bg-midnight-900/90 backdrop-blur-lg rounded-2xl border border-border transition-all duration-500 ease-in-out transform shadow-xl",
+          isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
         )}
       >
         <div className="flex flex-col h-full p-4">
@@ -60,8 +51,8 @@ export function Sidebar() {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={toggleSidebar}
-              className="md:hidden rounded-full hover:bg-love-100/50 dark:hover:bg-love-900/30"
+              onClick={() => setIsOpen(false)}
+              className="rounded-full hover:bg-love-100/50 dark:hover:bg-love-900/30"
             >
               <ChevronLeft size={20} />
             </Button>
@@ -91,20 +82,6 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-      
-      {/* Toggle button (shown only on mobile) */}
-      <Button
-        id="sidebar-toggle"
-        variant="outline"
-        size="icon"
-        onClick={toggleSidebar}
-        className={cn(
-          "fixed left-4 bottom-4 z-50 rounded-full shadow-xl backdrop-blur-md bg-white/80 dark:bg-midnight-900/80 border border-border md:hidden transition-all duration-300",
-          isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-        )}
-      >
-        <Heart size={20} className="text-love-600 dark:text-love-400 animate-pulse-slow" />
-      </Button>
     </>
   );
 }

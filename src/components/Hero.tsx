@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from "react";
-import { Search, ChevronDown, Heart, Sparkles } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, ChevronDown, Heart, Sparkles, Image, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,8 @@ export function Hero() {
   const [searchFocused, setSearchFocused] = useState(false);
   const [currentPhrase, setCurrentPhrase] = useState(phrases[0]);
   const [phraseFade, setPhraseFade] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -38,6 +40,30 @@ export function Hero() {
     e.preventDefault();
     // Handle search logic here
     console.log("Search query:", searchQuery);
+    console.log("Image:", image);
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -92,6 +118,42 @@ export function Hero() {
               placeholder="What do you love about them..."
               className="border-none bg-transparent pl-12 pr-6 py-6 text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
             />
+            
+            {/* Hidden file input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            
+            {/* Image Upload Button */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleImageClick}
+              className="ml-auto mr-2 rounded-full relative hover:bg-foreground/10 transition-all duration-300"
+            >
+              {image ? (
+                <div className="relative w-7 h-7 rounded-full overflow-hidden">
+                  <img 
+                    src={image} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover" 
+                  />
+                  <div 
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                    onClick={handleRemoveImage}
+                  >
+                    <X size={14} className="text-white" />
+                  </div>
+                </div>
+              ) : (
+                <Image size={20} className="text-foreground/60 hover:text-love-600 dark:hover:text-love-400 transition-colors" />
+              )}
+            </Button>
             
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild>

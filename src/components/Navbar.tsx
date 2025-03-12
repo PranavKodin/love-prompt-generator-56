@@ -5,7 +5,7 @@ import { Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export function Navbar() {
+export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -35,21 +35,29 @@ export function Navbar() {
   ];
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 px-4 py-4 flex justify-center pointer-events-none">
+    <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3 flex justify-center pointer-events-none">
       <nav 
         className={cn(
           "max-w-6xl w-full bg-white/60 dark:bg-midnight-900/60 backdrop-blur-xl border border-border",
           "rounded-2xl transition-all duration-500 shadow-sm pointer-events-auto",
-          scrolled ? "py-2" : "py-3"
+          scrolled ? "py-1" : "py-2"
         )}
       >
-        <div className="px-4 flex items-center justify-between h-14">
+        <div className="px-4 flex items-center justify-between h-12">
           <div className="flex items-center">
+            <Button
+              onClick={toggleSidebar}
+              variant="ghost"
+              size="icon"
+              className="mr-2 relative z-50 rounded-full"
+            >
+              <Menu size={20} />
+            </Button>
             <a href="/" className="flex items-center space-x-2 group">
               <div className="relative w-8 h-8 flex items-center justify-center">
                 <Heart className="absolute text-love-600 dark:text-love-400 transition-all duration-300 group-hover:scale-110 animate-pulse-slow" size={24} />
               </div>
-              <span className="font-bold text-xl md:text-2xl gradient-text transition-all duration-300 group-hover:opacity-80">
+              <span className="font-bold text-xl gradient-text transition-all duration-300 group-hover:opacity-80">
                 LovelyAI
               </span>
             </a>
