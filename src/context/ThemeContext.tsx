@@ -16,27 +16,54 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<string>("light");
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("theme") || "light";
+    const storedTheme = localStorage.getItem("theme") || "system";
     
-    if (storedTheme === "dark" || (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+    if (storedTheme === "dark" || 
+       (storedTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
       setTheme("dark");
       document.documentElement.classList.add("dark");
     } else {
       setTheme("light");
       document.documentElement.classList.remove("dark");
     }
+    
+    // Add listener for system preference changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      if (localStorage.getItem("theme") === "system") {
+        if (mediaQuery.matches) {
+          document.documentElement.classList.add("dark");
+          setTheme("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          setTheme("light");
+        }
+      }
+    };
+    
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   const value = {
     theme,
     setTheme: (theme: string) => {
       localStorage.setItem("theme", theme);
-      setTheme(theme);
       
-      if (theme === "dark") {
+      if (theme === "system") {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.classList.add("dark");
+          setTheme("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          setTheme("light");
+        }
+      } else if (theme === "dark") {
         document.documentElement.classList.add("dark");
+        setTheme("dark");
       } else {
         document.documentElement.classList.remove("dark");
+        setTheme("light");
       }
     },
   };
