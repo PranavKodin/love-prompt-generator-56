@@ -1,7 +1,21 @@
 
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
-import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, query, where, getDocs, orderBy, Timestamp, deleteDoc } from "firebase/firestore";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  query, 
+  where, 
+  getDocs, 
+  orderBy, 
+  Timestamp, 
+  deleteDoc 
+} from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Firebase configuration
@@ -59,14 +73,25 @@ export interface Compliment {
 
 // Helper functions
 export async function saveUserProfile(user: UserProfile) {
-  const userRef = doc(db, "users", user.uid);
-  await setDoc(userRef, user, { merge: true });
+  try {
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(userRef, user, { merge: true });
+    return user;
+  } catch (error) {
+    console.error("Error saving user profile:", error);
+    throw error;
+  }
 }
 
 export async function getUserProfile(uid: string) {
-  const userRef = doc(db, "users", uid);
-  const snapshot = await getDoc(userRef);
-  return snapshot.exists() ? snapshot.data() as UserProfile : null;
+  try {
+    const userRef = doc(db, "users", uid);
+    const snapshot = await getDoc(userRef);
+    return snapshot.exists() ? snapshot.data() as UserProfile : null;
+  } catch (error) {
+    console.error("Error getting user profile:", error);
+    return null;
+  }
 }
 
 export async function saveCompliment(compliment: Compliment) {

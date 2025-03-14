@@ -4,9 +4,22 @@ import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/context/UserContext";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const { toggleDarkMode } = useUser();
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+    
+    // If the user is logged in, also update their preferences
+    if (newTheme === "dark") {
+      toggleDarkMode().catch(err => console.error("Failed to update user theme preference:", err));
+    } else if (newTheme === "light") {
+      toggleDarkMode().catch(err => console.error("Failed to update user theme preference:", err));
+    }
+  };
 
   return (
     <Popover>
@@ -31,7 +44,7 @@ export function ThemeToggle() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setTheme("light")}
+            onClick={() => handleThemeChange("light")}
             className={cn(
               "flex flex-col items-center justify-center gap-1 h-auto py-3 px-2 rounded-md",
               theme === "light" && "bg-accent text-accent-foreground"
@@ -43,7 +56,7 @@ export function ThemeToggle() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setTheme("dark")}
+            onClick={() => handleThemeChange("dark")}
             className={cn(
               "flex flex-col items-center justify-center gap-1 h-auto py-3 px-2 rounded-md",
               theme === "dark" && "bg-accent text-accent-foreground"
@@ -55,7 +68,7 @@ export function ThemeToggle() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setTheme("system")}
+            onClick={() => handleThemeChange("system")}
             className={cn(
               "flex flex-col items-center justify-center gap-1 h-auto py-3 px-2 rounded-md",
               theme === "system" && "bg-accent text-accent-foreground"

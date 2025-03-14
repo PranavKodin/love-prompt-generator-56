@@ -83,8 +83,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const updatedProfile = { ...profile, ...data };
-      await saveUserProfile(updatedProfile);
-      setProfile(updatedProfile);
+      const savedProfile = await saveUserProfile(updatedProfile);
+      setProfile(savedProfile);
       
       toast({
         title: "Profile updated",
@@ -104,14 +104,20 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user || !profile) return;
 
     const newDarkMode = !profile.preferences?.darkMode;
-    await updateProfile({
-      preferences: {
-        ...profile.preferences,
-        darkMode: newDarkMode,
-      },
-    });
     
-    setTheme(newDarkMode ? "dark" : "light");
+    try {
+      await updateProfile({
+        preferences: {
+          ...profile.preferences,
+          darkMode: newDarkMode,
+        },
+      });
+      
+      // This needs to happen immediately to give good UX
+      setTheme(newDarkMode ? "dark" : "light");
+    } catch (error) {
+      console.error("Error toggling dark mode:", error);
+    }
   };
 
   const upgradeSubscription = async () => {

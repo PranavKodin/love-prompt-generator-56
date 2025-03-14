@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Edit, MapPin, User } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ const Profile = () => {
   const [location, setLocation] = useState(profile?.location || "");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   if (!user || !profile) {
     navigate("/get-started");
@@ -27,12 +29,21 @@ const Profile = () => {
   }
 
   const handleSave = async () => {
-    await updateProfile({
-      displayName,
-      bio,
-      location,
-    });
-    setIsEditing(false);
+    try {
+      await updateProfile({
+        displayName,
+        bio,
+        location,
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save profile changes",
+      });
+    }
   };
 
   const getUserInitials = () => {
