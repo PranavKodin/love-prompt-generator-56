@@ -81,6 +81,7 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
     { name: "Home", href: "/", animation: "animate-text-fade" },
     { name: "About", href: "/about", animation: "animate-text-slide" },
     { name: "Features", href: "/features", animation: "animate-text-scale" },
+    { name: "Love Stories", href: "/love-stories", animation: "animate-text-pulse" },
     { name: "Contact", href: "/contact", animation: "animate-text-shimmer" },
   ];
 

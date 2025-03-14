@@ -19,6 +19,8 @@ import Profile from "./pages/Profile";
 import SavedCompliments from "./pages/SavedCompliments";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
+import LoveStories from "./pages/LoveStories";
+import AdminUsers from "./pages/AdminUsers";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => (
                 <Route path="/saved-compliments" element={<SavedCompliments />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/love-stories" element={<LoveStories />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </TooltipProvider>

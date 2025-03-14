@@ -14,7 +14,12 @@ import {
   getDocs, 
   orderBy, 
   Timestamp, 
-  deleteDoc 
+  deleteDoc,
+  limit,
+  startAfter,
+  increment,
+  arrayUnion,
+  arrayRemove
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -40,6 +45,10 @@ export const facebookProvider = new FacebookAuthProvider();
 export const usersCollection = collection(db, "users");
 export const complimentsCollection = collection(db, "compliments");
 export const subscriptionsCollection = collection(db, "subscriptions");
+export const storiesCollection = collection(db, "stories");
+
+// Admin email
+export const ADMIN_EMAIL = "sunny.pranav2006@gmail.com";
 
 // Model interfaces
 export interface UserProfile {
@@ -69,6 +78,27 @@ export interface Compliment {
   recipient?: string;
   createdAt: Timestamp;
   isSaved: boolean;
+}
+
+export interface Comment {
+  id?: string;
+  userId: string;
+  displayName: string;
+  photoURL: string;
+  content: string;
+  createdAt: Timestamp;
+}
+
+export interface Story {
+  id?: string;
+  userId: string;
+  authorName: string;
+  authorPhotoURL: string;
+  content: string;
+  createdAt: Timestamp;
+  likeCount: number;
+  likedBy: string[];
+  commentCount: number;
 }
 
 // Helper functions
@@ -119,6 +149,17 @@ export async function getUserProfile(uid: string) {
   }
 }
 
+export async function getAllUsers() {
+  try {
+    const q = query(usersCollection, orderBy("displayName"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data() as UserProfile);
+  } catch (error) {
+    console.error("Error getting all users:", error);
+    return [];
+  }
+}
+
 export async function saveCompliment(compliment: Compliment) {
   const docRef = await addDoc(complimentsCollection, compliment);
   return { ...compliment, id: docRef.id };
@@ -159,4 +200,149 @@ export async function getSavedCompliments(userId: string) {
 export async function deleteCompliment(complimentId: string) {
   const complimentRef = doc(db, "compliments", complimentId);
   await deleteDoc(complimentRef);
+}
+
+// Story functions
+export async function createStory(story: Omit<Story, 'id' | 'likeCount' | 'likedBy' | 'commentCount'>) {
+  try {
+    const newStory = {
+      ...story,
+      likeCount: 0,
+      likedBy: [],
+      commentCount: 0
+    };
+    
+    const docRef = await addDoc(storiesCollection, newStory);
+    return { ...newStory, id: docRef.id };
+  } catch (error) {
+    console.error("Error creating story:", error);
+    throw error;
+  }
+}
+
+export async function getStories(pageSize = 10, lastVisible = null) {
+  try {
+    let q;
+    
+    if (lastVisible) {
+      q = query(
+        storiesCollection,
+        orderBy("createdAt", "desc"),
+        startAfter(lastVisible),
+        limit(pageSize)
+      );
+    } else {
+      q = query(
+        storiesCollection,
+        orderBy("createdAt", "desc"),
+        limit(pageSize)
+      );
+    }
+    
+    const snapshot = await getDocs(q);
+    const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+    
+    const stories = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Story[];
+    
+    return { stories, lastDoc };
+  } catch (error) {
+    console.error("Error getting stories:", error);
+    return { stories: [], lastDoc: null };
+  }
+}
+
+export async function getStoryById(storyId: string) {
+  try {
+    const storyRef = doc(db, "stories", storyId);
+    const snapshot = await getDoc(storyRef);
+    
+    if (!snapshot.exists()) {
+      throw new Error("Story not found");
+    }
+    
+    return { id: snapshot.id, ...snapshot.data() } as Story;
+  } catch (error) {
+    console.error("Error getting story:", error);
+    throw error;
+  }
+}
+
+export async function toggleLikeStory(storyId: string, userId: string) {
+  try {
+    const storyRef = doc(db, "stories", storyId);
+    const storySnap = await getDoc(storyRef);
+    
+    if (!storySnap.exists()) {
+      throw new Error("Story not found");
+    }
+    
+    const story = storySnap.data() as Story;
+    const isLiked = story.likedBy?.includes(userId);
+    
+    await updateDoc(storyRef, {
+      likeCount: isLiked ? increment(-1) : increment(1),
+      likedBy: isLiked ? arrayRemove(userId) : arrayUnion(userId)
+    });
+    
+    return !isLiked;
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    throw error;
+  }
+}
+
+export async function addComment(storyId: string, comment: Omit<Comment, 'id' | 'createdAt'>) {
+  try {
+    const commentsRef = collection(db, "stories", storyId, "comments");
+    const newComment = {
+      ...comment,
+      createdAt: Timestamp.now()
+    };
+    
+    const docRef = await addDoc(commentsRef, newComment);
+    
+    // Update comment count
+    const storyRef = doc(db, "stories", storyId);
+    await updateDoc(storyRef, {
+      commentCount: increment(1)
+    });
+    
+    return { ...newComment, id: docRef.id };
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    throw error;
+  }
+}
+
+export async function getComments(storyId: string) {
+  try {
+    const commentsRef = collection(db, "stories", storyId, "comments");
+    const q = query(commentsRef, orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Comment[];
+  } catch (error) {
+    console.error("Error getting comments:", error);
+    return [];
+  }
+}
+
+export async function deleteStory(storyId: string) {
+  try {
+    // Delete the story document
+    const storyRef = doc(db, "stories", storyId);
+    await deleteDoc(storyRef);
+    
+    // Note: Comments subcollection will remain in Firestore but become inaccessible
+    // To fully delete them, you'd need to iterate through all comments and delete them first
+  } catch (error) {
+    console.error("Error deleting story:", error);
+    throw error;
+  }
 }
