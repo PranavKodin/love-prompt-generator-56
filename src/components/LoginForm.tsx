@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Facebook, Mail } from "lucide-react";
+import { Facebook, Mail, LogIn } from "lucide-react";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md space-y-6 p-6 bg-white dark:bg-midnight-800 rounded-2xl shadow-xl">
+    <div className="w-full max-w-md space-y-6 bg-white dark:bg-midnight-800 rounded-2xl">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -69,7 +69,7 @@ export const LoginForm = () => {
           onClick={() => signInWithGoogle()}
           className="w-full"
         >
-          <Mail className="mr-2 h-4 w-4" />
+          <LogIn className="mr-2 h-4 w-4" />
           Google
         </Button>
         <Button
