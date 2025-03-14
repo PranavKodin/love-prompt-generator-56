@@ -65,34 +65,21 @@ export default function About() {
   // Team members data
   const teamMembers = [
     {
-      name: "Sophia Rose",
+      name: "Pranav Kumar",
       role: "Founder & CEO",
       bio: "Passionate about connecting hearts through technology. With over 10 years in AI development focused on emotional intelligence.",
-      avatar: "https://i.pravatar.cc/150?img=1",
+      avatar: "https://i.pinimg.com/280x280_RS/00/1c/e2/001ce2cc08062ef80c000b7e0be2fdad.jpg",
       delay: 0,
     },
     {
-      name: "James Hart",
-      role: "Chief Technology Officer",
-      bio: "AI expert with a background in psychology, specializing in natural language processing and emotional analysis algorithms.",
-      avatar: "https://i.pravatar.cc/150?img=3",
+      name: "Himanshu Singh",
+      role: "Beta Tester",
+      bio: "A vella who does nothing but is a good friend of the founder.",
+      avatar: "https://instagram.fdel58-1.fna.fbcdn.net/v/t51.2885-19/483284475_1399196918158956_8629438188704475063_n.jpg?_nc_ht=instagram.fdel58-1.fna.fbcdn.net&_nc_cat=100&_nc_oc=Q6cZ2AEw1eeJTX5mvt-E7tc1BCqEW4iIUABCHs4CihTE2XeCaGGZXkDL_2VoYeYgh2ix_Lo&_nc_ohc=LesEomResOQQ7kNvgG9tGF5&_nc_gid=dd14afc2f31b4633b57cc66a64932489&edm=AP4sbd4BAAAA&ccb=7-5&oh=00_AYErnkVOj_mQw_7nYrI3zrtGRz_hDaY8tbtWWc1ss8Iz6w&oe=67DA0B47&_nc_sid=7a9f4b",
       delay: 100,
     },
-    {
-      name: "Olivia Amore",
-      role: "Chief Design Officer",
-      bio: "Award-winning designer creating beautiful, intuitive interfaces that evoke emotional responses and foster connection.",
-      avatar: "https://i.pravatar.cc/150?img=5",
-      delay: 200,
-    },
-    {
-      name: "Ethan Valentine",
-      role: "Head of Psychology",
-      bio: "Relationship counselor bringing expertise in human connections to ensure our AI recommendations are meaningful and authentic.",
-      avatar: "https://i.pravatar.cc/150?img=8",
-      delay: 300,
-    },
-  ];
+];
+
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden bg-background text-foreground">
