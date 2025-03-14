@@ -58,7 +58,7 @@ export default function Index() {
   }, []);
 
   // Define different animation classes for different screen sizes
-  const getResponsiveAnimation = (isMobile: boolean, isTablet: boolean, isDesktop: boolean, isTV: boolean) => {
+  const getResponsiveAnimation = (isMobile: string, isTablet: string, isDesktop: string, isTV: string): string => {
     if (typeof window === 'undefined') return '';
     
     const width = window.innerWidth;

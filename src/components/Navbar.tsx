@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 // Animation type based on screen size
 const getAnimationByDevice = () => {
@@ -52,9 +53,9 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
 
   const navLinks = [
     { name: "Home", href: "/", animation: "animate-text-fade" },
-    { name: "About", href: "#about", animation: "animate-text-slide" },
-    { name: "Features", href: "#features", animation: "animate-text-scale" },
-    { name: "Contact", href: "#contact", animation: "animate-text-shimmer" },
+    { name: "About", href: "/about", animation: "animate-text-slide" },
+    { name: "Features", href: "/features", animation: "animate-text-scale" },
+    { name: "Contact", href: "/contact", animation: "animate-text-shimmer" },
   ];
 
   return (
@@ -78,41 +79,43 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
             >
               <Menu size={20} />
             </Button>
-            <a href="/" className="flex items-center space-x-2 group">
+            <Link to="/" className="flex items-center space-x-2 group">
               <div className="relative w-8 h-8 flex items-center justify-center animate-scale-in">
                 <Heart className="absolute text-love-600 dark:text-love-400 transition-all duration-300 group-hover:scale-110 animate-pulse-slow" size={22} />
               </div>
               <span className="font-bold text-lg gradient-text transition-all duration-300 group-hover:opacity-80 animate-text-shimmer">
                 LovelyAI
               </span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <div className="flex space-x-1">
               {navLinks.map((link, index) => (
-                <a
+                <Link
                   key={link.name}
-                  href={link.href}
+                  to={link.href}
                   className={cn(
                     "relative px-3 py-1.5 text-foreground/90 hover:text-love-600 dark:hover:text-love-400 font-medium transition-colors overflow-hidden group rounded-full",
                     link.animation
                   )}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <span className="relative z-10">{link.name}</span>
+                  <span className="relative z-10 will-change-auto">{link.name}</span>
                   <span className="absolute inset-0 bg-white/30 dark:bg-midnight-800/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></span>
-                </a>
+                </Link>
               ))}
             </div>
             <ThemeToggle />
-            <Button 
-              className="bg-gradient-love hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-love-500/20 dark:hover:shadow-love-700/20 rounded-full animate-blur-in"
-              style={{ animationDelay: "500ms" }}
-            >
-              <span className="animate-pulse-slow">Get Started</span>
-            </Button>
+            <Link to="/get-started">
+              <Button 
+                className="bg-gradient-love hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-love-500/20 dark:hover:shadow-love-700/20 rounded-full animate-blur-in"
+                style={{ animationDelay: "500ms" }}
+              >
+                <span className="animate-pulse-slow">Get Started</span>
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Navigation Toggle */}
@@ -133,9 +136,9 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
         >
           <div className="flex flex-col h-full pt-24 px-8 space-y-6">
             {navLinks.map((link, index) => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
+                to={link.href}
                 className={cn(
                   "text-xl font-medium py-2 border-b border-border text-foreground/80 hover:text-love-600 dark:hover:text-love-400 transition-all duration-300 hover:pl-2",
                   isMenuOpen ? link.animation : ""
@@ -144,14 +147,16 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
-            <Button 
-              className="bg-gradient-love hover:opacity-90 mt-6 transition-all duration-300 animate-pulse-slow w-full rounded-full"
-              style={{ animationDelay: "800ms" }}
-            >
-              Get Started
-            </Button>
+            <Link to="/get-started" onClick={() => setIsMenuOpen(false)}>
+              <Button 
+                className="bg-gradient-love hover:opacity-90 mt-6 transition-all duration-300 animate-pulse-slow w-full rounded-full"
+                style={{ animationDelay: "800ms" }}
+              >
+                Get Started
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
