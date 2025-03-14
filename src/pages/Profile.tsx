@@ -16,12 +16,21 @@ const Profile = () => {
   const { user } = useAuth();
   const { profile, updateProfile } = useUser();
   const [isEditing, setIsEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(profile?.displayName || "");
-  const [bio, setBio] = useState(profile?.bio || "");
-  const [location, setLocation] = useState(profile?.location || "");
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
+  const [location, setLocation] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Set form fields when profile loads or changes
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.displayName || "");
+      setBio(profile.bio || "");
+      setLocation(profile.location || "");
+    }
+  }, [profile]);
 
   if (!user || !profile) {
     navigate("/get-started");
@@ -36,6 +45,10 @@ const Profile = () => {
         location,
       });
       setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
     } catch (error) {
       console.error("Error saving profile:", error);
       toast({

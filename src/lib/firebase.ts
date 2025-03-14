@@ -1,3 +1,4 @@
+
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { 
@@ -86,6 +87,12 @@ export async function saveUserProfile(user: UserProfile) {
       userToSave.preferences = {
         darkMode: false,
         language: "en"
+      };
+    } else {
+      // Make sure all preference fields exist to avoid "indexOf of undefined" errors
+      userToSave.preferences = {
+        darkMode: userToSave.preferences.darkMode ?? false,
+        language: userToSave.preferences.language ?? "en"
       };
     }
     

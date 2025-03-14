@@ -47,18 +47,19 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   const value = {
     theme,
-    setTheme: (theme: string) => {
-      localStorage.setItem("theme", theme);
+    setTheme: (newTheme: string) => {
+      localStorage.setItem("theme", newTheme);
       
-      if (theme === "system") {
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      if (newTheme === "system") {
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (systemPrefersDark) {
           document.documentElement.classList.add("dark");
           setTheme("dark");
         } else {
           document.documentElement.classList.remove("dark");
           setTheme("light");
         }
-      } else if (theme === "dark") {
+      } else if (newTheme === "dark") {
         document.documentElement.classList.add("dark");
         setTheme("dark");
       } else {

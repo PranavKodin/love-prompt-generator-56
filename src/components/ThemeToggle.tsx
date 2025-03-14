@@ -5,19 +5,32 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/context/UserContext";
+import { useToast } from "@/hooks/use-toast";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const { toggleDarkMode } = useUser();
+  const { toast } = useToast();
 
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-    
-    // If the user is logged in, also update their preferences
-    if (newTheme === "dark") {
-      toggleDarkMode().catch(err => console.error("Failed to update user theme preference:", err));
-    } else if (newTheme === "light") {
-      toggleDarkMode().catch(err => console.error("Failed to update user theme preference:", err));
+  const handleThemeChange = async (newTheme: string) => {
+    try {
+      // First update the local theme for immediate feedback
+      setTheme(newTheme);
+      
+      // Then update user preferences in database for logged-in users
+      if (newTheme === "dark" || newTheme === "light") {
+        await toggleDarkMode().catch(err => {
+          console.error("Failed to update user theme preference:", err);
+          // If there's an error, we don't need to show a toast as updateProfile already does
+        });
+      }
+    } catch (error) {
+      console.error("Error changing theme:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update theme",
+      });
     }
   };
 

@@ -123,22 +123,38 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const toggleDarkMode = async () => {
-    if (!user || !profile) return;
+    if (!user || !profile) {
+      console.log("Cannot toggle dark mode: user or profile is null");
+      return;
+    }
 
-    const newDarkMode = !profile.preferences?.darkMode;
+    const currentDarkMode = profile.preferences?.darkMode ?? false;
+    const newDarkMode = !currentDarkMode;
     
     try {
-      await updateProfile({
-        preferences: {
-          ...profile.preferences,
-          darkMode: newDarkMode,
-        },
-      });
-      
-      // This needs to happen immediately to give good UX
+      // Set theme immediately for better UX
       setTheme(newDarkMode ? "dark" : "light");
+      
+      // Prepare update with safely constructed preferences object
+      const updatedPreferences = {
+        ...(profile.preferences || {}),
+        darkMode: newDarkMode,
+        language: profile.preferences?.language || "en"
+      };
+      
+      await updateProfile({
+        preferences: updatedPreferences
+      });
     } catch (error) {
       console.error("Error toggling dark mode:", error);
+      // Revert theme if update failed
+      setTheme(currentDarkMode ? "dark" : "light");
+      
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update theme preference",
+      });
     }
   };
 
