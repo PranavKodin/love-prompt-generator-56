@@ -75,7 +75,7 @@ export default function About() {
       name: "Himanshu Singh",
       role: "Beta Tester",
       bio: "A vella who does nothing but is a good friend of the founder.",
-      avatar: "https://instagram.fdel58-1.fna.fbcdn.net/v/t51.2885-19/483284475_1399196918158956_8629438188704475063_n.jpg?_nc_ht=instagram.fdel58-1.fna.fbcdn.net&_nc_cat=100&_nc_oc=Q6cZ2AEw1eeJTX5mvt-E7tc1BCqEW4iIUABCHs4CihTE2XeCaGGZXkDL_2VoYeYgh2ix_Lo&_nc_ohc=LesEomResOQQ7kNvgG9tGF5&_nc_gid=dd14afc2f31b4633b57cc66a64932489&edm=AP4sbd4BAAAA&ccb=7-5&oh=00_AYErnkVOj_mQw_7nYrI3zrtGRz_hDaY8tbtWWc1ss8Iz6w&oe=67DA0B47&_nc_sid=7a9f4b",
+      avatar: "blob:https://www.instagram.com/d43614eb-633e-4ff4-ad27-8dc8259f5435",
       delay: 100,
     },
 ];
