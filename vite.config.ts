@@ -1,53 +1,17 @@
-
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
-import history from "connect-history-api-fallback";
 
-export default defineConfig(({ mode }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-    middlewareMode: false, // Ensure Vite runs normally
-    fs: {
-      allow: ["."], // Fixes possible file access errors
-    },
-  },
-  plugins: [
-    react(),
-    mode === "development" && componentTagger(),
-    {
-      name: "history-fallback",
-      configureServer(server) {
-        server.middlewares.use(
-          history({
-            index: "/index.html", // ✅ Ensures React Router handles routing
-          })
-        );
-      },
-    },
-  ].filter(Boolean),
+export default defineConfig({
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(__dirname, "src"), // Fix alias for imports like "@/components/ui/toaster"
     },
   },
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
-        },
-      },
-    },
+  server: {
+    port: 3000,
+    strictPort: true,
+    host: "0.0.0.0",
   },
-  esbuild: {
-    jsxInject: `import React from 'react'`,
-  },
-  define: {
-    "process.env": {}, // Fixes libraries that expect `process.env`
-  },
-}));
+});
