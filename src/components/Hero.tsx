@@ -15,6 +15,17 @@ const phrases = [
   "Craft the Perfect Message of Affection"
 ];
 
+// Different animation classes for different screen sizes
+const getAnimationClass = (baseClass: string, type: 'sm' | 'md' | 'lg' | 'xl') => {
+  const screenClasses = {
+    sm: "animate-slide-in-mobile",
+    md: "animate-fade-in-tablet",
+    lg: "animate-scale-in-desktop",
+    xl: "animate-blur-in-tv"
+  };
+  return `${baseClass} ${screenClasses[type]}`;
+};
+
 export function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -22,6 +33,7 @@ export function Hero() {
   const [currentPhrase, setCurrentPhrase] = useState(phrases[0]);
   const [phraseFade, setPhraseFade] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [complimentGenerated, setComplimentGenerated] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,6 +53,7 @@ export function Hero() {
     // Handle search logic here
     console.log("Search query:", searchQuery);
     console.log("Image:", image);
+    setComplimentGenerated(true);
   };
 
   const handleImageClick = () => {
@@ -67,7 +80,7 @@ export function Hero() {
   };
 
   return (
-    <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden animate-fade-in">
+    <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
       {/* Enhanced background with multiple animated gradients */}
       <div className="absolute inset-0 bg-gradient-to-br from-love-50/40 via-background to-love-100/20 dark:from-midnight-900/60 dark:via-background dark:to-love-900/10 z-0"></div>
       <div className="absolute w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGwtb3BhY2l0eT0iLjA1IiBmaWxsPSJjdXJyZW50Q29sb3IiIGN4PSIxMCIgY3k9IjEwIiByPSIxIi8+PC9nPjwvc3ZnPg==')] opacity-50 dark:opacity-30 z-0"></div>
@@ -97,8 +110,8 @@ export function Hero() {
         ))}
       </div>
       
-      <div className="max-w-4xl mx-auto text-center space-y-8 z-10 px-4 animate-scale-in">
-        <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-5 py-1.5 mb-4 overflow-hidden group">
+      <div className="max-w-4xl mx-auto text-center space-y-8 z-10 px-4 sm:px-6 md:px-8 lg:px-12">
+        <div className={getAnimationClass("inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-5 py-1.5 mb-4 overflow-hidden group", "sm")}>
           <span className={cn(
             "text-sm font-medium text-love-800 dark:text-love-300 flex items-center transition-opacity duration-500",
             phraseFade ? "opacity-0" : "opacity-100"
@@ -109,12 +122,12 @@ export function Hero() {
           </span>
         </div>
         
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight md:leading-tight lg:leading-tight mb-6">
-          Create the <span className="font-great-vibes text-5xl md:text-7xl lg:text-8xl gradient-text animate-pulse-slow">Perfect Compliment</span>
+        <h1 className={getAnimationClass("text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight mb-6 animate-text-shimmer", "md")}>
+          Create the <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl xl:text-8xl gradient-text animate-pulse-slow">Perfect Compliment</span>
           <br className="md:hidden" /> for Someone Special
         </h1>
         
-        <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-4">
+        <p className={getAnimationClass("text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-4 animate-fade-in", "lg")}>
           Craft personalized, heartfelt compliments tailored to your special someone with our advanced AI technology.
         </p>
         
@@ -123,8 +136,8 @@ export function Hero() {
           className="flex items-center relative mt-10 max-w-xl w-full mx-auto"
         >
           <div className={cn(
-            "relative w-full glass rounded-full overflow-hidden flex items-center transition-all duration-500 shadow-glass animate-scale-in",
-            searchFocused ? "ring-2 ring-love-400 dark:ring-love-600 scale-105 search-glow" : ""
+            getAnimationClass("relative w-full glass rounded-full overflow-hidden flex items-center transition-all duration-500 shadow-glass", "xl"),
+            searchFocused ? "ring-4 ring-love-400/50 dark:ring-love-600/50 scale-105 search-glow" : ""
           )}>
             <div className="absolute left-5 text-foreground/50">
               <Search size={20} className={cn(
@@ -140,7 +153,7 @@ export function Hero() {
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
               placeholder="What do you love about them..."
-              className="border-none bg-transparent pl-12 pr-6 py-6 text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="border-none bg-transparent pl-12 pr-6 py-6 text-base sm:text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
             />
             
             <input
@@ -248,13 +261,30 @@ export function Hero() {
           </div>
         </form>
         
+        {complimentGenerated && (
+          <div className={getAnimationClass("mt-8 p-6 glass rounded-2xl max-w-2xl mx-auto border border-white/20 dark:border-white/10", "lg")}>
+            <h3 className="text-xl md:text-2xl font-great-vibes text-love-600 dark:text-love-400 mb-3 animate-text-shimmer">Your Prompt</h3>
+            <p className="text-foreground/80 italic">{searchQuery || "What do you love about them..."}</p>
+            <div className="mt-4 flex justify-center">
+              <Button 
+                variant="outline" 
+                className="border-love-300 dark:border-love-700 text-love-600 dark:text-love-400 hover:bg-love-50 dark:hover:bg-love-900/20"
+              >
+                <Heart className="mr-2 animate-pulse" size={16} />
+                Try Another Prompt
+              </Button>
+            </div>
+          </div>
+        )}
+        
         <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground mt-6">
           <span>Try:</span>
-          {["smile", "kindness", "eyes", "laughter", "intelligence", "caring"].map((term) => (
+          {["smile", "kindness", "eyes", "laughter", "intelligence", "caring"].map((term, i) => (
             <button
               key={term}
-              className="px-3 py-1 rounded-full bg-muted hover:bg-love-100 dark:hover:bg-love-900/30 transition-all duration-300 hover:scale-105 hover:text-love-700 dark:hover:text-love-300"
+              className={getAnimationClass("px-3 py-1 rounded-full bg-muted hover:bg-love-100 dark:hover:bg-love-900/30 transition-all duration-300 hover:scale-105 hover:text-love-700 dark:hover:text-love-300", "sm")}
               onClick={() => setSearchQuery(term)}
+              style={{ animationDelay: `${i * 150}ms` }}
             >
               {term}
             </button>
@@ -265,11 +295,11 @@ export function Hero() {
       <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 text-center">
         <Button 
           variant="ghost" 
-          className="text-foreground/60 hover:text-foreground transition-all duration-300 hover:bg-transparent flex flex-col items-center"
+          className="text-foreground/60 hover:text-foreground transition-all duration-300 hover:bg-transparent flex flex-col items-center animate-bounce"
           onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
         >
-          <span className="mb-1">Explore Features</span>
-          <ChevronDown size={16} className="animate-bounce" />
+          <span className="mb-1 text-center">Explore Features</span>
+          <ChevronDown size={16} />
         </Button>
       </div>
     </div>

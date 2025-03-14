@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
 import { Hero } from "@/components/Hero";
@@ -14,16 +14,59 @@ import { cn } from "@/lib/utils";
 export default function Index() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
+    features: false,
+    customize: false,
+    contact: false
+  });
+
+  const featuresRef = useRef<HTMLElement>(null);
+  const customizeRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+      
+      // Check if sections are in viewport
+      const checkSection = (ref: React.RefObject<HTMLElement>, sectionId: string) => {
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > 0;
+          
+          setVisibleSections(prev => ({
+            ...prev,
+            [sectionId]: isVisible
+          }));
+        }
+      };
+      
+      checkSection(featuresRef, 'features');
+      checkSection(customizeRef, 'customize');
+      checkSection(contactRef, 'contact');
+    };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
+    // Initial check
+    setTimeout(handleScroll, 100);
+    
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Define different animation classes for different screen sizes
+  const getResponsiveAnimation = (isMobile: boolean, isTablet: boolean, isDesktop: boolean, isTV: boolean) => {
+    if (typeof window === 'undefined') return '';
+    
+    const width = window.innerWidth;
+    if (width < 640) return isMobile; // Mobile
+    if (width < 1024) return isTablet; // Tablet
+    if (width < 1536) return isDesktop; // Desktop
+    return isTV; // Large screens/TVs
+  };
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
@@ -38,15 +81,16 @@ export default function Index() {
             {/* Features Section */}
             <section 
               id="features" 
+              ref={featuresRef}
               className={cn(
-                "py-24 px-4 relative overflow-hidden transition-opacity duration-1000",
-                scrollY > 200 ? "opacity-100" : "opacity-0"
+                "py-24 px-4 sm:px-6 md:px-8 lg:px-12 relative overflow-hidden transition-all duration-1000",
+                visibleSections.features ? "opacity-100 transform translate-y-0" : "opacity-0 transform translate-y-10"
               )}
             >
               <div className="absolute inset-0 bg-gradient-radial from-love-50/30 to-transparent dark:from-love-900/10 dark:to-transparent opacity-60 pointer-events-none"></div>
               
               <div className="container mx-auto">
-                <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in">
+                <div className="text-center max-w-3xl mx-auto mb-20">
                   <div className="inline-block rounded-full bg-love-100/50 dark:bg-love-900/30 px-4 py-1 mb-4">
                     <span className="text-sm font-medium text-love-600 dark:text-love-400 flex items-center justify-center">
                       <Sparkles size={14} className="mr-1.5 animate-pulse-slow" />
@@ -54,7 +98,7 @@ export default function Index() {
                       <Sparkles size={14} className="ml-1.5 animate-pulse-slow" style={{animationDelay: "1s"}} />
                     </span>
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6">Create the Perfect Compliment in Seconds</h2>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-text-shimmer">Create the Perfect Compliment in Seconds</h2>
                   <p className="text-foreground/70">
                     Our AI-powered platform helps you craft personalized, heartfelt compliments for your special someone.
                   </p>
@@ -96,10 +140,16 @@ export default function Index() {
                     <div
                       key={index}
                       className={cn(
-                        "bg-white/60 dark:bg-midnight-800/40 backdrop-blur-sm rounded-2xl p-6 border border-white/40 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-500 animate-fade-in",
-                        "hover:transform hover:translate-y-[-5px] hover:border-love-200 dark:hover:border-love-800/30"
+                        "bg-white/60 dark:bg-midnight-800/40 backdrop-blur-sm rounded-2xl p-6 border border-white/40 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-500",
+                        "hover:transform hover:translate-y-[-5px] hover:border-love-200 dark:hover:border-love-800/30",
+                        visibleSections.features ? getResponsiveAnimation(
+                          "animate-slide-in-mobile", 
+                          "animate-fade-in-tablet", 
+                          "animate-scale-in-desktop", 
+                          "animate-blur-in-tv"
+                        ) : ""
                       )}
-                      style={{ animationDelay: `${index * 100}ms` }}
+                      style={{ animationDelay: `${index * 150}ms` }}
                     >
                       <div className="w-12 h-12 rounded-xl bg-love-100 dark:bg-love-900/30 flex items-center justify-center mb-4">
                         <feature.icon className="h-6 w-6 text-love-600 dark:text-love-400" />
@@ -114,10 +164,11 @@ export default function Index() {
             
             {/* Advanced Customization Section */}
             <section 
-              id="customize" 
+              id="customize"
+              ref={customizeRef}
               className={cn(
-                "py-24 px-4 bg-gradient-to-b from-background via-secondary/30 to-background dark:from-background dark:via-midnight-900/20 dark:to-background relative overflow-hidden transition-opacity duration-1000",
-                scrollY > 600 ? "opacity-100" : "opacity-0"
+                "py-24 px-4 sm:px-6 md:px-8 lg:px-12 bg-gradient-to-b from-background via-secondary/30 to-background dark:from-background dark:via-midnight-900/20 dark:to-background relative overflow-hidden transition-all duration-1000",
+                visibleSections.customize ? "opacity-100 transform translate-y-0" : "opacity-0 transform translate-y-10"
               )}
             >
               <div className="absolute inset-0 overflow-hidden">
@@ -126,20 +177,28 @@ export default function Index() {
               </div>
               
               <div className="container mx-auto relative z-10">
-                <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+                <div className="text-center max-w-3xl mx-auto mb-16">
                   <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-4 py-1 mb-4">
                     <span className="text-sm font-medium text-love-600 dark:text-love-400">
                       Advanced Customization
                     </span>
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6">Fine-tune Your Compliment Prompts</h2>
-                  <p className="text-foreground/70">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-text-slide">Fine-tune Your Compliment Prompts</h2>
+                  <p className="text-foreground/70 animate-text-fade" style={{ animationDelay: "200ms" }}>
                     Create perfectly crafted compliment prompts with our advanced customization options.
                   </p>
                 </div>
                 
-                <div className="max-w-4xl mx-auto animate-scale-in">
-                  <div className="bg-white/70 dark:bg-midnight-800/40 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/40 dark:border-white/5 shadow-card hover:shadow-card-hover transition-all duration-500">
+                <div className="max-w-4xl mx-auto">
+                  <div className={cn(
+                    "bg-white/70 dark:bg-midnight-800/40 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/40 dark:border-white/5 shadow-card hover:shadow-card-hover transition-all duration-500",
+                    visibleSections.customize ? getResponsiveAnimation(
+                      "animate-slide-in-mobile", 
+                      "animate-fade-in-tablet", 
+                      "animate-scale-in-desktop", 
+                      "animate-blur-in-tv"
+                    ) : ""
+                  )}>
                     <CustomizationForm />
                   </div>
                 </div>
@@ -148,10 +207,11 @@ export default function Index() {
             
             {/* Enhanced Contact Section */}
             <section 
-              id="contact" 
+              id="contact"
+              ref={contactRef}
               className={cn(
-                "py-24 px-4 relative overflow-hidden transition-opacity duration-1000",
-                scrollY > 1000 ? "opacity-100" : "opacity-0"
+                "py-24 px-4 sm:px-6 md:px-8 lg:px-12 relative overflow-hidden transition-all duration-1000",
+                visibleSections.contact ? "opacity-100 transform translate-y-0" : "opacity-0 transform translate-y-10"
               )}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-love-50/30 via-background to-love-50/20 dark:from-love-900/10 dark:via-background dark:to-love-900/5"></div>
@@ -161,7 +221,7 @@ export default function Index() {
               <div className="absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full bg-love-300/20 dark:bg-love-700/10 blur-3xl"></div>
               
               <div className="container mx-auto relative z-10">
-                <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+                <div className="text-center max-w-3xl mx-auto mb-16">
                   <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-4 py-1 mb-4">
                     <span className="text-sm font-medium text-love-600 dark:text-love-400 flex items-center justify-center">
                       <Heart size={14} className="mr-1.5 animate-pulse-slow" />
@@ -169,14 +229,22 @@ export default function Index() {
                       <Heart size={14} className="ml-1.5 animate-pulse-slow" style={{animationDelay: "1s"}} />
                     </span>
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6">Share Your Love Story With Us</h2>
-                  <p className="text-foreground/70">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-text-shimmer">Share Your Love Story With Us</h2>
+                  <p className="text-foreground/70 animate-text-scale" style={{ animationDelay: "200ms" }}>
                     Have questions, feedback, or a beautiful love story to share? We'd love to hear from you!
                   </p>
                 </div>
                 
-                <div className="max-w-2xl mx-auto animate-scale-in">
-                  <div className="bg-white/70 dark:bg-midnight-800/40 backdrop-blur-md rounded-2xl p-8 border border-white/40 dark:border-white/5 shadow-card">
+                <div className="max-w-2xl mx-auto">
+                  <div className={cn(
+                    "bg-white/70 dark:bg-midnight-800/40 backdrop-blur-md rounded-2xl p-8 border border-white/40 dark:border-white/5 shadow-card",
+                    visibleSections.contact ? getResponsiveAnimation(
+                      "animate-slide-in-mobile", 
+                      "animate-fade-in-tablet", 
+                      "animate-scale-in-desktop", 
+                      "animate-blur-in-tv"
+                    ) : ""
+                  )}>
                     <form className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
