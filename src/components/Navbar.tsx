@@ -1,10 +1,18 @@
 
 import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Menu, X, Heart } from "lucide-react";
+import { Menu, X, Heart, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 // Animation type based on screen size
 const getAnimationByDevice = () => {
@@ -21,6 +29,7 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [animationClass, setAnimationClass] = useState('animate-fade-in');
+  const { user, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -50,6 +59,23 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user || !user.displayName) return "U";
+    
+    const nameParts = user.displayName.split(" ");
+    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
+    
+    return (
+      nameParts[0].charAt(0).toUpperCase() + 
+      nameParts[nameParts.length - 1].charAt(0).toUpperCase()
+    );
+  };
 
   const navLinks = [
     { name: "Home", href: "/", animation: "animate-text-fade" },
@@ -108,19 +134,101 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
               ))}
             </div>
             <ThemeToggle />
-            <Link to="/get-started">
-              <Button 
-                className="bg-gradient-love hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-love-500/20 dark:hover:shadow-love-700/20 rounded-full animate-blur-in"
-                style={{ animationDelay: "500ms" }}
-              >
-                <span className="animate-pulse-slow">Get Started</span>
-              </Button>
-            </Link>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative rounded-full h-10 w-10 p-0 overflow-hidden border-2 border-love-300/50 dark:border-love-700/50 hover:border-love-400 dark:hover:border-love-600 transition-colors">
+                    <Avatar>
+                      <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
+                      <AvatarFallback className="bg-gradient-love text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white/80 dark:bg-midnight-800/80 backdrop-blur-lg border border-white/20 dark:border-white/10">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      {user.displayName && (
+                        <p className="font-medium">{user.displayName}</p>
+                      )}
+                      {user.email && (
+                        <p className="text-sm text-muted-foreground truncate w-40">
+                          {user.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="text-destructive focus:text-destructive cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/get-started">
+                <Button 
+                  className="bg-gradient-love hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-love-500/20 dark:hover:shadow-love-700/20 rounded-full animate-blur-in"
+                  style={{ animationDelay: "500ms" }}
+                >
+                  <span className="animate-pulse-slow">Get Started</span>
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Navigation Toggle */}
           <div className="flex items-center space-x-2 md:hidden">
             <ThemeToggle />
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative rounded-full h-8 w-8 p-0 overflow-hidden border-2 border-love-300/50 dark:border-love-700/50">
+                    <Avatar className="h-7 w-7">
+                      <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
+                      <AvatarFallback className="bg-gradient-love text-white text-xs">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white/80 dark:bg-midnight-800/80 backdrop-blur-lg border border-white/20 dark:border-white/10">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      {user.displayName && (
+                        <p className="font-medium">{user.displayName}</p>
+                      )}
+                      {user.email && (
+                        <p className="text-sm text-muted-foreground truncate w-40">
+                          {user.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="text-destructive focus:text-destructive cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/get-started">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="relative rounded-full hover:bg-white/20 dark:hover:bg-midnight-800/20"
+                >
+                  <Heart className="h-5 w-5 text-love-600 dark:text-love-400" />
+                </Button>
+              </Link>
+            )}
             <Button onClick={toggleMenu} variant="ghost" size="icon" className="relative z-50 rounded-full hover:bg-white/20 dark:hover:bg-midnight-800/20">
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </Button>
@@ -149,14 +257,30 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
                 {link.name}
               </Link>
             ))}
-            <Link to="/get-started" onClick={() => setIsMenuOpen(false)}>
+            {!user && (
+              <Link to="/get-started" onClick={() => setIsMenuOpen(false)}>
+                <Button 
+                  className="bg-gradient-love hover:opacity-90 mt-6 transition-all duration-300 animate-pulse-slow w-full rounded-full"
+                  style={{ animationDelay: "800ms" }}
+                >
+                  Get Started
+                </Button>
+              </Link>
+            )}
+            {user && (
               <Button 
-                className="bg-gradient-love hover:opacity-90 mt-6 transition-all duration-300 animate-pulse-slow w-full rounded-full"
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
+                variant="outline"
+                className="mt-6 border-love-200/50 dark:border-love-800/30"
                 style={{ animationDelay: "800ms" }}
               >
-                Get Started
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
               </Button>
-            </Link>
+            )}
           </div>
         </div>
       </nav>

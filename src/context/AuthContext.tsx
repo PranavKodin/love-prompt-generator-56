@@ -1,7 +1,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { 
-  Auth,
   User,
   signInWithPopup,
   signInWithEmailAndPassword,
@@ -49,49 +48,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
       toast({
-        title: "Welcome!",
+        title: `Welcome ${result.user.displayName || ""}!`,
         description: "Successfully signed in with Google",
       });
+      return result.user;
     } catch (error) {
       handleAuthError(error);
+      throw error;
     }
   };
 
   const signInWithFacebook = async () => {
     try {
-      await signInWithPopup(auth, facebookProvider);
+      const result = await signInWithPopup(auth, facebookProvider);
       toast({
-        title: "Welcome!",
+        title: `Welcome ${result.user.displayName || ""}!`,
         description: "Successfully signed in with Facebook",
       });
+      return result.user;
     } catch (error) {
       handleAuthError(error);
+      throw error;
     }
   };
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Welcome back!",
         description: "Successfully signed in",
       });
+      return result.user;
     } catch (error) {
       handleAuthError(error);
+      throw error;
     }
   };
 
   const signUpWithEmail = async (email: string, password: string) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const result = await createUserWithEmailAndPassword(auth, email, password);
       toast({
         title: "Welcome!",
         description: "Your account has been created",
       });
+      return result.user;
     } catch (error) {
       handleAuthError(error);
+      throw error;
     }
   };
 
@@ -104,6 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     } catch (error) {
       handleAuthError(error);
+      throw error;
     }
   };
 
