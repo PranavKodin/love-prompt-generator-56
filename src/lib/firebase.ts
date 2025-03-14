@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { 
@@ -74,9 +73,28 @@ export interface Compliment {
 // Helper functions
 export async function saveUserProfile(user: UserProfile) {
   try {
-    const userRef = doc(db, "users", user.uid);
-    await setDoc(userRef, user, { merge: true });
-    return user;
+    if (!user || !user.uid) {
+      console.error("Invalid user object provided to saveUserProfile:", user);
+      throw new Error("Invalid user object: missing uid");
+    }
+    
+    // Make a copy of the user object to avoid mutation issues
+    const userToSave = { ...user };
+    
+    // Ensure all required fields are present
+    if (!userToSave.preferences) {
+      userToSave.preferences = {
+        darkMode: false,
+        language: "en"
+      };
+    }
+    
+    const userRef = doc(db, "users", userToSave.uid);
+    await setDoc(userRef, userToSave, { merge: true });
+    
+    // Fetch the updated user profile to return the complete data
+    const updatedUserSnap = await getDoc(userRef);
+    return updatedUserSnap.exists() ? updatedUserSnap.data() as UserProfile : userToSave;
   } catch (error) {
     console.error("Error saving user profile:", error);
     throw error;

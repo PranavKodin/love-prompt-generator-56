@@ -79,10 +79,32 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user, toast, setTheme]);
 
   const updateProfile = async (data: Partial<UserProfile>) => {
-    if (!user || !profile) return;
+    if (!user || !profile) {
+      console.error("Cannot update profile: user or profile is null");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Cannot update profile: you must be logged in",
+      });
+      return;
+    }
 
     try {
-      const updatedProfile = { ...profile, ...data };
+      // Create a properly structured update object
+      const updatedProfile = { 
+        ...profile,
+        ...data,
+        // Ensure nested objects are properly merged
+        preferences: {
+          ...(profile.preferences || { darkMode: false, language: "en" }),
+          ...(data.preferences || {})
+        },
+        subscription: {
+          ...(profile.subscription || { level: "free", expiresAt: Timestamp.now() }),
+          ...(data.subscription || {})
+        }
+      };
+      
       const savedProfile = await saveUserProfile(updatedProfile);
       setProfile(savedProfile);
       
