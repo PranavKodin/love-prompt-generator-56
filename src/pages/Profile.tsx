@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronLeft, Rocket, Heart } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { Camera, Edit, MapPin, User } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import BackButton from "../components/BackButton";
+
 
 
 const Profile = () => {
@@ -77,9 +78,12 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background text-foreground hero-gradient">
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-
       <div className="container mx-auto px-4 pt-32 pb-16">
         <div className="max-w-4xl mx-auto">
+          <Link to="/" className="inline-flex items-center text-sm text-foreground/70 hover:text-love-500 mb-6 transition-colors animate-fade-in">
+            <ChevronLeft size={16} className="mr-1" />
+            Back to Home
+          </Link>
           <Card className="glass overflow-hidden animate-scale-in">
             <div className="h-40 bg-gradient-love relative">
               <Button
