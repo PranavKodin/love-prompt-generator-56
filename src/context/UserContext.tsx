@@ -1,9 +1,10 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-import { Timestamp } from "firebase/storage";
+import { Timestamp } from "firebase/firestore";
 import { getUserProfile, saveUserProfile, UserProfile } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/context/ThemeContext";
 
 interface UserContextType {
   profile: UserProfile | null;
@@ -20,7 +21,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { setTheme } = useContext(require("@/context/ThemeContext").ThemeContext);
+  const { setTheme } = useTheme();
 
   // Load user profile when auth user changes
   useEffect(() => {
