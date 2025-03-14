@@ -11,6 +11,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Camera, Edit, MapPin, User } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+import BackButton from "../components/BackButton";
+
 
 const Profile = () => {
   const { user } = useAuth();
@@ -61,12 +64,12 @@ const Profile = () => {
 
   const getUserInitials = () => {
     if (!profile.displayName) return "U";
-    
+
     const nameParts = profile.displayName.split(" ");
     if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
-    
+
     return (
-      nameParts[0].charAt(0).toUpperCase() + 
+      nameParts[0].charAt(0).toUpperCase() +
       nameParts[nameParts.length - 1].charAt(0).toUpperCase()
     );
   };
@@ -74,7 +77,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background text-foreground hero-gradient">
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      
+
       <div className="container mx-auto px-4 pt-32 pb-16">
         <div className="max-w-4xl mx-auto">
           <Card className="glass overflow-hidden animate-scale-in">
@@ -88,7 +91,7 @@ const Profile = () => {
                 <Edit className="h-4 w-4 text-white" />
               </Button>
             </div>
-            
+
             <div className="px-6 sm:px-10">
               <div className="relative -mt-16 flex justify-center sm:justify-start">
                 <div className="relative">
@@ -99,9 +102,9 @@ const Profile = () => {
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-md"
                     >
                       <Camera className="h-4 w-4" />
@@ -123,12 +126,12 @@ const Profile = () => {
                     {profile.displayName}
                   </CardTitle>
                 )}
-                
+
                 <CardDescription className="flex items-center mt-1 text-muted-foreground">
                   <User className="mr-1 h-3 w-3" />
                   {profile.email}
                 </CardDescription>
-                
+
                 {(profile.location || isEditing) && (
                   <CardDescription className="flex items-center mt-1 text-muted-foreground">
                     <MapPin className="mr-1 h-3 w-3" />
@@ -162,13 +165,13 @@ const Profile = () => {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-secondary/50 dark:bg-secondary/30 p-4 rounded-xl">
                     <h3 className="text-sm font-semibold text-love-600 dark:text-love-400 mb-1">Account Type</h3>
                     <p className="text-foreground/80 capitalize">{profile.subscription?.level || "Free"}</p>
                   </div>
-                  
+
                   <div className="bg-secondary/50 dark:bg-secondary/30 p-4 rounded-xl">
                     <h3 className="text-sm font-semibold text-love-600 dark:text-love-400 mb-1">Member Since</h3>
                     <p className="text-foreground/80">
@@ -180,8 +183,8 @@ const Profile = () => {
 
               {isEditing && (
                 <CardFooter className="px-0 pt-0 pb-6 flex justify-end gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       setDisplayName(profile.displayName);
                       setBio(profile.bio || "");
@@ -199,6 +202,7 @@ const Profile = () => {
             </div>
           </Card>
         </div>
+
       </div>
     </div>
   );
