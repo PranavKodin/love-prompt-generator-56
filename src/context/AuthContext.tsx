@@ -7,9 +7,11 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  updateProfile,
 } from "firebase/auth";
 import { auth, googleProvider, facebookProvider } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: User | null;
@@ -27,6 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -53,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: `Welcome ${result.user.displayName || ""}!`,
         description: "Successfully signed in with Google",
       });
-      return result.user;
+      navigate("/");
     } catch (error) {
       handleAuthError(error);
       throw error;
@@ -67,7 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: `Welcome ${result.user.displayName || ""}!`,
         description: "Successfully signed in with Facebook",
       });
-      return result.user;
+      navigate("/");
     } catch (error) {
       handleAuthError(error);
       throw error;
@@ -81,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Welcome back!",
         description: "Successfully signed in",
       });
-      return result.user;
+      navigate("/");
     } catch (error) {
       handleAuthError(error);
       throw error;
@@ -95,7 +98,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Welcome!",
         description: "Your account has been created",
       });
-      return result.user;
+      navigate("/");
     } catch (error) {
       handleAuthError(error);
       throw error;
@@ -115,7 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     loading,
     signInWithGoogle,
