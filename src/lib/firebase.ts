@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { 
@@ -41,6 +40,9 @@ export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 export const facebookProvider = new FacebookAuthProvider();
 
+// Export Timestamp for use in other files
+export { Timestamp };
+
 // Firestore collections
 export const usersCollection = collection(db, "users");
 export const complimentsCollection = collection(db, "compliments");
@@ -70,7 +72,6 @@ export interface UserProfile {
 }
 
 export interface Compliment {
-  id?: string;
   userId: string;
   content: string;
   tone: string;
@@ -160,9 +161,9 @@ export async function getAllUsers() {
   }
 }
 
-export async function saveCompliment(compliment: Compliment) {
+export async function saveCompliment(compliment: Omit<Compliment, 'id'>) {
   const docRef = await addDoc(complimentsCollection, compliment);
-  return { ...compliment, id: docRef.id };
+  return { ...compliment, id: docRef.id } as Compliment;
 }
 
 export async function toggleSaveCompliment(complimentId: string, isSaved: boolean) {
