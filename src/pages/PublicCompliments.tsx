@@ -26,7 +26,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
-import Spinner from "@/components/Spinner";
+import { Spinner } from "@/components/Spinner";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 import { Heart, MessageCircle, Send, Trash2, X } from "lucide-react";
