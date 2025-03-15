@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown, Heart, Sparkles, Image, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,14 @@ export function Hero() {
   const [phraseFade, setPhraseFade] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [complimentGenerated, setComplimentGenerated] = useState(false);
+  const [compliment, setCompliment] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Added new state for compliment parameters
+  const [selectedStyle, setSelectedStyle] = useState("romantic");
+  const [selectedTone, setSelectedTone] = useState("flirty");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,16 +50,64 @@ export function Hero() {
         setPhraseFade(false);
       }, 500);
     }, 4000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle search logic here
-    console.log("Search query:", searchQuery);
-    console.log("Image:", image);
-    setComplimentGenerated(true);
+
+    // Validate input
+    if (!searchQuery) {
+      setError("Please tell us what you like about the person!");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    // Generate compliment using OpenAI API
+    try {
+      // Create prompt using the search query and selected options
+      const prompt = `Generate a ${selectedStyle}, ${selectedTone} compliment based on the following description of the person: "${searchQuery}". Be creative and ensure the compliment fits the style and tone specified.`;
+
+      // Call OpenAI API
+      const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer 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`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: "You are a creative and thoughtful compliment generator." },
+            { role: "user", content: prompt }
+          ],
+          max_tokens: 100
+        })
+      });
+
+      if (!gptResponse.ok) {
+        const gptErrorDetail = await gptResponse.text();
+        console.error("GPT API Error:", gptErrorDetail);
+        setError(`Error with API: ${gptErrorDetail}`);
+        setIsLoading(false);
+        return;
+      }
+
+      const gptData = await gptResponse.json();
+      const generatedCompliment = gptData.choices[0].message.content.trim();
+
+      // Set the compliment and update UI
+      setCompliment(generatedCompliment);
+      setComplimentGenerated(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error during API call:", error);
+      setError("Error connecting to the API. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   const handleImageClick = () => {
@@ -79,22 +133,28 @@ export function Hero() {
     }
   };
 
+  const resetForm = () => {
+    setSearchQuery("");
+    setComplimentGenerated(false);
+    setCompliment("");
+  };
+
   return (
     <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
       {/* Enhanced background with multiple animated gradients */}
       <div className="absolute inset-0 bg-gradient-to-br from-love-50/40 via-background to-love-100/20 dark:from-midnight-900/60 dark:via-background dark:to-love-900/10 z-0"></div>
       <div className="absolute w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGwtb3BhY2l0eT0iLjA1IiBmaWxsPSJjdXJyZW50Q29sb3IiIGN4PSIxMCIgY3k9IjEwIiByPSIxIi8+PC9nPjwvc3ZnPg==')] opacity-50 dark:opacity-30 z-0"></div>
-      
+
       {/* Floating elements with enhanced animations */}
       <div className="absolute top-1/5 left-1/4 w-64 h-64 rounded-full bg-love-200/30 dark:bg-love-800/20 blur-3xl animate-float opacity-70"></div>
-      <div className="absolute bottom-1/4 right-1/5 w-80 h-80 rounded-full bg-love-300/20 dark:bg-love-700/20 blur-3xl animate-float opacity-60" style={{animationDelay: "2s"}}></div>
-      <div className="absolute top-1/3 right-1/4 w-48 h-48 rounded-full bg-love-100/30 dark:bg-love-900/20 blur-3xl animate-float opacity-50" style={{animationDelay: "3s"}}></div>
-      <div className="absolute bottom-1/3 left-1/5 w-56 h-56 rounded-full bg-love-400/10 dark:bg-love-600/10 blur-3xl animate-float opacity-60" style={{animationDelay: "4s"}}></div>
-      
+      <div className="absolute bottom-1/4 right-1/5 w-80 h-80 rounded-full bg-love-300/20 dark:bg-love-700/20 blur-3xl animate-float opacity-60" style={{ animationDelay: "2s" }}></div>
+      <div className="absolute top-1/3 right-1/4 w-48 h-48 rounded-full bg-love-100/30 dark:bg-love-900/20 blur-3xl animate-float opacity-50" style={{ animationDelay: "3s" }}></div>
+      <div className="absolute bottom-1/3 left-1/5 w-56 h-56 rounded-full bg-love-400/10 dark:bg-love-600/10 blur-3xl animate-float opacity-60" style={{ animationDelay: "4s" }}></div>
+
       {/* Hearts floating animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {[...Array(10)].map((_, i) => (
-          <div 
+          <div
             key={i}
             className="absolute text-love-400/20 dark:text-love-600/10"
             style={{
@@ -109,7 +169,7 @@ export function Hero() {
           </div>
         ))}
       </div>
-      
+
       <div className="max-w-4xl mx-auto text-center space-y-8 z-10 px-4 sm:px-6 md:px-8 lg:px-12">
         <div className={getAnimationClass("inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-5 py-1.5 mb-4 overflow-hidden group", "sm")}>
           <span className={cn(
@@ -118,20 +178,20 @@ export function Hero() {
           )}>
             <Heart size={14} className="mr-1.5 animate-pulse-slow" />
             <span>{currentPhrase}</span>
-            <Sparkles size={14} className="ml-1.5 animate-pulse-slow" style={{animationDelay: "1s"}} />
+            <Sparkles size={14} className="ml-1.5 animate-pulse-slow" style={{ animationDelay: "1s" }} />
           </span>
         </div>
-        
+
         <h1 className={getAnimationClass("text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight mb-6 animate-text-shimmer", "md")}>
           Create the <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl xl:text-8xl gradient-text animate-pulse-slow">Perfect Compliment</span>
           <br className="md:hidden" /> for Someone Special
         </h1>
-        
+
         <p className={getAnimationClass("text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-4 animate-fade-in", "lg")}>
           Craft personalized, heartfelt compliments tailored to your special someone with our advanced AI technology.
         </p>
-        
-        <form 
+
+        <form
           onSubmit={handleSearch}
           className="flex items-center relative mt-10 max-w-xl w-full mx-auto"
         >
@@ -145,7 +205,7 @@ export function Hero() {
                 searchFocused ? "text-love-600 dark:text-love-400" : "text-foreground/50"
               )} />
             </div>
-            
+
             <Input
               type="text"
               value={searchQuery}
@@ -155,7 +215,7 @@ export function Hero() {
               placeholder="What do you love about them..."
               className="border-none bg-transparent pl-12 pr-6 py-6 text-base sm:text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
             />
-            
+
             <input
               type="file"
               ref={fileInputRef}
@@ -163,7 +223,7 @@ export function Hero() {
               onChange={handleImageChange}
               className="hidden"
             />
-            
+
             <Button
               type="button"
               variant="ghost"
@@ -173,12 +233,12 @@ export function Hero() {
             >
               {image ? (
                 <div className="relative w-7 h-7 rounded-full overflow-hidden">
-                  <img 
-                    src={image} 
-                    alt="Preview" 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={image}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
                   />
-                  <div 
+                  <div
                     className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                     onClick={handleRemoveImage}
                   >
@@ -189,7 +249,7 @@ export function Hero() {
                 <Image size={20} className="text-foreground/60 hover:text-love-600 dark:hover:text-love-400 transition-colors" />
               )}
             </Button>
-            
+
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -204,17 +264,19 @@ export function Hero() {
                   )} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent 
-                side="bottom" 
-                align="end" 
+              <PopoverContent
+                side="bottom"
+                align="end"
                 className="w-64 p-3 bg-white/90 dark:bg-midnight-800/90 backdrop-blur-lg border border-border rounded-xl shadow-xl animate-fade-in"
               >
                 <div className="space-y-4">
                   <div className="space-y-2 px-2">
                     <Label htmlFor="quick-style" className="text-sm font-medium text-muted-foreground">Style</Label>
-                    <select 
-                      id="quick-style" 
+                    <select
+                      id="quick-style"
                       className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus:ring-1 focus:ring-love-400 dark:focus:ring-love-600 transition-all duration-300"
+                      value={selectedStyle}
+                      onChange={(e) => setSelectedStyle(e.target.value)}
                     >
                       <option value="romantic">Romantic</option>
                       <option value="poetic">Poetic</option>
@@ -223,12 +285,14 @@ export function Hero() {
                       <option value="charming">Charming</option>
                     </select>
                   </div>
-                  
+
                   <div className="space-y-2 px-2">
                     <Label htmlFor="quick-tone" className="text-sm font-medium text-muted-foreground">Tone & Mood</Label>
-                    <select 
-                      id="quick-tone" 
+                    <select
+                      id="quick-tone"
                       className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus:ring-1 focus:ring-love-400 dark:focus:ring-love-600 transition-all duration-300"
+                      value={selectedTone}
+                      onChange={(e) => setSelectedTone(e.target.value)}
                     >
                       <option value="flirty">Flirty</option>
                       <option value="sincere">Sincere</option>
@@ -237,10 +301,10 @@ export function Hero() {
                       <option value="shakespearean">Shakespearean</option>
                     </select>
                   </div>
-                  
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+
+                  <Button
+                    type="button"
+                    variant="outline"
                     className="w-full bg-love-100/50 dark:bg-love-900/30 hover:bg-love-200/50 dark:hover:bg-love-800/30 border-love-200 dark:border-love-800 text-love-800 dark:text-love-300 transition-all duration-300"
                     onClick={() => setIsPopoverOpen(false)}
                   >
@@ -250,33 +314,67 @@ export function Hero() {
                 </div>
               </PopoverContent>
             </Popover>
-            
-            <Button 
-              type="submit" 
+
+            <Button
+              type="submit"
               className="mr-1 rounded-full bg-gradient-love hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-love-500/30"
+              disabled={isLoading}
             >
-              <Search size={18} className="mr-1" />
-              <span className="hidden md:inline">Generate</span>
+              {isLoading ? (
+                <div className="flex items-center">
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <span className="hidden md:inline">Generating...</span>
+                </div>
+              ) : (
+                <>
+                  <Search size={18} className="mr-1" />
+                  <span className="hidden md:inline">Generate</span>
+                </>
+              )}
             </Button>
           </div>
         </form>
-        
+
+        {error && (
+          <div className="text-red-500 mt-2 text-sm bg-red-100 dark:bg-red-900/20 py-2 px-4 rounded-lg">
+            {error}
+          </div>
+        )}
+
         {complimentGenerated && (
           <div className={getAnimationClass("mt-8 p-6 glass rounded-2xl max-w-2xl mx-auto border border-white/20 dark:border-white/10", "lg")}>
-            <h3 className="text-xl md:text-2xl font-great-vibes text-love-600 dark:text-love-400 mb-3 animate-text-shimmer">Your Prompt</h3>
-            <p className="text-foreground/80 italic">{searchQuery || "What do you love about them..."}</p>
-            <div className="mt-4 flex justify-center">
-              <Button 
-                variant="outline" 
+            <h3 className="text-xl md:text-2xl font-great-vibes text-love-600 dark:text-love-400 mb-3 animate-text-shimmer">Your Compliment</h3>
+            <div className="text-foreground/80 p-4 bg-white/20 dark:bg-midnight-900/30 rounded-xl mb-4 italic">
+              "{compliment}"
+            </div>
+            <div className="mt-2 text-sm text-muted-foreground">
+              <p>Based on: <span className="text-foreground/80">{searchQuery}</span></p>
+              <p>Style: <span className="text-foreground/80">{selectedStyle}</span> • Tone: <span className="text-foreground/80">{selectedTone}</span></p>
+            </div>
+            <div className="mt-4 flex justify-center gap-2">
+              <Button
+                variant="outline"
                 className="border-love-300 dark:border-love-700 text-love-600 dark:text-love-400 hover:bg-love-50 dark:hover:bg-love-900/20"
+                onClick={resetForm}
               >
                 <Heart className="mr-2 animate-pulse" size={16} />
-                Try Another Prompt
+                Create New Compliment
+              </Button>
+              <Button
+                variant="secondary"
+                className="bg-love-100/50 dark:bg-love-900/20 hover:bg-love-200/50 dark:hover:bg-love-800/20"
+                onClick={() => {
+                  navigator.clipboard.writeText(compliment);
+                  // You could add a toast notification here
+                }}
+              >
+                <Sparkles size={16} className="mr-2" />
+                Copy
               </Button>
             </div>
           </div>
         )}
-        
+
         <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground mt-6">
           <span>Try:</span>
           {["smile", "kindness", "eyes", "laughter", "intelligence", "caring"].map((term, i) => (
@@ -291,10 +389,10 @@ export function Hero() {
           ))}
         </div>
       </div>
-      
+
       <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 text-center">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="text-foreground/60 hover:text-foreground transition-all duration-300 hover:bg-transparent flex flex-col items-center animate-bounce"
           onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
         >
