@@ -162,7 +162,7 @@ export default function About() {
                           </div>
                         </div>
                         <div>
-                          <h3 className="text-xl font-semibold mb-2">2021: AI Innovation</h3>
+                          <h3 className="text-xl font-semibold mb-2">2024: AI Innovation</h3>
                           <p className="text-foreground/70">We developed our first AI model specifically designed to understand emotions and generate heartfelt expressions tailored to relationships.</p>
                         </div>
                       </div>
@@ -174,8 +174,8 @@ export default function About() {
                           </div>
                         </div>
                         <div>
-                          <h3 className="text-xl font-semibold mb-2">2023: Reaching Hearts</h3>
-                          <p className="text-foreground/70">Today, we've helped over 1 million people express their feelings, strengthening relationships and creating beautiful moments worldwide.</p>
+                          <h3 className="text-xl font-semibold mb-2">2025: Reaching Hearts</h3>
+                          <p className="text-foreground/70">Today, we've have finally launched for people express their feelings, strengthening relationships and creating beautiful moments worldwide.</p>
                         </div>
                       </div>
                     </div>
@@ -194,7 +194,7 @@ export default function About() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center">
                         <span className="font-great-vibes text-6xl md:text-7xl lg:text-8xl gradient-text animate-text-shimmer">
-                          Since 2020
+                          Since 2024
                         </span>
                         <div className="mt-4 text-lg md:text-xl text-foreground/80">
                           Helping people express their love through words
@@ -240,7 +240,7 @@ export default function About() {
                     </span>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-text-shimmer">
-                    Meet the <span className="gradient-text">Hearts</span> Behind LovelyAI
+                    Meet the <span className="gradient-text">Hearts</span> Behind loverprompt
                   </h2>
                   <p className="text-foreground/70">
                     We're a passionate team of AI experts, relationship psychologists, and designers dedicated to helping people express their feelings.
@@ -320,7 +320,7 @@ export default function About() {
                     
                     <div className="space-y-6 text-lg">
                       <p>
-                        At LovelyAI, we believe that the right words can bridge hearts and strengthen bonds. Our mission is to help people express their deepest feelings when words fail them.
+                        At loverprompt, we believe that the right words can bridge hearts and strengthen bonds. Our mission is to help people express their deepest feelings when words fail them.
                       </p>
                       <p>
                         We understand that finding the perfect words to express love, appreciation, or admiration can be challenging. That's why we've developed an AI platform that helps you articulate your feelings in a way that feels authentic and meaningful.

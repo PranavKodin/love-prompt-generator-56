@@ -34,7 +34,7 @@ const GetStarted = () => {
               </div>
               
               <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center gradient-text animate-text-shimmer">
-                Get Started with LovelyAI
+                Get Started with loverprompt
               </h1>
               
               <div className="space-y-8 animate-fade-up" style={{ animationDelay: "200ms" }}>
@@ -45,7 +45,7 @@ const GetStarted = () => {
                     </div>
                     <h2 className="text-xl font-semibold text-love-600 dark:text-love-400">1. Create Your Account</h2>
                   </div>
-                  <p className="text-foreground/80 ml-14">Sign up for a free LovelyAI account to access all our features and personalized AI recommendations.</p>
+                  <p className="text-foreground/80 ml-14">Sign up for a free loverprompt account to access all our features and personalized AI recommendations.</p>
                 </div>
                 
                 <div className="bg-white/20 dark:bg-midnight-800/20 p-6 rounded-2xl hover:bg-white/30 dark:hover:bg-midnight-800/30 transition-colors duration-300 group hover:transform hover:scale-[1.02]">

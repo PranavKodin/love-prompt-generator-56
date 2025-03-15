@@ -11,7 +11,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between mb-8">
           <div className="flex items-center mb-4 md:mb-0">
             <Heart className="h-6 w-6 text-love-600 dark:text-love-400 animate-pulse-slow" />
-            <span className="ml-2 font-bold text-xl">LovelyAI</span>
+            <span className="ml-2 font-bold text-xl">loverprompt</span>
           </div>
           
           <div className="flex space-x-6">
@@ -147,9 +147,9 @@ export function Footer() {
         </div>
         
         <div className="text-center text-foreground/60 text-sm border-t border-white/10 dark:border-midnight-800/30 pt-6">
-          <p>&copy; {currentYear} LovelyAI. All rights reserved.</p>
+          <p>&copy; {currentYear} loverprompt. All rights reserved.</p>
           <p className="mt-1">
-            Made with <Heart className="inline-block h-3 w-3 text-love-600 dark:text-love-400" /> by the LovelyAI Team
+            Made with <Heart className="inline-block h-3 w-3 text-love-600 dark:text-love-400" /> by the loverprompt Team
           </p>
         </div>
       </div>

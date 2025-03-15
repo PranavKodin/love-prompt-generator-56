@@ -118,7 +118,7 @@ const Settings = () => {
                     <SettingsIcon className="mr-2 h-5 w-5" />
                     Appearance
                   </CardTitle>
-                  <CardDescription>Customize how LovelyAI looks</CardDescription>
+                  <CardDescription>Customize how loverprompt looks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-center justify-between">

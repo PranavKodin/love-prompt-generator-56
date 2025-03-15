@@ -162,7 +162,7 @@ export default function Features() {
                     Powerful <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl gradient-text">Features</span> to Express Your Love
                   </h1>
                   <p className="text-lg md:text-xl text-foreground/80 animate-text-fade">
-                    Discover all the ways LovelyAI can help you create heartfelt expressions of love.
+                    Discover all the ways loverprompt can help you create heartfelt expressions of love.
                   </p>
                 </div>
               </div>

@@ -27,7 +27,7 @@ const Privacy = () => {
               
               <div>
                 <h2 className="text-xl font-semibold mb-3 text-love-600 dark:text-love-400">1. Information We Collect</h2>
-                <p className="mb-4">LovelyAI collects information that you provide directly to us, such as when you create an account, update your profile, or communicate with us. This may include:</p>
+                <p className="mb-4">loverprompt collects information that you provide directly to us, such as when you create an account, update your profile, or communicate with us. This may include:</p>
                 <ul className="list-disc pl-6 mb-4 space-y-2">
                   <li>Contact information (name, email address, phone number)</li>
                   <li>Profile information (age, gender, interests, relationship status)</li>
@@ -50,7 +50,7 @@ const Privacy = () => {
               
               <div>
                 <h2 className="text-xl font-semibold mb-3 text-love-600 dark:text-love-400">3. Sharing of Information</h2>
-                <p className="mb-4">We do not share personal information with companies, organizations, or individuals outside of LovelyAI except in the following circumstances:</p>
+                <p className="mb-4">We do not share personal information with companies, organizations, or individuals outside of loverprompt except in the following circumstances:</p>
                 <ul className="list-disc pl-6 mb-4 space-y-2">
                   <li>With your consent</li>
                   <li>For legal reasons</li>

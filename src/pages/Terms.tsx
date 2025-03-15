@@ -27,12 +27,12 @@ const Terms = () => {
               
               <div>
                 <h2 className="text-xl font-semibold mb-3 text-love-600 dark:text-love-400">1. Acceptance of Terms</h2>
-                <p className="mb-4">By accessing or using LovelyAI, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.</p>
+                <p className="mb-4">By accessing or using loverprompt, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.</p>
               </div>
               
               <div>
                 <h2 className="text-xl font-semibold mb-3 text-love-600 dark:text-love-400">2. Use License</h2>
-                <p className="mb-4">Permission is granted to temporarily access LovelyAI for personal, non-commercial use only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+                <p className="mb-4">Permission is granted to temporarily access loverprompt for personal, non-commercial use only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
                 <ul className="list-disc pl-6 mb-4 space-y-2">
                   <li>Modify or copy the materials</li>
                   <li>Use the materials for any commercial purpose</li>
@@ -43,12 +43,12 @@ const Terms = () => {
               
               <div>
                 <h2 className="text-xl font-semibold mb-3 text-love-600 dark:text-love-400">3. Disclaimer</h2>
-                <p className="mb-4">The materials on LovelyAI are provided on an 'as is' basis. LovelyAI makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+                <p className="mb-4">The materials on loverprompt are provided on an 'as is' basis. loverprompt makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
               </div>
               
               <div>
                 <h2 className="text-xl font-semibold mb-3 text-love-600 dark:text-love-400">4. Limitations</h2>
-                <p className="mb-4">In no event shall LovelyAI or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on LovelyAI, even if LovelyAI or a LovelyAI authorized representative has been notified orally or in writing of the possibility of such damage.</p>
+                <p className="mb-4">In no event shall loverprompt or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on loverprompt, even if loverprompt or a loverprompt authorized representative has been notified orally or in writing of the possibility of such damage.</p>
               </div>
               
               <div className="pt-4">

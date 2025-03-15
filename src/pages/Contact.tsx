@@ -106,8 +106,8 @@ export default function Contact() {
                           </div>
                           <div>
                             <h3 className="font-medium">Email</h3>
-                            <p className="text-foreground/70 mt-1">hello@lovelyai.com</p>
-                            <p className="text-foreground/70">support@lovelyai.com</p>
+                            <p className="text-foreground/70 mt-1">hello@loverprompt.com</p>
+                            <p className="text-foreground/70">support@loverprompt.com</p>
                           </div>
                         </div>
                         
@@ -128,8 +128,8 @@ export default function Contact() {
                           </div>
                           <div>
                             <h3 className="font-medium">Address</h3>
-                            <p className="text-foreground/70 mt-1">123 Love Lane</p>
-                            <p className="text-foreground/70">Heartsville, CA 90210</p>
+                            <p className="text-foreground/70 mt-1">Always in</p>
+                            <p className="text-foreground/70">your hearts ❤️</p>
                           </div>
                         </div>
                       </div>
