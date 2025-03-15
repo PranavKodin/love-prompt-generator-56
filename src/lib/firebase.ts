@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
@@ -19,7 +18,8 @@ import {
   where, 
   orderBy, 
   Timestamp, 
-  serverTimestamp 
+  serverTimestamp,
+  limit
 } from "firebase/firestore";
 
 // Firebase configuration
@@ -44,11 +44,22 @@ const facebookProvider = new FacebookAuthProvider();
 // Collection references
 const complimentsCollection = collection(db, "compliments");
 const usersCollection = collection(db, "users");
+const commentsCollection = collection(db, "comments");
 
 // Constants
 export const ADMIN_EMAIL = "admin@loveprompt.com";
 
 // Types
+export interface Comment {
+  id?: string;
+  complimentId: string;
+  userId: string;
+  userDisplayName: string;
+  userPhotoURL?: string;
+  content: string;
+  createdAt: Timestamp;
+}
+
 export interface Compliment {
   id?: string;
   userId: string;
@@ -61,6 +72,7 @@ export interface Compliment {
   tone?: string;
   mood?: string;
   isSaved?: boolean;
+  commentCount?: number;
 }
 
 export interface UserProfile {
@@ -255,6 +267,80 @@ export const toggleSaveCompliment = async (complimentId: string, isSaved: boolea
     return true;
   } catch (error) {
     console.error("Error toggling save state:", error);
+    throw error;
+  }
+};
+
+// Comment functions
+export const addComment = async (comment: Omit<Comment, 'id' | 'createdAt'>) => {
+  try {
+    // Add the comment
+    const docRef = await addDoc(commentsCollection, {
+      ...comment,
+      createdAt: serverTimestamp()
+    });
+    
+    // Update the comment count on the compliment
+    const complimentRef = doc(db, "compliments", comment.complimentId);
+    const complimentSnap = await getDoc(complimentRef);
+    
+    if (complimentSnap.exists()) {
+      const complimentData = complimentSnap.data() as Compliment;
+      const currentCount = complimentData.commentCount || 0;
+      
+      await updateDoc(complimentRef, {
+        commentCount: currentCount + 1
+      });
+    }
+    
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    throw error;
+  }
+};
+
+export const getComplimentComments = async (complimentId: string) => {
+  try {
+    const q = query(
+      commentsCollection,
+      where("complimentId", "==", complimentId),
+      orderBy("createdAt", "desc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Comment));
+  } catch (error) {
+    console.error("Error getting comments:", error);
+    throw error;
+  }
+};
+
+export const deleteComment = async (commentId: string, complimentId: string) => {
+  try {
+    // Delete the comment
+    const commentRef = doc(db, "comments", commentId);
+    await deleteDoc(commentRef);
+    
+    // Update the comment count on the compliment
+    const complimentRef = doc(db, "compliments", complimentId);
+    const complimentSnap = await getDoc(complimentRef);
+    
+    if (complimentSnap.exists()) {
+      const complimentData = complimentSnap.data() as Compliment;
+      const currentCount = complimentData.commentCount || 0;
+      
+      await updateDoc(complimentRef, {
+        commentCount: Math.max(0, currentCount - 1)
+      });
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Error deleting comment:", error);
     throw error;
   }
 };
