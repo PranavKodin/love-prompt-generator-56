@@ -106,8 +106,7 @@ export default function Contact() {
                           </div>
                           <div>
                             <h3 className="font-medium">Email</h3>
-                            <p className="text-foreground/70 mt-1">hello@loverprompt.com</p>
-                            <p className="text-foreground/70">support@loverprompt.com</p>
+                            <p className="text-foreground/70 mt-1">loverprompt@gmail.com</p>
                           </div>
                         </div>
                         
