@@ -12,14 +12,12 @@ export default defineConfig({
       name: 'configure-server',
       configureServer(server) {
         // Use connect-history-api-fallback properly
-        return () => {
-          server.middlewares.use(
-            history({
-              disableDotRule: true,
-              verbose: true
-            })
-          );
-        };
+        server.middlewares.use(
+          history({
+            disableDotRule: true,
+            verbose: true
+          }) as any
+        );
       },
     }
   ],
@@ -28,4 +26,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    port: 8080
+  }
 });

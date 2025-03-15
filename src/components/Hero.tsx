@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown, Heart, Sparkles, Image, X, BookmarkPlus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ const phrases = [
   "Craft the Perfect Message of Affection"
 ];
 
-// Different animation classes for different screen sizes
 const getAnimationClass = (baseClass: string, type: 'sm' | 'md' | 'lg' | 'xl') => {
   const screenClasses = {
     sm: "animate-slide-in-mobile",
@@ -48,7 +46,6 @@ export function Hero() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Added new state for compliment parameters
   const [selectedStyle, setSelectedStyle] = useState("romantic");
   const [selectedTone, setSelectedTone] = useState("flirty");
 
@@ -67,7 +64,6 @@ export function Hero() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate input
     if (!searchQuery) {
       setError("Please tell us what you like about the person!");
       return;
@@ -77,12 +73,9 @@ export function Hero() {
     setError("");
     setIsSaved(false);
 
-    // Generate compliment using OpenAI API
     try {
-      // Create prompt using the search query and selected options
       const prompt = `Generate a ${selectedStyle}, ${selectedTone} compliment based on the following description of the person: "${searchQuery}". Be creative and ensure the compliment fits the style and tone specified.`;
 
-      // Call OpenAI API
       const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -110,7 +103,6 @@ export function Hero() {
       const gptData = await gptResponse.json();
       const generatedCompliment = gptData.choices[0].message.content.trim();
 
-      // Set the compliment and update UI
       setCompliment(generatedCompliment);
       setComplimentGenerated(true);
       setIsLoading(false);
@@ -143,6 +135,9 @@ export function Hero() {
         mood: selectedTone,
         recipient: "",
         createdAt: Timestamp.now(),
+        isPublic: false,
+        likeCount: 0,
+        likedBy: [],
         isSaved: true
       };
 
@@ -197,17 +192,14 @@ export function Hero() {
 
   return (
     <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Enhanced background with multiple animated gradients */}
       <div className="absolute inset-0 bg-gradient-to-br from-love-50/40 via-background to-love-100/20 dark:from-midnight-900/60 dark:via-background dark:to-love-900/10 z-0"></div>
       <div className="absolute w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGwtb3BhY2l0eT0iLjA1IiBmaWxsPSJjdXJyZW50Q29sb3IiIGN4PSIxMCIgY3k9IjEwIiByPSIxIi8+PC9nPjwvc3ZnPg==')] opacity-50 dark:opacity-30 z-0"></div>
 
-      {/* Floating elements with enhanced animations */}
       <div className="absolute top-1/5 left-1/4 w-64 h-64 rounded-full bg-love-200/30 dark:bg-love-800/20 blur-3xl animate-float opacity-70"></div>
       <div className="absolute bottom-1/4 right-1/5 w-80 h-80 rounded-full bg-love-300/20 dark:bg-love-700/20 blur-3xl animate-float opacity-60" style={{ animationDelay: "2s" }}></div>
       <div className="absolute top-1/3 right-1/4 w-48 h-48 rounded-full bg-love-100/30 dark:bg-love-900/20 blur-3xl animate-float opacity-50" style={{ animationDelay: "3s" }}></div>
       <div className="absolute bottom-1/3 left-1/5 w-56 h-56 rounded-full bg-love-400/10 dark:bg-love-600/10 blur-3xl animate-float opacity-60" style={{ animationDelay: "4s" }}></div>
 
-      {/* Hearts floating animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {[...Array(10)].map((_, i) => (
           <div

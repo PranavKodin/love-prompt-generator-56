@@ -43,6 +43,10 @@ const facebookProvider = new FacebookAuthProvider();
 
 // Collection references
 const complimentsCollection = collection(db, "compliments");
+const usersCollection = collection(db, "users");
+
+// Constants
+export const ADMIN_EMAIL = "admin@loveprompt.com";
 
 // Types
 export interface Compliment {
@@ -53,15 +57,77 @@ export interface Compliment {
   isPublic: boolean;
   likeCount: number;
   likedBy: string[];
+  recipient?: string;
+  tone?: string;
+  mood?: string;
+  isSaved?: boolean;
 }
 
-export interface User {
-  id: string;
-  displayName: string | null;
-  email: string | null;
-  photoURL: string | null;
-  savedCompliments?: string[];
+export interface UserProfile {
+  uid: string;
+  displayName: string;
+  email: string;
+  photoURL?: string;
+  bio?: string;
+  location?: string;
+  createdAt: Timestamp;
+  preferences?: {
+    darkMode: boolean;
+    language: string;
+  };
+  subscription?: {
+    level: "free" | "premium";
+    expiresAt: Timestamp;
+  };
 }
+
+// User profile functions
+export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
+  try {
+    const userDoc = doc(db, "users", userId);
+    const userSnap = await getDoc(userDoc);
+    
+    if (userSnap.exists()) {
+      return { ...(userSnap.data() as UserProfile), uid: userSnap.id };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error getting user profile:", error);
+    throw error;
+  }
+};
+
+export const saveUserProfile = async (profile: UserProfile): Promise<UserProfile> => {
+  try {
+    const userDoc = doc(db, "users", profile.uid);
+    await updateDoc(userDoc, { ...profile });
+    return profile;
+  } catch (error) {
+    // If document doesn't exist, create it
+    try {
+      const userDoc = doc(db, "users", profile.uid);
+      await updateDoc(userDoc, { ...profile });
+      return profile;
+    } catch (error) {
+      console.error("Error saving user profile:", error);
+      throw error;
+    }
+  }
+};
+
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  try {
+    const querySnapshot = await getDocs(usersCollection);
+    return querySnapshot.docs.map(doc => ({
+      ...(doc.data() as UserProfile),
+      uid: doc.id
+    }));
+  } catch (error) {
+    console.error("Error getting all users:", error);
+    throw error;
+  }
+};
 
 // Compliment functions
 export const saveCompliment = async (compliment: Omit<Compliment, 'id' | 'createdAt' | 'likeCount' | 'likedBy' | 'isPublic'>) => {
@@ -92,7 +158,8 @@ export const getUserCompliments = async (userId: string) => {
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
+      isSaved: true
     } as Compliment));
   } catch (error) {
     console.error("Error getting user compliments:", error);
@@ -176,6 +243,18 @@ export const toggleLikeCompliment = async (complimentId: string, userId: string)
     }
   } catch (error) {
     console.error("Error toggling like:", error);
+    throw error;
+  }
+};
+
+// Add toggleSaveCompliment function for History.tsx
+export const toggleSaveCompliment = async (complimentId: string, isSaved: boolean) => {
+  try {
+    const complimentRef = doc(db, "compliments", complimentId);
+    await updateDoc(complimentRef, { isSaved });
+    return true;
+  } catch (error) {
+    console.error("Error toggling save state:", error);
     throw error;
   }
 };
