@@ -24,12 +24,12 @@ import {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC7rKchkRNNvGHnCgiYewbvSBQl8-F48vk",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "love-prompt-gen.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "love-prompt-gen",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "love-prompt-gen.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "953062391054",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:953062391054:web:7e1d0b4eba55cc2fec3c6f"
+  apiKey: "AIzaSyAcyBLG5mcrxyEwbBsyq4xX2Hh2Es6L1Ok",
+  authDomain: "portfolio-ce615.firebaseapp.com",
+  projectId: "portfolio-ce615",
+  storageBucket: "portfolio-ce615.appspot.com",
+  messagingSenderId: "274495429625",
+  appId: "1:274495429625:web:d0c6efecd41854e616fb28",
 };
 
 // Initialize Firebase
