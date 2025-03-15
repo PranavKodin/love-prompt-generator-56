@@ -72,6 +72,7 @@ export interface UserProfile {
 }
 
 export interface Compliment {
+  id?: string;
   userId: string;
   content: string;
   tone: string;
@@ -79,6 +80,9 @@ export interface Compliment {
   recipient?: string;
   createdAt: Timestamp;
   isSaved: boolean;
+  isPublic?: boolean;
+  likeCount?: number;
+  likedBy?: string[];
 }
 
 export interface Comment {
@@ -102,7 +106,6 @@ export interface Story {
   commentCount: number;
 }
 
-// Helper functions
 export async function saveUserProfile(user: UserProfile) {
   try {
     if (!user || !user.uid) {
@@ -110,17 +113,14 @@ export async function saveUserProfile(user: UserProfile) {
       throw new Error("Invalid user object: missing uid");
     }
     
-    // Make a copy of the user object to avoid mutation issues
     const userToSave = { ...user };
     
-    // Ensure all required fields are present
     if (!userToSave.preferences) {
       userToSave.preferences = {
         darkMode: false,
         language: "en"
       };
     } else {
-      // Make sure all preference fields exist to avoid "indexOf of undefined" errors
       userToSave.preferences = {
         darkMode: userToSave.preferences.darkMode ?? false,
         language: userToSave.preferences.language ?? "en"
@@ -130,7 +130,6 @@ export async function saveUserProfile(user: UserProfile) {
     const userRef = doc(db, "users", userToSave.uid);
     await setDoc(userRef, userToSave, { merge: true });
     
-    // Fetch the updated user profile to return the complete data
     const updatedUserSnap = await getDoc(userRef);
     return updatedUserSnap.exists() ? updatedUserSnap.data() as UserProfile : userToSave;
   } catch (error) {
@@ -162,8 +161,15 @@ export async function getAllUsers() {
 }
 
 export async function saveCompliment(compliment: Omit<Compliment, 'id'>) {
-  const docRef = await addDoc(complimentsCollection, compliment);
-  return { ...compliment, id: docRef.id } as Compliment;
+  const complimentToSave = {
+    ...compliment,
+    isPublic: compliment.isPublic ?? false,
+    likeCount: compliment.likeCount ?? 0,
+    likedBy: compliment.likedBy ?? []
+  };
+  
+  const docRef = await addDoc(complimentsCollection, complimentToSave);
+  return { ...complimentToSave, id: docRef.id } as Compliment;
 }
 
 export async function toggleSaveCompliment(complimentId: string, isSaved: boolean) {
@@ -179,8 +185,8 @@ export async function getUserCompliments(userId: string) {
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
+    ...doc.data(),
+    id: doc.id
   }) as Compliment);
 }
 
@@ -189,13 +195,47 @@ export async function getSavedCompliments(userId: string) {
     complimentsCollection,
     where("userId", "==", userId),
     where("isSaved", "==", true),
+    orderBy("likeCount", "desc"),
     orderBy("createdAt", "desc")
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
+    ...doc.data(),
+    id: doc.id
   }) as Compliment);
+}
+
+export async function getPublicCompliments(limit = 20, lastVisible = null) {
+  let q;
+  
+  if (lastVisible) {
+    q = query(
+      complimentsCollection,
+      where("isPublic", "==", true),
+      orderBy("likeCount", "desc"),
+      orderBy("createdAt", "desc"),
+      startAfter(lastVisible),
+      limit(limit)
+    );
+  } else {
+    q = query(
+      complimentsCollection,
+      where("isPublic", "==", true),
+      orderBy("likeCount", "desc"),
+      orderBy("createdAt", "desc"),
+      limit(limit)
+    );
+  }
+  
+  const snapshot = await getDocs(q);
+  const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+  
+  const compliments = snapshot.docs.map(doc => ({
+    ...doc.data(),
+    id: doc.id
+  }) as Compliment);
+  
+  return { compliments, lastDoc };
 }
 
 export async function deleteCompliment(complimentId: string) {
@@ -203,7 +243,33 @@ export async function deleteCompliment(complimentId: string) {
   await deleteDoc(complimentRef);
 }
 
-// Story functions
+export async function updateCompliment(complimentId: string, data: Partial<Compliment>) {
+  const complimentRef = doc(db, "compliments", complimentId);
+  await updateDoc(complimentRef, data);
+  
+  const updatedDoc = await getDoc(complimentRef);
+  return { ...updatedDoc.data(), id: updatedDoc.id } as Compliment;
+}
+
+export async function toggleLikeCompliment(complimentId: string, userId: string) {
+  const complimentRef = doc(db, "compliments", complimentId);
+  const complimentSnap = await getDoc(complimentRef);
+  
+  if (!complimentSnap.exists()) {
+    throw new Error("Compliment not found");
+  }
+  
+  const compliment = complimentSnap.data() as Compliment;
+  const isLiked = compliment.likedBy?.includes(userId) ?? false;
+  
+  await updateDoc(complimentRef, {
+    likeCount: isLiked ? increment(-1) : increment(1),
+    likedBy: isLiked ? arrayRemove(userId) : arrayUnion(userId)
+  });
+  
+  return !isLiked;
+}
+
 export async function createStory(story: Omit<Story, 'id' | 'likeCount' | 'likedBy' | 'commentCount'>) {
   try {
     const newStory = {
@@ -305,7 +371,6 @@ export async function addComment(storyId: string, comment: Omit<Comment, 'id' | 
     
     const docRef = await addDoc(commentsRef, newComment);
     
-    // Update comment count
     const storyRef = doc(db, "stories", storyId);
     await updateDoc(storyRef, {
       commentCount: increment(1)
@@ -336,12 +401,8 @@ export async function getComments(storyId: string) {
 
 export async function deleteStory(storyId: string) {
   try {
-    // Delete the story document
     const storyRef = doc(db, "stories", storyId);
     await deleteDoc(storyRef);
-    
-    // Note: Comments subcollection will remain in Firestore but become inaccessible
-    // To fully delete them, you'd need to iterate through all comments and delete them first
   } catch (error) {
     console.error("Error deleting story:", error);
     throw error;
