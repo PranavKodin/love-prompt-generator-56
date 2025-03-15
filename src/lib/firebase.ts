@@ -47,7 +47,7 @@ const usersCollection = collection(db, "users");
 const commentsCollection = collection(db, "comments");
 
 // Constants
-export const ADMIN_EMAIL = "admin@loveprompt.com";
+export const ADMIN_EMAIL = "sunny.pranav2006@gmail.com";
 
 // Types
 export interface Comment {
