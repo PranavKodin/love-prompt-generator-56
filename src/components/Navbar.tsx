@@ -106,8 +106,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
               <Menu size={20} />
             </Button>
             <Link to="/" className="flex items-center space-x-2 group">
-              <div className="relative w-8 h-8 flex items-center justify-center animate-scale-in">
-              </div>
               {/* Corrected image path - removed /public prefix */}
               <img 
                 src="/loverprompt.png" 
