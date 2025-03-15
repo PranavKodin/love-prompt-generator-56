@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ChevronLeft, Heart, History, User, Settings, Bookmark, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,7 +34,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
   ];
 
   const adminLinks = [
-    { name: "User Management", path: "/adminusers", icon: <Shield className="mr-2 h-4 w-4" /> },
+    { name: "User Management", path: "/admin/users", icon: <Shield className="mr-2 h-4 w-4" /> },
   ];
 
   // Close sidebar when clicking outside on mobile
