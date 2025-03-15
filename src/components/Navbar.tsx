@@ -107,7 +107,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
             </Button>
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="relative w-8 h-8 flex items-center justify-center animate-scale-in">
-                <Heart className="absolute text-love-600 dark:text-love-400 transition-all duration-300 group-hover:scale-110 animate-pulse-slow" size={22} />
               </div>
               {/* Corrected image path - removed /public prefix */}
               <img 
