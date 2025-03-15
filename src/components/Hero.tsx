@@ -1,10 +1,15 @@
+
 import { useState, useEffect, useRef } from "react";
-import { Search, ChevronDown, Heart, Sparkles, Image, X } from "lucide-react";
+import { Search, ChevronDown, Heart, Sparkles, Image, X, BookmarkPlus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { saveCompliment, Compliment, Timestamp } from "@/lib/firebase";
+import { useNavigate } from "react-router-dom";
 
 const phrases = [
   "AI-Powered Compliment Generator",
@@ -37,6 +42,11 @@ export function Hero() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Added new state for compliment parameters
   const [selectedStyle, setSelectedStyle] = useState("romantic");
@@ -65,6 +75,7 @@ export function Hero() {
 
     setIsLoading(true);
     setError("");
+    setIsSaved(false);
 
     // Generate compliment using OpenAI API
     try {
@@ -110,6 +121,50 @@ export function Hero() {
     }
   };
 
+  const handleSaveCompliment = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to save compliments",
+        variant: "destructive"
+      });
+      navigate("/get-started");
+      return;
+    }
+
+    if (isSaved) return;
+
+    setIsSaving(true);
+    try {
+      const complimentData: Omit<Compliment, 'id'> = {
+        userId: user.uid,
+        content: compliment,
+        tone: selectedStyle,
+        mood: selectedTone,
+        recipient: "",
+        createdAt: Timestamp.now(),
+        isSaved: true
+      };
+
+      await saveCompliment(complimentData);
+      setIsSaved(true);
+      
+      toast({
+        title: "Compliment Saved",
+        description: "Your compliment has been saved to your collection",
+      });
+    } catch (error) {
+      console.error("Error saving compliment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save compliment",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
@@ -137,6 +192,7 @@ export function Hero() {
     setSearchQuery("");
     setComplimentGenerated(false);
     setCompliment("");
+    setIsSaved(false);
   };
 
   return (
@@ -365,11 +421,32 @@ export function Hero() {
                 className="bg-love-100/50 dark:bg-love-900/20 hover:bg-love-200/50 dark:hover:bg-love-800/20"
                 onClick={() => {
                   navigator.clipboard.writeText(compliment);
-                  // You could add a toast notification here
+                  toast({
+                    title: "Copied",
+                    description: "Compliment copied to clipboard",
+                  });
                 }}
               >
                 <Sparkles size={16} className="mr-2" />
                 Copy
+              </Button>
+              <Button
+                variant="default"
+                className={cn(
+                  "bg-gradient-love hover:opacity-90 transition-all duration-300",
+                  isSaved && "bg-green-500 hover:bg-green-600"
+                )}
+                onClick={handleSaveCompliment}
+                disabled={isSaving || isSaved}
+              >
+                {isSaving ? (
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                ) : isSaved ? (
+                  <Check size={16} className="mr-2" />
+                ) : (
+                  <BookmarkPlus size={16} className="mr-2" />
+                )}
+                {isSaved ? "Saved" : "Save"}
               </Button>
             </div>
           </div>
