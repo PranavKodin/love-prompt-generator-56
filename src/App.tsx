@@ -46,7 +46,7 @@ const App = () => (
                 <Route path="/history" element={<History />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/public-compliments" element={<PublicCompliments />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/adminusers" element={<AdminUsers />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </TooltipProvider>
