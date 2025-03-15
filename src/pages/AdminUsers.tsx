@@ -98,6 +98,33 @@ const AdminUsers = () => {
     );
   };
   
+  // Helper function to safely format date
+  const formatDate = (dateField) => {
+    try {
+      if (!dateField) return "Unknown";
+      
+      // Check if it's a Firebase timestamp (has toDate method)
+      if (typeof dateField.toDate === 'function') {
+        return dateField.toDate().toLocaleDateString();
+      }
+      
+      // If it's already a Date object
+      if (dateField instanceof Date) {
+        return dateField.toLocaleDateString();
+      }
+      
+      // If it's a string or number timestamp
+      if (typeof dateField === 'string' || typeof dateField === 'number') {
+        return new Date(dateField).toLocaleDateString();
+      }
+      
+      return "Unknown";
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Unknown";
+    }
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
@@ -145,7 +172,7 @@ const AdminUsers = () => {
           <div className="grid gap-4 md:grid-cols-2">
             {filteredUsers.map((user, index) => (
               <Card 
-                key={user.uid} 
+                key={user.uid || index} 
                 className="overflow-hidden backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30 hover:shadow-md transition-shadow animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
@@ -153,12 +180,12 @@ const AdminUsers = () => {
                   <div className="flex gap-4">
                     <Avatar className="size-16 border-2 border-love-200 dark:border-love-800">
                       <AvatarImage 
-                        src={user.photoURL} 
-                        alt={user.displayName} 
+                        src={user.photoURL || ""} 
+                        alt={user.displayName || "User"} 
                         className="object-cover"
                       />
                       <AvatarFallback className="bg-gradient-love text-white">
-                        {getUserInitials(user.displayName)}
+                        {getUserInitials(user.displayName || "")}
                       </AvatarFallback>
                     </Avatar>
                     
@@ -166,7 +193,7 @@ const AdminUsers = () => {
                       <h3 className="font-semibold text-lg">
                         {user.displayName || "No Name"}
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-1">{user.email}</p>
+                      <p className="text-sm text-muted-foreground mb-1">{user.email || "No Email"}</p>
                       {user.location && (
                         <p className="text-sm text-foreground/70">
                           Location: {user.location}
@@ -179,7 +206,7 @@ const AdminUsers = () => {
                           <p className="text-sm text-muted-foreground italic">No bio</p>
                         )}
                       </div>
-                      <div className="mt-2 flex gap-2">
+                      <div className="mt-2 flex flex-wrap gap-2">
                         <span className="text-xs px-2 py-1 bg-foreground/5 rounded-full">
                           {user.subscription?.level === "premium" ? "Premium" : "Free"}
                         </span>
@@ -187,7 +214,7 @@ const AdminUsers = () => {
                           {user.preferences?.darkMode ? "Dark mode" : "Light mode"}
                         </span>
                         <span className="text-xs px-2 py-1 bg-foreground/5 rounded-full">
-                          Joined: {user.createdAt.toDate().toLocaleDateString()}
+                          Joined: {formatDate(user.createdAt)}
                         </span>
                       </div>
                     </div>
