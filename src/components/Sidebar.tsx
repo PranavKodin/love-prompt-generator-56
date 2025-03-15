@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ChevronLeft, Heart, History, User, Settings, Bookmark, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,7 +27,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
   };
 
   const links = [
-    { name: "Love Stories", path: "/love-stories", icon: <Heart className="mr-2 h-4 w-4" />, requiresAuth: false },
+    { name: "Public Compliments", path: "/public-compliments", icon: <Heart className="mr-2 h-4 w-4" />, requiresAuth: false },
     { name: "Profile", path: "/profile", icon: <User className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "Saved Compliments", path: "/saved-compliments", icon: <Bookmark className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "History", path: "/history", icon: <History className="mr-2 h-4 w-4" />, requiresAuth: true },
