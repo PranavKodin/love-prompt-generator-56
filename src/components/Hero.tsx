@@ -79,7 +79,7 @@ export function Hero() {
       const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer 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`,
+          "Authorization": `Bearer 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`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
