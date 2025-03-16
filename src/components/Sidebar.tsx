@@ -1,16 +1,17 @@
-
 import { useState, useEffect } from "react";
-import { ChevronLeft, Heart, History, User, Settings, Bookmark, Shield, Calendar, Sparkles, Clock } from "lucide-react";
+import { ChevronLeft, Heart, History, User, Settings, Bookmark, Shield, Calendar, Sparkles, Clock, Users, LogOut, GiftIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ADMIN_EMAIL } from "@/lib/firebase";
 import { Link } from "react-router-dom";
+import { useUser } from "@/context/UserContext";
 
 export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (open: boolean) => void }) {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { profile } = useUser();
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Check if current user is admin
@@ -26,22 +27,28 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
     return location.pathname === path;
   };
 
+  // Updated links based on first code structure
   const links = [
-    { name: "Public Compliments", path: "/public-compliments", icon: <Heart className="mr-2 h-4 w-4" />, requiresAuth: false },
     { name: "Profile", path: "/profile", icon: <User className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "Saved Compliments", path: "/saved-compliments", icon: <Bookmark className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "History", path: "/history", icon: <History className="mr-2 h-4 w-4" />, requiresAuth: true },
-  ];
-
-  const featureLinks = [
-    { name: "Relationship Timeline", path: "/relationship-timeline", icon: <Clock className="mr-2 h-4 w-4" />, requiresAuth: true },
-    { name: "Anniversary Reminders", path: "/anniversary-reminders", icon: <Calendar className="mr-2 h-4 w-4" />, requiresAuth: true },
-    { name: "Surprise Suggestions", path: "/surprises", icon: <Sparkles className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "Settings", path: "/settings", icon: <Settings className="mr-2 h-4 w-4" />, requiresAuth: true },
   ];
 
+  // Updated compliment features from first code
+  const complimentLinks = [
+    { name: "Discover Compliments", path: "/public-compliments", icon: <Sparkles className="mr-2 h-4 w-4" />, requiresAuth: false },
+    { name: "Following Feed", path: "/following", icon: <Users className="mr-2 h-4 w-4" />, requiresAuth: true },
+  ];
+
+  // Updated relationship tools from first code
+  const relationshipLinks = [
+    { name: "Timeline", path: "/relationship-timeline", icon: <Calendar className="mr-2 h-4 w-4" />, requiresAuth: true },
+    { name: "Surprise Ideas", path: "/surprises", icon: <GiftIcon className="mr-2 h-4 w-4" />, requiresAuth: true },
+  ];
+
   const adminLinks = [
-    { name: "User Management", path: "/admin/users", icon: <Shield className="mr-2 h-4 w-4" /> },
+    { name: "Manage Users", path: "/admin/users", icon: <Shield className="mr-2 h-4 w-4" /> },
   ];
 
   // Close sidebar when clicking outside on mobile
@@ -87,9 +94,9 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
             </Button>
           </div>
 
-          {/* Core Features */}
+          {/* ACCOUNT section */}
           <div className="space-y-2 mb-4">
-            <p className="text-xs font-medium text-muted-foreground mb-2 px-2">CORE FEATURES</p>
+            <p className="text-xs font-medium text-muted-foreground mb-2 px-2">ACCOUNT</p>
             {links.map((link) => {
               if (link.requiresAuth && !user) return null;
               return (
@@ -109,10 +116,32 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
             })}
           </div>
 
-          {/* Additional Features */}
+          {/* COMPLIMENTS section */}
+          <div className="space-y-2 mb-4">
+            <p className="text-xs font-medium text-muted-foreground mb-2 px-2">COMPLIMENTS</p>
+            {complimentLinks.map((link) => {
+              if (link.requiresAuth && !user) return null;
+              return (
+                <Link to={link.path} key={link.path}>
+                  <Button
+                    variant="ghost"
+                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${
+                      isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.icon}
+                    {link.name}
+                  </Button>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* RELATIONSHIP TOOLS section */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground mb-2 px-2">RELATIONSHIP TOOLS</p>
-            {featureLinks.map((link) => {
+            {relationshipLinks.map((link) => {
               if (link.requiresAuth && !user) return null;
               return (
                 <Link to={link.path} key={link.path}>
@@ -152,18 +181,35 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
             </div>
           )}
 
+          {/* Logout button */}
+          {user && (
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 mt-4"
+              onClick={() => {
+                logout();
+                setIsOpen(false);
+              }}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          )}
+
           {/* Premium Features */}
-          <div className="mt-auto">
-            <div className="rounded-xl bg-gradient-to-r from-love-100 to-love-200 dark:from-love-800/30 dark:to-love-900/30 p-4 border border-love-200/50 dark:border-love-800/50 shadow-sm">
-              <h3 className="font-medium text-love-800 dark:text-love-300 mb-2">Premium Features</h3>
-              <p className="text-sm text-love-700/80 dark:text-love-300/80 mb-3">
-                Unlock advanced customization options and save unlimited compliments.
-              </p>
-              <Button size="sm" className="w-full bg-gradient-love hover:opacity-90 transition-all duration-300">
-                <span className="animate-pulse-slow">Upgrade Now</span>
-              </Button>
+          {user && (
+            <div className="mt-auto">
+              <div className="rounded-xl bg-gradient-to-r from-love-100 to-love-200 dark:from-love-800/30 dark:to-love-900/30 p-4 border border-love-200/50 dark:border-love-800/50 shadow-sm">
+                <h3 className="font-medium text-love-800 dark:text-love-300 mb-2">Premium Features</h3>
+                <p className="text-sm text-love-700/80 dark:text-love-300/80 mb-3">
+                  Unlock advanced customization options and save unlimited compliments.
+                </p>
+                <Button size="sm" className="w-full bg-gradient-love hover:opacity-90 transition-all duration-300">
+                  <span className="animate-pulse-slow">Upgrade Now</span>
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>
