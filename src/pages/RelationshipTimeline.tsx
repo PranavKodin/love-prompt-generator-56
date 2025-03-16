@@ -254,19 +254,19 @@ const RelationshipTimeline = () => {
         </p>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
-          <TabsList>
-            <TabsTrigger value="all">All Events</TabsTrigger>
-            <TabsTrigger value="public">Public</TabsTrigger>
-            <TabsTrigger value="private">Private</TabsTrigger>
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="all" className="flex-1">All Events</TabsTrigger>
+            <TabsTrigger value="public" className="flex-1">Public</TabsTrigger>
+            <TabsTrigger value="private" className="flex-1">Private</TabsTrigger>
           </TabsList>
         </Tabs>
 
         <Dialog open={formOpen} onOpenChange={setFormOpen}>
           <DialogTrigger asChild>
             <Button
-              className="bg-gradient-love hover:opacity-90 transition-opacity button-glow"
+              className="bg-gradient-love hover:opacity-90 transition-opacity button-glow w-full sm:w-auto"
               onClick={() => {
                 resetForm();
                 setFormOpen(true);
@@ -411,123 +411,136 @@ const RelationshipTimeline = () => {
         </div>
       ) : (
         <div className="relative">
-          {/* Timeline line with pulsing gradient effect */}
+          {/* Timeline center line with pulsing gradient effect */}
           <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-love-300 via-love-500 to-love-700 z-0">
             <div className="absolute inset-0 bg-gradient-to-b from-love-300 via-love-500 to-love-700 animate-pulse opacity-50"></div>
           </div>
 
-          <div className="relative z-10 space-y-12">
+          <div className="relative z-10 space-y-8">
             {sortedEvents.map((event, index) => {
+              // Create zigzag pattern even on mobile
               const isEven = index % 2 === 0;
               const eventDate = event.date instanceof Timestamp ?
                 event.date.toDate() : new Date(event.date);
 
               return (
-                <div key={event.id} className="flex items-center justify-center">
-                  {/* Connection line from center to card */}
+                <div key={event.id} className="flex flex-col items-center">
+                  {/* Mobile and desktop compatible zigzag layout */}
                   <div className={cn(
-                    "absolute left-1/2 w-14 h-0.5 bg-gradient-to-r",
-                    isEven ?
-                      "translate-x-0 from-love-500 to-transparent" :
-                      "-translate-x-full from-transparent to-love-500"
-                  )}></div>
+                    "flex w-full justify-center items-center",
+                    "relative"
+                  )}>
+                    {/* Connection line from center to card */}
+                    <div className={cn(
+                      "absolute h-0.5 bg-gradient-to-r z-10",
+                      "w-8 sm:w-12", // Shorter connection line for closer cards
+                      isEven ?
+                        "left-1/2 from-love-500 to-transparent" :
+                        "right-1/2 from-transparent to-love-500"
+                    )}></div>
 
-                  {/* Card container */}
-                  <div
-                    className={cn(
-                      "w-full md:w-4/12 p-1", // Reduced width from 5/12 to 4/12
-                      isEven ? "md:mr-auto" : "md:ml-auto"
-                    )}
-                  >
-                    <Card className={cn(
-                      "w-full transition-all duration-300 hover:scale-105 overflow-hidden",
-                      "shadow-md hover:shadow-xl", // Added shadow effect
-                      isEven ? "md:rounded-tr-2xl md:border-r-4 md:border-r-love-400" : "md:rounded-tl-2xl md:border-l-4 md:border-l-love-400",
-                      event.isPublic ? "border-green-200 dark:border-green-800/40" : ""
+                    {/* Card container */}
+                    <div className={cn(
+                      "w-full max-w-xs sm:max-w-sm md:max-w-md", // Responsive max widths
+                      "p-1", // Reduced padding for tighter layout
+                      isEven ?
+                        "ml-4 sm:ml-6 md:ml-8" : // Spacing from center
+                        "mr-4 sm:mr-6 md:mr-8",
+                      // Force zigzag on mobile
+                      isEven ? "self-end" : "self-start"
                     )}>
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                          <div className="flex items-center">
-                            {event.isPublic ? (
-                              <Unlock className="h-4 w-4 mr-2 text-green-500" />
-                            ) : (
-                              <Lock className="h-4 w-4 mr-2 text-muted-foreground" />
-                            )}
-                            <CardTitle className="text-sm text-muted-foreground">
-                              {event.isPublic ? "Public" : "Private"}
-                            </CardTitle>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => handleTogglePublic(event)}
-                            >
+                      <Card className={cn(
+                        "w-full transition-all duration-300 hover:scale-102 overflow-hidden",
+                        "shadow-md hover:shadow-xl",
+                        isEven ?
+                          "border-l-4 border-l-love-400 rounded-l-md" :
+                          "border-r-4 border-r-love-400 rounded-r-md",
+                        event.isPublic ? "border-green-200 dark:border-green-800/40" : ""
+                      )}>
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center">
                               {event.isPublic ? (
-                                <Lock className="h-4 w-4" />
+                                <Unlock className="h-4 w-4 mr-2 text-green-500" />
                               ) : (
-                                <Unlock className="h-4 w-4" />
+                                <Lock className="h-4 w-4 mr-2 text-muted-foreground" />
                               )}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => handleEdit(event)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => handleDelete(event)}
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
+                              <CardTitle className="text-xs sm:text-sm text-muted-foreground">
+                                {event.isPublic ? "Public" : "Private"}
+                              </CardTitle>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 sm:h-8 sm:w-8"
+                                onClick={() => handleTogglePublic(event)}
+                              >
+                                {event.isPublic ? (
+                                  <Lock className="h-3 w-3 sm:h-4 sm:w-4" />
+                                ) : (
+                                  <Unlock className="h-3 w-3 sm:h-4 sm:w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 sm:h-8 sm:w-8"
+                                onClick={() => handleEdit(event)}
+                              >
+                                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 sm:h-8 sm:w-8"
+                                onClick={() => handleDelete(event)}
+                              >
+                                <Trash className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                        <CardTitle className="text-xl mt-2">{event.title}</CardTitle>
-                        <CardDescription className="flex items-center gap-1">
-                          <CalendarIcon className="h-3 w-3" />
-                          {format(eventDate, "MMMM d, yyyy")}
+                          <CardTitle className="text-lg sm:text-xl mt-1 sm:mt-2">{event.title}</CardTitle>
+                          <CardDescription className="flex items-center gap-1 text-xs sm:text-sm flex-wrap">
+                            <CalendarIcon className="h-3 w-3" />
+                            {format(eventDate, "MMM d, yyyy")}
 
-                          {event.location && (
-                            <>
-                              <span className="mx-1">•</span>
-                              <MapPin className="h-3 w-3" />
-                              {event.location}
-                            </>
-                          )}
-                        </CardDescription>
-                      </CardHeader>
+                            {event.location && (
+                              <>
+                                <span className="mx-1">•</span>
+                                <MapPin className="h-3 w-3" />
+                                {event.location}
+                              </>
+                            )}
+                          </CardDescription>
+                        </CardHeader>
 
-                      {event.imageUrl && (
-                        <div className="px-4"> {/* Reduced padding */}
-                          <div className="w-full h-40 rounded-md overflow-hidden"> {/* Reduced height */}
-                            <img
-                              src={event.imageUrl}
-                              alt={event.title}
-                              className="w-full h-full object-cover"
-                            />
+                        {event.imageUrl && (
+                          <div className="px-2 sm:px-4">
+                            <div className="w-full h-32 sm:h-40 rounded-md overflow-hidden">
+                              <img
+                                src={event.imageUrl}
+                                alt={event.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      <CardContent className="text-sm"> {/* Reduced text size */}
-                        <p className="whitespace-pre-wrap">{event.description}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
+                        <CardContent className="text-xs sm:text-sm pt-2 pb-4">
+                          <p className="whitespace-pre-wrap">{event.description}</p>
+                        </CardContent>
+                      </Card>
+                    </div>
 
-                  {/* Timeline dot with pulsing effect */}
-                  <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-love-500 border-4 border-background z-10 shadow-lg">
-                    <span className="absolute inset-0 rounded-full bg-love-300 animate-ping opacity-75"></span>
-                    <span className="absolute inset-0 rounded-full bg-gradient-to-r from-love-300 to-love-600"></span>
-                    <span className="relative flex items-center justify-center h-full w-full">
-                      <Heart className="h-3 w-3 text-white" />
-                    </span>
+                    {/* Timeline dot with pulsing effect */}
+                    <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-love-500 border-2 sm:border-4 border-background z-20 shadow-lg">
+                      <span className="absolute inset-0 rounded-full bg-love-300 animate-ping opacity-75"></span>
+                      <span className="absolute inset-0 rounded-full bg-gradient-to-r from-love-300 to-love-600"></span>
+                      <span className="relative flex items-center justify-center h-full w-full">
+                        <Heart className="h-2 w-2 sm:h-3 sm:w-3 text-white" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
