@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, Heart, History, User, Settings, Bookmark, Shield, Calendar, Sparkles, Clock, Users, LogOut, GiftIcon } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
@@ -7,12 +8,14 @@ import { useAuth } from "@/context/AuthContext";
 import { ADMIN_EMAIL } from "@/lib/firebase";
 import { Link } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
+import { SubscriptionModal } from "./SubscriptionModal";
 
 export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (open: boolean) => void }) {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { profile } = useUser();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
 
   // Check if current user is admin
   useEffect(() => {
@@ -103,9 +106,8 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
                 <Link to={link.path} key={link.path}>
                   <Button
                     variant="ghost"
-                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${
-                      isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
-                    }`}
+                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
+                      }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.icon}
@@ -125,9 +127,8 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
                 <Link to={link.path} key={link.path}>
                   <Button
                     variant="ghost"
-                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${
-                      isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
-                    }`}
+                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
+                      }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.icon}
@@ -147,9 +148,8 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
                 <Link to={link.path} key={link.path}>
                   <Button
                     variant="ghost"
-                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${
-                      isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
-                    }`}
+                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
+                      }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.icon}
@@ -168,9 +168,8 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
                 <Link to={link.path} key={link.path}>
                   <Button
                     variant="ghost"
-                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${
-                      isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
-                    }`}
+                    className={`w-full justify-start text-foreground/80 hover:text-love-600 dark:hover:text-love-400 hover:bg-love-100/50 dark:hover:bg-love-800/20 transition-all duration-300 ${isActivePath(link.path) ? "bg-love-100 text-love-700 dark:bg-love-900/20 dark:text-love-300" : ""
+                      }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.icon}
@@ -202,16 +201,35 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
               <div className="rounded-xl bg-gradient-to-r from-love-100 to-love-200 dark:from-love-800/30 dark:to-love-900/30 p-4 border border-love-200/50 dark:border-love-800/50 shadow-sm">
                 <h3 className="font-medium text-love-800 dark:text-love-300 mb-2">Premium Features</h3>
                 <p className="text-sm text-love-700/80 dark:text-love-300/80 mb-3">
-                  Unlock advanced customization options and save unlimited compliments.
+                  {profile?.subscription?.level === "premium"
+                    ? "You are enjoying premium benefits!"
+                    : "Unlock advanced customization options and save unlimited compliments."}
                 </p>
-                <Button size="sm" className="w-full bg-gradient-love hover:opacity-90 transition-all duration-300">
-                  <span className="animate-pulse-slow">Upgrade Now</span>
-                </Button>
+                {profile?.subscription?.level !== "premium" && (
+                  <Button
+                    size="sm"
+                    className="w-full bg-gradient-love hover:opacity-90 transition-all duration-300"
+                    onClick={() => setSubscriptionModalOpen(true)}
+                  >
+                    <span className="animate-pulse-slow">Upgrade Now</span>
+                  </Button>
+                )}
+                {profile?.subscription?.level === "premium" && (
+                  <div className="flex items-center justify-center gap-1 text-sm">
+                    <CreditCard size={14} className="text-love-700 dark:text-love-300" />
+                    <span className="text-love-700 dark:text-love-300">Premium Active</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      <SubscriptionModal
+        isOpen={subscriptionModalOpen}
+        onClose={() => setSubscriptionModalOpen(false)}
+      />
     </>
   );
 }
