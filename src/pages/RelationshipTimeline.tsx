@@ -1,617 +1,546 @@
 
-import { useState, useEffect, useRef } from "react";
-import { Navbar } from "@/components/Navbar";
-import { Sidebar } from "@/components/Sidebar";
-import { Footer } from "@/components/Footer";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Clock, Heart, Image as ImageIcon, Plus, Users, X, Trash2, Eye, EyeOff } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { 
-  Dialog, DialogContent, DialogDescription, DialogFooter, 
-  DialogHeader, DialogTitle, DialogTrigger, DialogClose
-} from "@/components/ui/dialog";
-import { 
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/Spinner";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  TimelineEvent, addTimelineEvent, getTimelineEvents, updateTimelineEvent, 
-  deleteTimelineEvent, uploadTimelineImage 
-} from "@/lib/firebase";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Clock, Plus, CalendarIcon, MapPin, Image as ImageIcon, Edit, Trash, Lock, Unlock, Heart } from "lucide-react";
+import { format } from "date-fns";
+import { Timestamp } from "@/lib/firebase";
+import { TimelineEvent, addTimelineEvent, getUserTimelineEvents, updateTimelineEvent, deleteTimelineEvent } from "@/lib/timelineService";
+import { cn } from "@/lib/utils";
 
-export default function RelationshipTimeline() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const RelationshipTimeline = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Event form state
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditingEvent, setIsEditingEvent] = useState(false);
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [eventDescription, setEventDescription] = useState("");
-  const [eventColor, setEventColor] = useState("bg-love-100 dark:bg-love-900/50");
-  const [eventIconColor, setEventIconColor] = useState("text-love-600 dark:text-love-400");
-  const [eventBorderColor, setEventBorderColor] = useState("border-love-200 dark:border-love-800/50");
-  const [isPublic, setIsPublic] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [currentEventId, setCurrentEventId] = useState<string | null>(null);
-  
-  // Timeline events state
   const [events, setEvents] = useState<TimelineEvent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+  
+  // Form states
+  const [currentEvent, setCurrentEvent] = useState<TimelineEvent | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [location, setLocation] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
+  
   useEffect(() => {
-    if (!user) {
-      navigate("/get-started");
-      return;
+    if (user) {
+      loadEvents();
     }
-
-    loadTimelineEvents();
-  }, [user, navigate]);
-
-  const loadTimelineEvents = async () => {
-    if (!user) return;
+  }, [user]);
+  
+  const loadEvents = async () => {
+    if (!user?.uid) return;
     
+    setLoading(true);
     try {
-      setIsLoading(true);
-      const timelineEvents = await getTimelineEvents(user.uid);
-      setEvents(timelineEvents);
+      const userEvents = await getUserTimelineEvents(user.uid);
+      setEvents(userEvents);
     } catch (error) {
       console.error("Error loading timeline events:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to load timeline events."
+        description: "Failed to load timeline events"
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      
-      // Create a preview URL
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const resetForm = () => {
-    setEventTitle("");
-    setEventDate("");
-    setEventDescription("");
-    setEventColor("bg-love-100 dark:bg-love-900/50");
-    setEventIconColor("text-love-600 dark:text-love-400");
-    setEventBorderColor("border-love-200 dark:border-love-800/50");
-    setIsPublic(false);
-    setSelectedFile(null);
-    setPreviewImage(null);
-    setCurrentEventId(null);
-    setIsEditingEvent(false);
-  };
-
-  const handleOpenAddModal = () => {
-    resetForm();
-    setIsAddModalOpen(true);
-  };
-
-  const handleEditEvent = (event: TimelineEvent) => {
-    setEventTitle(event.title);
-    setEventDate(event.date);
-    setEventDescription(event.description);
-    setEventColor(event.color || "bg-love-100 dark:bg-love-900/50");
-    setEventIconColor(event.iconColor || "text-love-600 dark:text-love-400");
-    setEventBorderColor(event.borderColor || "border-love-200 dark:border-love-800/50");
-    setIsPublic(event.isPublic);
-    setPreviewImage(event.imageUrl || null);
-    setCurrentEventId(event.id || null);
-    setIsEditingEvent(true);
-    setIsAddModalOpen(true);
-  };
-
-  const handleSubmit = async () => {
-    if (!user) return;
+  
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    if (!eventTitle || !eventDate || !eventDescription) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please fill all required fields."
-      });
-      return;
-    }
+    if (!user?.uid || !title || !date) return;
     
     try {
-      setLoading(true);
-      
-      let imageUrl = previewImage;
-      // Only upload a new image if a file was selected
-      if (selectedFile) {
-        imageUrl = await uploadTimelineImage(user.uid, selectedFile);
-      }
-      
-      const eventData: Omit<TimelineEvent, 'id' | 'createdAt'> = {
-        userId: user.uid,
-        title: eventTitle,
-        date: eventDate,
-        description: eventDescription,
-        color: eventColor,
-        iconColor: eventIconColor,
-        borderColor: eventBorderColor,
-        isPublic: isPublic,
-        ...(imageUrl && { imageUrl })
-      };
-      
-      if (isEditingEvent && currentEventId) {
+      if (editMode && currentEvent?.id) {
         // Update existing event
-        await updateTimelineEvent(currentEventId, eventData);
+        const updatedData: Partial<TimelineEvent> = {
+          title,
+          description,
+          date: Timestamp.fromDate(date),
+          location,
+          imageUrl,
+          isPublic
+        };
+        
+        await updateTimelineEvent(currentEvent.id, updatedData);
+        
         toast({
           title: "Success",
-          description: "Timeline event updated successfully."
+          description: "Timeline event updated successfully"
         });
+        
+        // Update local state
+        setEvents(prev => 
+          prev.map(event => 
+            event.id === currentEvent.id 
+              ? { ...event, ...updatedData } 
+              : event
+          )
+        );
       } else {
-        // Add new event
-        await addTimelineEvent(eventData);
+        // Create new event
+        const newEvent: Omit<TimelineEvent, 'id' | 'createdAt'> = {
+          userId: user.uid,
+          title,
+          description,
+          date: Timestamp.fromDate(date),
+          location,
+          imageUrl,
+          isPublic,
+        };
+        
+        const createdEvent = await addTimelineEvent(newEvent);
+        
         toast({
           title: "Success",
-          description: "New memory added to your timeline."
+          description: "Timeline event added successfully"
         });
+        
+        // Update local state
+        setEvents(prev => [createdEvent, ...prev]);
       }
       
-      // Reload timeline events and reset form
-      await loadTimelineEvents();
+      // Reset form and close dialog
       resetForm();
-      setIsAddModalOpen(false);
+      setFormOpen(false);
     } catch (error) {
       console.error("Error saving timeline event:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save timeline event."
+        description: "Failed to save timeline event"
       });
-    } finally {
-      setLoading(false);
     }
   };
-
-  const handleDeleteEvent = async (eventId: string) => {
-    if (!eventId) return;
+  
+  const handleEdit = (event: TimelineEvent) => {
+    setCurrentEvent(event);
+    setTitle(event.title);
+    setDescription(event.description || "");
+    
+    // Convert Timestamp to Date if needed
+    if (event.date instanceof Timestamp) {
+      setDate(event.date.toDate());
+    } else {
+      setDate(new Date(event.date));
+    }
+    
+    setLocation(event.location || "");
+    setImageUrl(event.imageUrl || "");
+    setIsPublic(event.isPublic);
+    
+    setEditMode(true);
+    setFormOpen(true);
+  };
+  
+  const handleDelete = (event: TimelineEvent) => {
+    setCurrentEvent(event);
+    setDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (!currentEvent?.id) return;
     
     try {
-      setLoading(true);
-      await deleteTimelineEvent(eventId);
-      
-      // Remove event from state
-      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+      await deleteTimelineEvent(currentEvent.id);
       
       toast({
         title: "Success",
-        description: "Timeline event deleted successfully."
+        description: "Timeline event deleted successfully"
       });
+      
+      // Update local state
+      setEvents(prev => prev.filter(event => event.id !== currentEvent.id));
+      
+      setDeleteDialogOpen(false);
     } catch (error) {
       console.error("Error deleting timeline event:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete timeline event."
+        description: "Failed to delete timeline event"
       });
-    } finally {
-      setLoading(false);
     }
   };
-
-  const toggleEventVisibility = async (event: TimelineEvent) => {
+  
+  const resetForm = () => {
+    setCurrentEvent(null);
+    setTitle("");
+    setDescription("");
+    setDate(new Date());
+    setLocation("");
+    setImageUrl("");
+    setIsPublic(false);
+    setEditMode(false);
+  };
+  
+  const handleTogglePublic = async (event: TimelineEvent) => {
     if (!event.id) return;
     
     try {
-      const newIsPublic = !event.isPublic;
-      await updateTimelineEvent(event.id, { isPublic: newIsPublic });
+      await updateTimelineEvent(event.id, {
+        isPublic: !event.isPublic
+      });
       
-      // Update event in state
-      setEvents(prevEvents => 
-        prevEvents.map(e => 
-          e.id === event.id ? { ...e, isPublic: newIsPublic } : e
+      // Update local state
+      setEvents(prev => 
+        prev.map(e => 
+          e.id === event.id 
+            ? { ...e, isPublic: !e.isPublic } 
+            : e
         )
       );
       
       toast({
         title: "Success",
-        description: `Event is now ${newIsPublic ? 'public' : 'private'}.`
+        description: `Event is now ${!event.isPublic ? 'public' : 'private'}`
       });
     } catch (error) {
-      console.error("Error updating event visibility:", error);
+      console.error("Error toggling public status:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update event visibility."
+        description: "Failed to update event visibility"
       });
     }
   };
-
-  if (isLoading) {
+  
+  const filteredEvents = events.filter(event => {
+    if (activeTab === "all") return true;
+    if (activeTab === "public") return event.isPublic;
+    if (activeTab === "private") return !event.isPublic;
+    return true;
+  });
+  
+  // Sort events by date (newest first)
+  const sortedEvents = [...filteredEvents].sort((a, b) => {
+    const dateA = a.date instanceof Timestamp ? a.date.toDate().getTime() : new Date(a.date).getTime();
+    const dateB = b.date instanceof Timestamp ? b.date.toDate().getTime() : new Date(b.date).getTime();
+    return dateB - dateA;
+  });
+  
+  if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
-        <div className="animate-spin h-8 w-8 border-4 border-love-500 rounded-full border-t-transparent"></div>
-        <p className="mt-4 text-foreground/70">Loading timeline...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner size="lg" />
       </div>
     );
   }
-
+  
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Navbar toggleSidebar={toggleSidebar} />
-      <main className="flex-1 pt-24">
-        <div className="flex">
-          <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-          <div className="w-full">
-            {/* Header */}
-            <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-b from-love-50/40 via-background to-background dark:from-midnight-900/20 dark:via-background dark:to-background z-0"></div>
-              
-              {/* Decorative elements */}
-              <div className="absolute top-1/4 right-1/5 w-64 h-64 rounded-full bg-love-200/20 dark:bg-love-800/10 blur-3xl animate-float opacity-70"></div>
-              <div className="absolute bottom-1/3 left-1/5 w-56 h-56 rounded-full bg-love-300/20 dark:bg-love-700/20 blur-3xl animate-float opacity-60" style={{animationDelay: "2s"}}></div>
-              
-              <div className="container mx-auto relative z-10">
-                <div className="text-center max-w-3xl mx-auto">
-                  <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-4 py-1 mb-4 animate-fade-in">
-                    <span className="text-sm font-medium text-love-600 dark:text-love-400 flex items-center justify-center">
-                      <Users size={14} className="mr-1.5 animate-pulse-slow" />
-                      Your Journey
-                    </span>
-                  </div>
-                  <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-text-shimmer">
-                    Your Relationship <span className="font-great-vibes text-5xl md:text-6xl gradient-text">Timeline</span>
-                  </h1>
-                  <p className="text-lg md:text-xl text-foreground/80 animate-text-fade">
-                    Document your journey of love with a beautiful, interactive timeline of your special moments.
-                  </p>
-                </div>
-              </div>
-            </section>
+    <div className="container mx-auto py-8 px-4">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2 gradient-text">Relationship Timeline</h1>
+        <p className="text-muted-foreground">
+          Document and share special moments in your relationship
+        </p>
+      </div>
+      
+      <div className="flex justify-between items-center mb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+          <TabsList>
+            <TabsTrigger value="all">All Events</TabsTrigger>
+            <TabsTrigger value="public">Public</TabsTrigger>
+            <TabsTrigger value="private">Private</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        
+        <Dialog open={formOpen} onOpenChange={setFormOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              className="bg-gradient-love hover:opacity-90 transition-opacity button-glow"
+              onClick={() => {
+                resetForm();
+                setFormOpen(true);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Memory
+            </Button>
+          </DialogTrigger>
+          
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>{editMode ? "Edit Memory" : "Add New Memory"}</DialogTitle>
+              <DialogDescription>
+                {editMode 
+                  ? "Update details of your special memory" 
+                  : "Document a special moment to add to your relationship timeline"}
+              </DialogDescription>
+            </DialogHeader>
             
-            {/* Timeline Section */}
-            <section className="py-12 px-4 sm:px-6 lg:px-8">
-              <div className="container mx-auto">
-                <div className="max-w-4xl mx-auto">
-                  {/* Add New Event Button */}
-                  <div className="flex justify-center mb-12">
-                    <Button onClick={handleOpenAddModal} className="bg-gradient-love hover:opacity-90 transition-all duration-300 rounded-xl py-6 px-8 shadow-lg hover:shadow-love-500/20">
-                      <Plus size={18} className="mr-2" />
-                      Add New Memory
-                    </Button>
-                  </div>
-                  
-                  {/* Timeline */}
-                  {events.length === 0 ? (
-                    <div className="text-center py-16 bg-white/50 dark:bg-midnight-800/30 rounded-xl">
-                      <Clock className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                      <h3 className="text-xl font-semibold mb-2">Your Timeline is Empty</h3>
-                      <p className="text-foreground/70 mb-6">
-                        Start documenting your special moments by adding your first memory.
-                      </p>
-                      <Button onClick={handleOpenAddModal} className="bg-gradient-love hover:opacity-90">
-                        <Plus size={18} className="mr-2" />
-                        Add Your First Memory
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      {/* Timeline line */}
-                      <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-love-200 via-love-300 to-love-200 dark:from-love-800/30 dark:via-love-700/30 dark:to-love-800/30 rounded-full opacity-70"></div>
-                      
-                      {/* Timeline events */}
-                      <div className="space-y-16">
-                        {events.map((event, index) => (
-                          <div 
-                            key={event.id}
-                            className={`relative flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} animate-fade-in`}
-                            style={{ animationDelay: `${index * 150}ms` }}
-                          >
-                            {/* Timeline dot */}
-                            <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full bg-love-500 dark:bg-love-600 z-10 shadow-glow-sm"></div>
-                            
-                            {/* Event card */}
-                            <div className={cn(
-                              "w-5/12 bg-white/80 dark:bg-midnight-800/50 backdrop-blur-sm rounded-2xl p-5 border", 
-                              event.borderColor || "border-love-200 dark:border-love-800/50",
-                              "shadow-sm hover:shadow-md transition-all duration-300 hover:transform hover:scale-[1.02]"
-                            )}>
-                              {event.imageUrl && (
-                                <div className="w-full h-48 rounded-xl overflow-hidden mb-4">
-                                  <img 
-                                    src={event.imageUrl} 
-                                    alt={event.title} 
-                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                                  />
-                                </div>
-                              )}
-                              
-                              <div className="flex items-center mb-3">
-                                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", event.color || "bg-love-100 dark:bg-love-900/50")}>
-                                  <Heart className={cn("h-5 w-5", event.iconColor || "text-love-600 dark:text-love-400")} />
-                                </div>
-                                <div className="ml-3">
-                                  <h3 className="text-xl font-bold">{event.title}</h3>
-                                  <div className="flex items-center text-sm text-foreground/60">
-                                    <Calendar size={14} className="mr-1" />
-                                    {new Date(event.date).toLocaleDateString('en-US', {
-                                      year: 'numeric',
-                                      month: 'long',
-                                      day: 'numeric'
-                                    })}
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <p className="text-foreground/80">{event.description}</p>
-                              
-                              <div className="flex justify-between mt-4 pt-4 border-t border-foreground/10">
-                                <div className="flex items-center">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="text-muted-foreground hover:text-primary"
-                                    onClick={() => toggleEventVisibility(event)}
-                                  >
-                                    {event.isPublic ? (
-                                      <>
-                                        <Eye className="h-4 w-4 mr-1" />
-                                        Public
-                                      </>
-                                    ) : (
-                                      <>
-                                        <EyeOff className="h-4 w-4 mr-1" />
-                                        Private
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                                <div className="flex space-x-2">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="text-foreground/60 hover:text-love-600 dark:hover:text-love-400"
-                                    onClick={() => handleEditEvent(event)}
-                                  >
-                                    Edit
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                    onClick={() => handleDeleteEvent(event.id!)}
-                                  >
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Spacer for opposite side */}
-                            <div className="w-5/12"></div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Final dot */}
-                      {events.length > 0 && (
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-love-200 dark:bg-love-800/50 border-4 border-love-500 dark:border-love-600 z-10 animate-pulse-slow"></div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* Add another memory button at bottom */}
-                  {events.length > 0 && (
-                    <div className="mt-16 text-center">
-                      <p className="text-foreground/70 mb-4">Your story is just beginning. Add more memories to your timeline!</p>
-                      <Button 
-                        onClick={handleOpenAddModal}
-                        className="bg-white/80 dark:bg-midnight-800/50 text-love-600 dark:text-love-400 hover:bg-love-50 dark:hover:bg-love-900/20 border border-love-200 dark:border-love-800/50 rounded-xl py-5 px-8"
-                      >
-                        <Plus size={18} className="mr-2" />
-                        Add Another Memory
-                      </Button>
-                    </div>
-                  )}
+            <form onSubmit={handleFormSubmit}>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input 
+                    id="title" 
+                    value={title} 
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Our first date" 
+                    required
+                  />
                 </div>
-              </div>
-            </section>
-            
-            {/* Add/Edit Event Modal */}
-            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-              <DialogContent className="sm:max-w-[550px]">
-                <DialogHeader>
-                  <DialogTitle>
-                    {isEditingEvent ? "Edit Memory" : "Add New Memory"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {isEditingEvent 
-                      ? "Update the details of this special moment." 
-                      : "Capture a special moment to add to your relationship timeline."}
-                  </DialogDescription>
-                </DialogHeader>
                 
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input 
-                      id="title" 
-                      placeholder="First Date, Anniversary, etc." 
-                      value={eventTitle}
-                      onChange={(e) => setEventTitle(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label htmlFor="date">Date</Label>
-                    <Input 
-                      id="date" 
-                      type="date" 
-                      value={eventDate}
-                      onChange={(e) => setEventDate(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea 
-                      id="description" 
-                      placeholder="What made this moment special?" 
-                      className="min-h-[100px]"
-                      value={eventDescription}
-                      onChange={(e) => setEventDescription(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label>Add Photo (Optional)</Label>
-                    <div className="flex items-center space-x-4">
-                      <Button 
-                        type="button" 
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea 
+                    id="description" 
+                    value={description} 
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Write about this special moment..." 
+                    className="min-h-[100px]"
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
                         variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full justify-start text-left font-normal"
                       >
-                        <ImageIcon className="h-4 w-4 mr-2" />
-                        {previewImage ? "Change Image" : "Upload Image"}
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
                       </Button>
-                      <input 
-                        ref={fileInputRef}
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden"
-                        onChange={handleFileChange}
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={(date) => setDate(date)}
+                        initialFocus
                       />
-                      {previewImage && (
-                        <Button 
-                          type="button" 
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50 p-0 h-auto"
-                          onClick={() => {
-                            setPreviewImage(null);
-                            setSelectedFile(null);
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-                    
-                    {previewImage && (
-                      <div className="mt-2 relative">
-                        <img 
-                          src={previewImage} 
-                          alt="Preview" 
-                          className="h-40 w-full object-cover rounded-md"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label htmlFor="color">Style (Optional)</Label>
-                    <Select 
-                      value={eventColor} 
-                      onValueChange={(value) => {
-                        // Set coordinated colors for consistent styling
-                        setEventColor(value);
-                        switch (value) {
-                          case "bg-love-100 dark:bg-love-900/50":
-                            setEventIconColor("text-love-600 dark:text-love-400");
-                            setEventBorderColor("border-love-200 dark:border-love-800/50");
-                            break;
-                          case "bg-amber-100 dark:bg-amber-900/50":
-                            setEventIconColor("text-amber-600 dark:text-amber-400");
-                            setEventBorderColor("border-amber-200 dark:border-amber-800/50");
-                            break;
-                          case "bg-cyan-100 dark:bg-cyan-900/50":
-                            setEventIconColor("text-cyan-600 dark:text-cyan-400");
-                            setEventBorderColor("border-cyan-200 dark:border-cyan-800/50");
-                            break;
-                          case "bg-emerald-100 dark:bg-emerald-900/50":
-                            setEventIconColor("text-emerald-600 dark:text-emerald-400");
-                            setEventBorderColor("border-emerald-200 dark:border-emerald-800/50");
-                            break;
-                          case "bg-purple-100 dark:bg-purple-900/50":
-                            setEventIconColor("text-purple-600 dark:text-purple-400");
-                            setEventBorderColor("border-purple-200 dark:border-purple-800/50");
-                            break;
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a color theme" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bg-love-100 dark:bg-love-900/50">Love Pink</SelectItem>
-                        <SelectItem value="bg-amber-100 dark:bg-amber-900/50">Sunset Gold</SelectItem>
-                        <SelectItem value="bg-cyan-100 dark:bg-cyan-900/50">Ocean Blue</SelectItem>
-                        <SelectItem value="bg-emerald-100 dark:bg-emerald-900/50">Forest Green</SelectItem>
-                        <SelectItem value="bg-purple-100 dark:bg-purple-900/50">Royal Purple</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch 
-                      id="isPublic" 
-                      checked={isPublic}
-                      onCheckedChange={setIsPublic}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="location">Location (Optional)</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      id="location" 
+                      value={location} 
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="Paris, France" 
+                      className="pl-10"
                     />
-                    <Label htmlFor="isPublic">Make this memory public</Label>
                   </div>
                 </div>
                 
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="button" 
-                    onClick={handleSubmit} 
-                    disabled={loading}
-                    className="bg-gradient-love"
-                  >
-                    {loading ? (
-                      <>
-                        <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent mr-2"></div>
-                        Saving...
-                      </>
-                    ) : (
-                      isEditingEvent ? "Update Memory" : "Add Memory"
+                <div className="grid gap-2">
+                  <Label htmlFor="imageUrl">Image URL (Optional)</Label>
+                  <div className="relative">
+                    <ImageIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      id="imageUrl" 
+                      value={imageUrl} 
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="https://example.com/image.jpg" 
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="isPublic" 
+                    checked={isPublic} 
+                    onCheckedChange={setIsPublic} 
+                  />
+                  <Label htmlFor="isPublic">
+                    Make this memory public
+                  </Label>
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    resetForm();
+                    setFormOpen(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {editMode ? "Update Memory" : "Add to Timeline"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+      
+      {sortedEvents.length === 0 ? (
+        <div className="text-center p-12 border border-dashed rounded-lg">
+          <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium mb-2">No memories yet</h3>
+          <p className="text-muted-foreground mb-4">
+            Start building your relationship timeline by adding your special moments.
+          </p>
+          <Button 
+            onClick={() => setFormOpen(true)}
+            className="bg-gradient-love hover:opacity-90 transition-opacity"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Your First Memory
+          </Button>
+        </div>
+      ) : (
+        <div className="relative">
+          {/* Timeline line */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-border dark:bg-muted z-0" />
+          
+          <div className="relative z-10 space-y-8">
+            {sortedEvents.map((event, index) => {
+              const isEven = index % 2 === 0;
+              const eventDate = event.date instanceof Timestamp ? 
+                event.date.toDate() : new Date(event.date);
+              
+              return (
+                <div key={event.id} className="flex items-center justify-center">
+                  <div 
+                    className={cn(
+                      "w-full md:w-5/12 p-1",
+                      isEven ? "md:mr-auto" : "md:ml-auto"
                     )}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            
-            <Footer />
+                  >
+                    <Card className={cn(
+                      "w-full transition-all hover:shadow-md overflow-hidden",
+                      isEven ? "md:rounded-tr-3xl" : "md:rounded-tl-3xl",
+                      event.isPublic ? "border-green-200 dark:border-green-800/40" : ""
+                    )}>
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center">
+                            {event.isPublic ? (
+                              <Unlock className="h-4 w-4 mr-2 text-green-500" />
+                            ) : (
+                              <Lock className="h-4 w-4 mr-2 text-muted-foreground" />
+                            )}
+                            <CardTitle className="text-sm text-muted-foreground">
+                              {event.isPublic ? "Public" : "Private"}
+                            </CardTitle>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleTogglePublic(event)}
+                            >
+                              {event.isPublic ? (
+                                <Lock className="h-4 w-4" />
+                              ) : (
+                                <Unlock className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleEdit(event)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleDelete(event)}
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        <CardTitle className="text-xl mt-2">{event.title}</CardTitle>
+                        <CardDescription className="flex items-center gap-1">
+                          <CalendarIcon className="h-3 w-3" />
+                          {format(eventDate, "MMMM d, yyyy")}
+                          
+                          {event.location && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <MapPin className="h-3 w-3" />
+                              {event.location}
+                            </>
+                          )}
+                        </CardDescription>
+                      </CardHeader>
+                      
+                      {event.imageUrl && (
+                        <div className="px-6">
+                          <div className="w-full h-48 rounded-md overflow-hidden">
+                            <img 
+                              src={event.imageUrl} 
+                              alt={event.title} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      <CardContent>
+                        <p className="whitespace-pre-wrap">{event.description}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  {/* Timeline dot */}
+                  <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-love-500 border-2 border-background"></div>
+                </div>
+              );
+            })}
           </div>
         </div>
-      </main>
+      )}
+      
+      {/* Delete Confirm Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this memory from your timeline.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
-}
+};
+
+export default RelationshipTimeline;
