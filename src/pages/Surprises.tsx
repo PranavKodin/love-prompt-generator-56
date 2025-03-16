@@ -191,7 +191,7 @@ const Surprises = () => {
           budget === "medium" ? "₹1000-5000" :
             "over ₹5000";
 
-      const prompt = `Generate surprise ideas for a partner with interests in ${partnerInterests}, for the occasion ${occasion}, within a budget ${budgetString}, idea should be in short 3-4 line paragraph`;
+      const prompt = `Generate surprise ideas for a partner with interests in ${partnerInterests}, for the occasion ${occasion}, within a budget ${budgetString}, idea should be in short paragraph under 100 words`;
 
       const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
