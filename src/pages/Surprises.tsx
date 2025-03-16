@@ -120,7 +120,12 @@ const budgetOptions = [
 
 // Occasion options
 const occasionOptions = [
-  // ... (the occasionOptions array remains unchanged)
+  { value: "anniversary", label: "Anniversary" },
+  { value: "birthday", label: "Birthday" },
+  { value: "valentine", label: "Valentine's Day" },
+  { value: "just-because", label: "Just Because" },
+  { value: "date-night", label: "Special Date Night" },
+  { value: "holiday", label: "Holiday" }
 ];
 
 // Difficulty indicator component
