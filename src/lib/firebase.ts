@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
@@ -97,6 +96,9 @@ export interface UserProfile {
     level: "free" | "premium";
     expiresAt: Timestamp;
   };
+  followersCount?: number;
+  followingCount?: number;
+  isPrivate?: boolean;
 }
 
 export interface TimelineEvent {
@@ -139,6 +141,22 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     return null;
   } catch (error) {
     console.error("Error getting user profile:", error);
+    throw error;
+  }
+};
+
+export const getUserById = async (userId: string): Promise<UserProfile | null> => {
+  try {
+    const userDoc = doc(db, "users", userId);
+    const userSnap = await getDoc(userDoc);
+    
+    if (userSnap.exists()) {
+      return { ...(userSnap.data() as UserProfile), uid: userSnap.id };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error getting user by ID:", error);
     throw error;
   }
 };
@@ -567,6 +585,173 @@ export const deleteComment = async (commentId: string, complimentId: string) => 
   } catch (error) {
     console.error("Error deleting comment:", error);
     throw error;
+  }
+};
+
+// Follow system functions
+export const followUser = async (currentUserId: string, targetUserId: string): Promise<boolean> => {
+  try {
+    // Add to following collection for current user
+    const followingRef = doc(db, "following", currentUserId, "users", targetUserId);
+    await setDoc(followingRef, { timestamp: serverTimestamp() });
+    
+    // Add to followers collection for target user
+    const followerRef = doc(db, "followers", targetUserId, "users", currentUserId);
+    await setDoc(followerRef, { timestamp: serverTimestamp() });
+    
+    // Update follower and following counts
+    await updateFollowCounts(currentUserId, targetUserId);
+    
+    return true;
+  } catch (error) {
+    console.error("Error following user:", error);
+    throw error;
+  }
+};
+
+export const unfollowUser = async (currentUserId: string, targetUserId: string): Promise<boolean> => {
+  try {
+    // Remove from following collection for current user
+    const followingRef = doc(db, "following", currentUserId, "users", targetUserId);
+    await deleteDoc(followingRef);
+    
+    // Remove from followers collection for target user
+    const followerRef = doc(db, "followers", targetUserId, "users", currentUserId);
+    await deleteDoc(followerRef);
+    
+    // Update follower and following counts
+    await updateFollowCounts(currentUserId, targetUserId);
+    
+    return true;
+  } catch (error) {
+    console.error("Error unfollowing user:", error);
+    throw error;
+  }
+};
+
+export const isFollowing = async (currentUserId: string, targetUserId: string): Promise<boolean> => {
+  try {
+    const followingRef = doc(db, "following", currentUserId, "users", targetUserId);
+    const docSnap = await getDoc(followingRef);
+    return docSnap.exists();
+  } catch (error) {
+    console.error("Error checking follow status:", error);
+    return false;
+  }
+};
+
+export const getFollowers = async (userId: string): Promise<UserProfile[]> => {
+  try {
+    const followersRef = collection(db, "followers", userId, "users");
+    const querySnapshot = await getDocs(followersRef);
+    
+    const followers: UserProfile[] = [];
+    
+    for (const doc of querySnapshot.docs) {
+      const followerProfile = await getUserProfile(doc.id);
+      if (followerProfile) {
+        followers.push(followerProfile);
+      }
+    }
+    
+    return followers;
+  } catch (error) {
+    console.error("Error getting followers:", error);
+    return [];
+  }
+};
+
+export const getFollowing = async (userId: string): Promise<UserProfile[]> => {
+  try {
+    const followingRef = collection(db, "following", userId, "users");
+    const querySnapshot = await getDocs(followingRef);
+    
+    const following: UserProfile[] = [];
+    
+    for (const doc of querySnapshot.docs) {
+      const followingProfile = await getUserProfile(doc.id);
+      if (followingProfile) {
+        following.push(followingProfile);
+      }
+    }
+    
+    return following;
+  } catch (error) {
+    console.error("Error getting following:", error);
+    return [];
+  }
+};
+
+export const getFollowCounts = async (userId: string): Promise<{followers: number, following: number}> => {
+  try {
+    const followersRef = collection(db, "followers", userId, "users");
+    const followingRef = collection(db, "following", userId, "users");
+    
+    const [followersSnapshot, followingSnapshot] = await Promise.all([
+      getDocs(followersRef),
+      getDocs(followingRef)
+    ]);
+    
+    return {
+      followers: followersSnapshot.size,
+      following: followingSnapshot.size
+    };
+  } catch (error) {
+    console.error("Error getting follow counts:", error);
+    return { followers: 0, following: 0 };
+  }
+};
+
+const updateFollowCounts = async (currentUserId: string, targetUserId: string): Promise<void> => {
+  try {
+    // Get current counts
+    const currentUserCounts = await getFollowCounts(currentUserId);
+    const targetUserCounts = await getFollowCounts(targetUserId);
+    
+    // Update current user's following count
+    const currentUserRef = doc(db, "users", currentUserId);
+    await updateDoc(currentUserRef, {
+      followingCount: currentUserCounts.following
+    });
+    
+    // Update target user's follower count
+    const targetUserRef = doc(db, "users", targetUserId);
+    await updateDoc(targetUserRef, {
+      followersCount: targetUserCounts.followers
+    });
+  } catch (error) {
+    console.error("Error updating follow counts:", error);
+  }
+};
+
+export const getFollowingCompliments = async (userId: string): Promise<Compliment[]> => {
+  try {
+    // Get list of users the current user is following
+    const followingRef = collection(db, "following", userId, "users");
+    const followingSnapshot = await getDocs(followingRef);
+    
+    if (followingSnapshot.empty) {
+      return [];
+    }
+    
+    const followingIds = followingSnapshot.docs.map(doc => doc.id);
+    
+    // Get compliments from those users
+    const q = query(
+      complimentsCollection,
+      where("userId", "in", followingIds),
+      where("isPublic", "==", true),
+      orderBy("createdAt", "desc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Compliment));
+  } catch (error) {
+    console.error("Error getting following compliments:", error);
+    return [];
   }
 };
 
