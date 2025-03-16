@@ -196,7 +196,7 @@ const Surprises = () => {
         const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer YOUR_OPENAI_API_KEY`, // Replace with your OpenAI API key
+                "Authorization": `Bearer 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`, // Replace with your OpenAI API key
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
