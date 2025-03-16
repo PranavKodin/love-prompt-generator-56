@@ -56,6 +56,17 @@ const PublicCompliments = () => {
   const [loadingComments, setLoadingComments] = useState<Record<string, boolean>>({});
   const [userCache, setUserCache] = useState<Record<string, any>>({});
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
+    story: false,
+    team: false,
+    mission: false
+  });
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   useEffect(() => {
     const fetchCompliments = async () => {
       try {
@@ -267,7 +278,7 @@ const PublicCompliments = () => {
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
 
-      <Navbar toggleSidebar={() => {}} />
+      <Navbar toggleSidebar={toggleSidebar} />
 
       <main className="flex-1 container mx-auto pt-28 pb-16 px-4">
         <div className="text-center mb-12">
