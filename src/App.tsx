@@ -1,4 +1,5 @@
 
+import "./App.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,9 +23,9 @@ import Settings from "./pages/Settings";
 import PublicCompliments from "./pages/PublicCompliments";
 import AdminUsers from "./pages/AdminUsers";
 import RelationshipTimeline from "./pages/RelationshipTimeline";
-import AnniversaryReminders from "./pages/AnniversaryReminders";
 import Surprises from "./pages/Surprises";
 import UserProfile from "./pages/UserProfile";
+import FollowingFeed from "./pages/FollowingFeed";
 
 const queryClient = new QueryClient();
 
@@ -51,9 +52,9 @@ const App = () => (
                 <Route path="/history" element={<History />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/public-compliments" element={<PublicCompliments />} />
+                <Route path="/following" element={<FollowingFeed />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/relationship-timeline" element={<RelationshipTimeline />} />
-                <Route path="/anniversary-reminders" element={<AnniversaryReminders />} />
                 <Route path="/surprises" element={<Surprises />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
