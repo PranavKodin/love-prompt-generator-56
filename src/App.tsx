@@ -21,6 +21,11 @@ import History from "./pages/History";
 import Settings from "./pages/Settings";
 import PublicCompliments from "./pages/PublicCompliments";
 import AdminUsers from "./pages/AdminUsers";
+import RelationshipTimeline from "./pages/RelationshipTimeline";
+import AnniversaryReminders from "./pages/AnniversaryReminders";
+import GiftIdeas from "./pages/GiftIdeas";
+import RelationshipChallenges from "./pages/RelationshipChallenges";
+import Surprises from "./pages/Surprises";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +52,11 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/public-compliments" element={<PublicCompliments />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/relationship-timeline" element={<RelationshipTimeline />} />
+                <Route path="/anniversary-reminders" element={<AnniversaryReminders />} />
+                <Route path="/gift-ideas" element={<GiftIdeas />} />
+                <Route path="/relationship-challenges" element={<RelationshipChallenges />} />
+                <Route path="/surprises" element={<Surprises />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </TooltipProvider>

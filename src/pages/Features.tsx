@@ -1,9 +1,22 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
-import { Heart, Sparkles, MessageSquareHeart, Image as ImageIcon, PenLine, BrainCircuit, Settings, Layers } from "lucide-react";
+import { 
+  Heart, 
+  Sparkles, 
+  MessageSquareHeart, 
+  Image as ImageIcon, 
+  PenLine, 
+  BrainCircuit, 
+  Settings, 
+  Layers,
+  Calendar,
+  Users,
+  Gift,
+  Medal,
+  Bell
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Features() {
@@ -11,12 +24,14 @@ export default function Features() {
   const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
     core: false,
     advanced: false,
-    upcoming: false
+    upcoming: false,
+    new: false
   });
   
   const coreRef = useRef<HTMLElement>(null);
   const advancedRef = useRef<HTMLElement>(null);
   const upcomingRef = useRef<HTMLElement>(null);
+  const newFeaturesRef = useRef<HTMLElement>(null);
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -40,6 +55,7 @@ export default function Features() {
       checkSection(coreRef, 'core');
       checkSection(advancedRef, 'advanced');
       checkSection(upcomingRef, 'upcoming');
+      checkSection(newFeaturesRef, 'new');
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -131,6 +147,39 @@ export default function Features() {
     {
       title: "Couple's Quiz Creator",
       description: "Generate fun, personalized quizzes to help you learn more about each other."
+    }
+  ];
+
+  const newFeatures = [
+    {
+      icon: Calendar,
+      title: "Anniversary Reminders",
+      description: "Never forget important dates with personalized reminders for anniversaries, birthdays, and other special occasions.",
+      color: "bg-love-100 dark:bg-love-900/30 text-love-600 dark:text-love-400"
+    },
+    {
+      icon: Users,
+      title: "Relationship Timeline",
+      description: "Document your relationship journey with an interactive timeline featuring your most cherished memories and milestones.",
+      color: "bg-love-100 dark:bg-love-900/30 text-love-600 dark:text-love-400"
+    },
+    {
+      icon: Gift,
+      title: "Personalized Gift Ideas",
+      description: "Get AI-powered gift suggestions based on your loved one's interests, preferences, and your relationship history.",
+      color: "bg-love-100 dark:bg-love-900/30 text-love-600 dark:text-love-400"
+    },
+    {
+      icon: Medal,
+      title: "Relationship Challenge",
+      description: "Strengthen your bond with fun daily or weekly challenges designed to deepen connection and enhance communication.",
+      color: "bg-love-100 dark:bg-love-900/30 text-love-600 dark:text-love-400"
+    },
+    {
+      icon: Bell,
+      title: "Surprise Suggestions",
+      description: "Receive creative ideas for spontaneous gestures and surprises to keep your relationship fresh and exciting.",
+      color: "bg-love-100 dark:bg-love-900/30 text-love-600 dark:text-love-400"
     }
   ];
 
@@ -270,6 +319,59 @@ export default function Features() {
               </div>
             </section>
             
+            {/* New Features Section */}
+            <section 
+              id="new-features"
+              ref={newFeaturesRef}
+              className={cn(
+                "py-16 px-4 sm:px-6 lg:px-8 relative transition-all duration-1000",
+                visibleSections.new ? "opacity-100 transform translate-y-0" : "opacity-0 transform translate-y-10"
+              )}
+            >
+              <div className="container mx-auto">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                  <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-4 py-1 mb-4">
+                    <span className="text-sm font-medium text-love-600 dark:text-love-400 flex items-center justify-center">
+                      <Sparkles size={14} className="mr-1.5 animate-pulse-slow" />
+                      Just Released
+                      <Sparkles size={14} className="ml-1.5 animate-pulse-slow" style={{animationDelay: "1s"}} />
+                    </span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-text-shimmer">
+                    <span className="gradient-text">New Features</span> You'll Love
+                  </h2>
+                  <p className="text-foreground/70">
+                    We've just added these exciting new features to help you nurture your relationship.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                  {newFeatures.map((feature, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "bg-white/60 dark:bg-midnight-800/40 backdrop-blur-sm rounded-2xl p-6 border border-white/40 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-500",
+                        "hover:transform hover:translate-y-[-5px] hover:border-love-200 dark:hover:border-love-800/30",
+                        visibleSections.new ? getResponsiveAnimation(
+                          "animate-slide-in-mobile", 
+                          "animate-fade-in-tablet", 
+                          "animate-scale-in-desktop", 
+                          "animate-blur-in-tv"
+                        ) : ""
+                      )}
+                      style={{ animationDelay: `${index * 150}ms` }}
+                    >
+                      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-4", feature.color)}>
+                        <feature.icon className="h-6 w-6" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                      <p className="text-foreground/70">{feature.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+            
             {/* Upcoming Features Section */}
             <section 
               id="upcoming-features"
@@ -339,3 +441,4 @@ export default function Features() {
     </div>
   );
 }
+

@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Hero } from "@/components/Hero";
 import { CustomizationForm } from "@/components/CustomizationForm";
 import { Footer } from "@/components/Footer";
-import { Heart, Upload, Sliders, Sparkles, MessageSquareHeart } from "lucide-react";
+import { Heart, Upload, Sliders, Sparkles, MessageSquareHeart, Calendar, Users, Gift, Medal, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,19 +122,34 @@ export default function Index() {
                       description: "Upload a photo to help our AI create more personalized and relevant compliments."
                     },
                     {
-                      icon: Sparkles,
-                      title: "Advanced AI",
-                      description: "Powered by state-of-the-art language models to create natural, heartfelt compliments."
+                      icon: Calendar,
+                      title: "Anniversary Reminders",
+                      description: "Never forget important dates with personalized reminders for anniversaries and birthdays."
+                    },
+                    {
+                      icon: Users,
+                      title: "Relationship Timeline",
+                      description: "Document your relationship journey with an interactive timeline of cherished memories."
+                    },
+                    {
+                      icon: Gift,
+                      title: "Gift Ideas",
+                      description: "Get personalized gift suggestions based on your loved one's interests and preferences."
+                    },
+                    {
+                      icon: Medal,
+                      title: "Relationship Challenges",
+                      description: "Strengthen your bond with fun challenges designed to deepen your connection."
+                    },
+                    {
+                      icon: Bell,
+                      title: "Surprise Suggestions",
+                      description: "Receive creative ideas for spontaneous gestures to keep your relationship exciting."
                     },
                     {
                       icon: MessageSquareHeart,
                       title: "Conversation Starters",
                       description: "Get suggestions for starting meaningful conversations with your special someone."
-                    },
-                    {
-                      icon: Heart,
-                      title: "Romantic Ideas",
-                      description: "Receive creative and romantic ideas to express your feelings beyond just words."
                     }
                   ].map((feature, index) => (
                     <div
