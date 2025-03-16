@@ -165,92 +165,89 @@ const Surprises = () => {
     e.preventDefault();
 
     if (!user) {
-        toast({
-            title: "Login Required",
-            description: "Please log in to generate custom surprise ideas",
-            variant: "destructive"
-        });
-        navigate("/get-started");
-        return;
+      toast({
+        title: "Login Required",
+        description: "Please log in to generate custom surprise ideas",
+        variant: "destructive"
+      });
+      navigate("/get-started");
+      return;
     }
 
     if (!partnerInterests.trim()) {
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Please enter your partner's interests"
-        });
-        return;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter your partner's interests"
+      });
+      return;
     }
 
     setIsGenerating(true);
 
     try {
-        const budgetString = 
-            budget === "low" ? "under ₹1000" : 
-            budget === "medium" ? "₹1000-5000" : 
+      const budgetString =
+        budget === "low" ? "under ₹1000" :
+          budget === "medium" ? "₹1000-5000" :
             "over ₹5000";
-        
-        const prompt = `Generate three surprise ideas for a partner with interests in ${partnerInterests}, for the occasion ${occasion}, within a budget ${budgetString}.`;
 
-        const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer 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`, // Replace with your OpenAI API key
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [
-                    { role: "system", content: "You are a creative and thoughtful surprise idea generator." },
-                    { role: "user", content: prompt }
-                ],
-                max_tokens: 150
-            })
-        });
+      const prompt = `Generate surprise ideas for a partner with interests in ${partnerInterests}, for the occasion ${occasion}, within a budget ${budgetString}, idea should be in paragraph`;
 
-        if (!gptResponse.ok) {
-            const gptErrorDetail = await gptResponse.text();
-            console.error("GPT API Error:", gptErrorDetail);
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: `Error with API: ${gptErrorDetail}`
-            });
-            setIsGenerating(false);
-            return;
-        }
+      const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer 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`, // Replace with your OpenAI API key
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: "You are a creative and thoughtful surprise idea generator." },
+            { role: "user", content: prompt }
+          ],
+          max_tokens: 150
+        })
+      });
 
-        const gptData = await gptResponse.json();
-        const ideas = gptData.choices[0].message.content.trim().split('\n').map((line: string, index: number) => {
-            const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); // Bold headings enclosed by double stars
-            return {
-                title: `Custom Idea ${index + 1}`,
-                description: formattedLine.trim(),
-                difficulty: 'medium', // You can adjust the difficulty based on the response
-                estimatedCost: budgetString,
-                category: 'custom'
-            };
-        });
-
-        setGeneratedIdeas(ideas);
-        setActiveTab("custom");
-
+      if (!gptResponse.ok) {
+        const gptErrorDetail = await gptResponse.text();
+        console.error("GPT API Error:", gptErrorDetail);
         toast({
-            title: "Success",
-            description: "Custom surprise ideas generated successfully"
+          variant: "destructive",
+          title: "Error",
+          description: `Error with API: ${gptErrorDetail}`
         });
-    } catch (error) {
-        console.error("Error during API call:", error);
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Error connecting to the API. Please try again."
-        });
-    } finally {
         setIsGenerating(false);
+        return;
+      }
+
+      const gptData = await gptResponse.json();
+      const ideas = gptData.choices.map((choice: any) => ({
+        title: 'Custom Idea',
+        description: choice.message.content.trim(),
+        difficulty: 'medium', // You can adjust the difficulty based on the response
+        estimatedCost: budgetString,
+        category: 'custom'
+      }));
+
+      setGeneratedIdeas(ideas);
+      setActiveTab("custom");
+
+      toast({
+        title: "Success",
+        description: "Custom surprise ideas generated successfully"
+      });
+    } catch (error) {
+      console.error("Error during API call:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Error connecting to the API. Please try again."
+      });
+    } finally {
+      setIsGenerating(false);
     }
-};
+  };
 
   return (
     <div className="container mx-auto py-8 px-4">
