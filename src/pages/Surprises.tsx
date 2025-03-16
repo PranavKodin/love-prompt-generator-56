@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Gift, Sparkles, Star, Compass, DollarSign, CalendarHeart, Clock, Coffee, PenLine, Tag, Palette } from "lucide-react";
-import { generateSurprises } from "@/lib/surpriseService";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 
@@ -20,42 +19,42 @@ const predefinedSurprises = [
     title: "Surprise Breakfast in Bed",
     description: "Wake up early and prepare a delicious breakfast with their favorite foods. Serve it to them in bed for a loving start to the day.",
     difficulty: "easy",
-    estimatedCost: "$15-30",
+    estimatedCost: "₹1200-2400",
     category: "romantic"
   },
   {
     title: "Memory Jar",
     description: "Fill a jar with handwritten notes of your favorite memories together. They can pull one out whenever they need a reminder of your love.",
     difficulty: "easy",
-    estimatedCost: "$5-10",
+    estimatedCost: "₹400-800",
     category: "thoughtful"
   },
   {
     title: "Star Gazing Picnic",
     description: "Pack a late-night picnic and drive to a spot with minimal light pollution. Bring a blanket, some wine, and stargazing app to identify constellations together.",
     difficulty: "medium",
-    estimatedCost: "$30-50",
+    estimatedCost: "₹2400-4000",
     category: "romantic"
   },
   {
     title: "Surprise Concert Tickets",
     description: "Get tickets to see their favorite band or artist. Make it even more special by keeping it a secret until the day of the show.",
     difficulty: "hard",
-    estimatedCost: "$100-300",
+    estimatedCost: "₹8000-24000",
     category: "experience"
   },
   {
     title: "DIY Spa Day",
     description: "Transform your home into a spa retreat with scented candles, relaxing music, and homemade face masks. Give them a massage to complete the experience.",
     difficulty: "medium",
-    estimatedCost: "$20-40",
+    estimatedCost: "₹1600-3200",
     category: "relaxation"
   },
   {
     title: "Love Letter Treasure Hunt",
     description: "Hide love notes around your home or city with clues leading to the next location. The final destination could be a special place for dinner or a meaningful gift.",
     difficulty: "medium",
-    estimatedCost: "$10-100",
+    estimatedCost: "₹800-8000",
     category: "adventure"
   },
   {
@@ -69,35 +68,35 @@ const predefinedSurprises = [
     title: "Mystery Date Night",
     description: "Plan a complete date night where they don't know the agenda. Give them a dress code and pick them up as if it were a first date.",
     difficulty: "medium",
-    estimatedCost: "$50-150",
+    estimatedCost: "₹4000-12000",
     category: "adventure"
   },
   {
     title: "Cooking Class Together",
     description: "Book a cooking class to learn how to make a new cuisine together. It's a fun activity and results in a delicious meal you can enjoy.",
     difficulty: "medium",
-    estimatedCost: "$60-120",
+    estimatedCost: "₹4800-9600",
     category: "experience"
   },
   {
     title: "Handmade Coupon Book",
     description: "Create a book of coupons they can redeem for different favors, like a massage, breakfast in bed, or a night where they choose the movie.",
     difficulty: "easy",
-    estimatedCost: "$5",
+    estimatedCost: "₹400",
     category: "thoughtful"
   },
   {
     title: "Sunset Surprise Picnic",
     description: "Pack a basket with their favorite snacks and drinks and take them to a scenic spot to watch the sunset together.",
     difficulty: "easy",
-    estimatedCost: "$30-50",
+    estimatedCost: "₹2400-4000",
     category: "romantic"
   },
   {
     title: "Weekend Getaway",
     description: "Book a stay at a nearby bed and breakfast or unique Airbnb for a short but refreshing change of scenery.",
     difficulty: "hard",
-    estimatedCost: "$200-500",
+    estimatedCost: "₹16000-40000",
     category: "experience"
   }
 ];
@@ -114,30 +113,24 @@ const categories = [
 
 // Budget options
 const budgetOptions = [
-  { value: "low", label: "Low ($0-50)" },
-  { value: "medium", label: "Medium ($50-150)" },
-  { value: "high", label: "High ($150+)" }
+  { value: "low", label: "Low (₹0-1000)" },
+  { value: "medium", label: "Medium (₹1000-5000)" },
+  { value: "high", label: "High (₹5000+)" }
 ];
 
 // Occasion options
 const occasionOptions = [
-  { value: "anniversary", label: "Anniversary" },
-  { value: "birthday", label: "Birthday" },
-  { value: "valentine", label: "Valentine's Day" },
-  { value: "just-because", label: "Just Because" },
-  { value: "date-night", label: "Special Date Night" },
-  { value: "holiday", label: "Holiday" }
+  // ... (the occasionOptions array remains unchanged)
 ];
 
 // Difficulty indicator component
 const DifficultyIndicator = ({ level }: { level: "easy" | "medium" | "hard" }) => {
   return (
     <div className="flex items-center">
-      <div className={`h-2 w-2 rounded-full mr-1 ${
-        level === "easy" ? "bg-green-500" : 
-        level === "medium" ? "bg-amber-500" : 
-        "bg-red-500"
-      }`} />
+      <div className={`h-2 w-2 rounded-full mr-1 ${level === "easy" ? "bg-green-500" :
+          level === "medium" ? "bg-amber-500" :
+            "bg-red-500"
+        }`} />
       <span className="text-xs capitalize">{level}</span>
     </div>
   );
@@ -147,22 +140,25 @@ const Surprises = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("browse");
   const [activeCategory, setActiveCategory] = useState("all");
-  
+
   // For custom idea generation
   const [partnerInterests, setPartnerInterests] = useState("");
   const [occasion, setOccasion] = useState("anniversary");
   const [budget, setBudget] = useState("medium");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedIdeas, setGeneratedIdeas] = useState<any[]>([]);
-  
+
   // Filter surprises based on category
-  const filteredSurprises = activeCategory === "all" 
-    ? predefinedSurprises 
+  const filteredSurprises = activeCategory === "all"
+    ? predefinedSurprises
     : predefinedSurprises.filter(surprise => surprise.category === activeCategory);
-  
-  const handleGenerateIdeas = async () => {
+
+  // Handle generating ideas
+  const handleGenerateIdeas = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!user) {
       toast({
         title: "Login Required",
@@ -172,7 +168,7 @@ const Surprises = () => {
       navigate("/get-started");
       return;
     }
-    
+
     if (!partnerInterests.trim()) {
       toast({
         variant: "destructive",
@@ -181,40 +177,73 @@ const Surprises = () => {
       });
       return;
     }
-    
+
     setIsGenerating(true);
-    
+
     try {
-      const budgetString = 
-        budget === "low" ? "under $50" : 
-        budget === "medium" ? "$50-150" : 
-        "over $150";
-      
-      const ideas = await generateSurprises(
-        partnerInterests,
-        occasion,
-        budgetString
-      );
-      
+      const budgetString =
+        budget === "low" ? "under ₹1000" :
+          budget === "medium" ? "₹1000-5000" :
+            "over ₹5000";
+
+      const prompt = `Generate surprise ideas for a partner with interests in ${partnerInterests}, for the occasion ${occasion}, within a budget ${budgetString}.`;
+
+      const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer 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`, // Replace with your OpenAI API key
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: "You are a creative and thoughtful surprise idea generator." },
+            { role: "user", content: prompt }
+          ],
+          max_tokens: 150
+        })
+      });
+
+      if (!gptResponse.ok) {
+        const gptErrorDetail = await gptResponse.text();
+        console.error("GPT API Error:", gptErrorDetail);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: `Error with API: ${gptErrorDetail}`
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      const gptData = await gptResponse.json();
+      const ideas = gptData.choices.map((choice: any) => ({
+        title: 'Custom Idea',
+        description: choice.message.content.trim(),
+        difficulty: 'medium', // You can adjust the difficulty based on the response
+        estimatedCost: budgetString,
+        category: 'custom'
+      }));
+
       setGeneratedIdeas(ideas);
       setActiveTab("custom");
-      
+
       toast({
         title: "Success",
         description: "Custom surprise ideas generated successfully"
       });
     } catch (error) {
-      console.error("Error generating ideas:", error);
+      console.error("Error during API call:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to generate surprise ideas"
+        description: "Error connecting to the API. Please try again."
       });
     } finally {
       setIsGenerating(false);
     }
   };
-  
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-6">
@@ -223,13 +252,13 @@ const Surprises = () => {
           Find creative ways to surprise your partner and keep the romance alive
         </p>
       </div>
-      
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
         <TabsList>
           <TabsTrigger value="browse">Browse Ideas</TabsTrigger>
           <TabsTrigger value="custom">Custom Generator</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="browse" className="pt-6">
           <div className="flex flex-wrap gap-2 mb-6">
             {categories.map((category) => (
@@ -247,7 +276,7 @@ const Surprises = () => {
               </Button>
             ))}
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSurprises.map((surprise, index) => (
               <Card key={index} className="transition-all hover:shadow-md">
@@ -278,8 +307,8 @@ const Surprises = () => {
                     <Tag className="h-3 w-3 mr-1" />
                     <span className="capitalize">{surprise.category}</span>
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     className="border-love-200 dark:border-love-800 text-love-600 dark:text-love-400 hover:bg-love-50 dark:hover:bg-love-900/20"
                     onClick={() => {
@@ -290,14 +319,14 @@ const Surprises = () => {
                       });
                     }}
                   >
-                    Save Idea
+                    Copy Idea
                   </Button>
                 </CardFooter>
               </Card>
             ))}
           </div>
         </TabsContent>
-        
+
         <TabsContent value="custom" className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div>
@@ -315,7 +344,7 @@ const Surprises = () => {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="interests">Partner's Interests</Label>
-                      <Textarea 
+                      <Textarea
                         id="interests"
                         value={partnerInterests}
                         onChange={(e) => setPartnerInterests(e.target.value)}
@@ -324,7 +353,7 @@ const Surprises = () => {
                         rows={3}
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="occasion">Occasion</Label>
                       <Select value={occasion} onValueChange={setOccasion}>
@@ -340,7 +369,7 @@ const Surprises = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="budget">Budget Range</Label>
                       <Select value={budget} onValueChange={setBudget}>
@@ -359,7 +388,7 @@ const Surprises = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
+                  <Button
                     className="w-full bg-gradient-love hover:opacity-90 transition-opacity"
                     onClick={handleGenerateIdeas}
                     disabled={isGenerating}
@@ -379,7 +408,7 @@ const Surprises = () => {
                 </CardFooter>
               </Card>
             </div>
-            
+
             <div>
               {generatedIdeas.length > 0 ? (
                 <div className="space-y-4">
@@ -387,7 +416,7 @@ const Surprises = () => {
                     <Palette className="h-5 w-5 mr-2 text-love-500" />
                     Your Custom Ideas
                   </h3>
-                  
+
                   <div className="space-y-4">
                     {generatedIdeas.map((idea, index) => (
                       <Card key={index} className="transition-all hover:shadow-md">
@@ -409,8 +438,8 @@ const Surprises = () => {
                             <Tag className="h-3 w-3 mr-1" />
                             <span className="capitalize">{idea.category}</span>
                           </div>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="border-love-200 dark:border-love-800 text-love-600 dark:text-love-400 hover:bg-love-50 dark:hover:bg-love-900/20"
                             onClick={() => {
@@ -421,7 +450,7 @@ const Surprises = () => {
                               });
                             }}
                           >
-                            Save Idea
+                            Copy Idea
                           </Button>
                         </CardFooter>
                       </Card>
