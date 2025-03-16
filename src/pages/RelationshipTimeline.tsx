@@ -444,8 +444,8 @@ const RelationshipTimeline = () => {
                       "w-full max-w-xs sm:max-w-sm md:max-w-md", // Responsive max widths
                       "p-1", // Reduced padding for tighter layout
                       isEven
-                        ? "max-w-[90%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%] ml-auto" // Auto-position with responsive width
-                        : "max-w-[80%] sm:max-w-[60%] md:max-w-[50%] lg:max-w-[45%] mr-auto", // Auto-position with responsive width
+                        ? "ml-auto" // Auto-position with responsive width
+                        : "mr-auto", // Auto-position with responsive width
                       // Force zigzag on mobile
                       isEven ? "self-end" : "self-start"
                     )}>
