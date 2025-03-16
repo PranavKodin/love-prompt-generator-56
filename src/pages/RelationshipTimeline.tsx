@@ -426,23 +426,23 @@ const RelationshipTimeline = () => {
                 <div key={event.id} className="flex items-center justify-center">
                   {/* Connection line from center to card */}
                   <div className={cn(
-                    "absolute left-1/2 w-4 h-0.5 bg-gradient-to-r", // Reduced width from w-8 to w-4
+                    "absolute left-1/2 w-14 h-0.5 bg-gradient-to-r",
                     isEven ?
-                      "translate-x-0 from-transparent to-love-500" : // Reversed gradient direction 
-                      "-translate-x-full from-love-500 to-transparent" // Reversed gradient direction
+                      "translate-x-0 from-love-500 to-transparent" :
+                      "-translate-x-full from-transparent to-love-500"
                   )}></div>
 
                   {/* Card container */}
                   <div
                     className={cn(
-                      "w-full md:w-4/12 p-1",
-                      isEven ? "md:mr-auto md:pr-2" : "md:ml-auto md:pl-2" // Added smaller padding
+                      "w-full md:w-4/12 p-1", // Reduced width from 5/12 to 4/12
+                      isEven ? "md:mr-auto" : "md:ml-auto"
                     )}
                   >
                     <Card className={cn(
                       "w-full transition-all duration-300 hover:scale-105 overflow-hidden",
-                      "shadow-md hover:shadow-xl",
-                      isEven ? "md:rounded-tl-2xl md:border-l-4 md:border-l-love-400" : "md:rounded-tr-2xl md:border-r-4 md:border-r-love-400", // Swapped border sides
+                      "shadow-md hover:shadow-xl", // Added shadow effect
+                      isEven ? "md:rounded-tr-2xl md:border-r-4 md:border-r-love-400" : "md:rounded-tl-2xl md:border-l-4 md:border-l-love-400",
                       event.isPublic ? "border-green-200 dark:border-green-800/40" : ""
                     )}>
                       <CardHeader className="pb-2">
