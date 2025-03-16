@@ -113,18 +113,20 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
 export const saveUserProfile = async (profile: UserProfile): Promise<UserProfile> => {
   try {
     const userDoc = doc(db, "users", profile.uid);
-    await updateDoc(userDoc, { ...profile });
+    const userSnap = await getDoc(userDoc);
+    
+    if (userSnap.exists()) {
+      // Update existing document
+      await updateDoc(userDoc, { ...profile });
+    } else {
+      // Create new document if it doesn't exist
+      await setDoc(userDoc, { ...profile });
+    }
+    
     return profile;
   } catch (error) {
-    // If document doesn't exist, create it
-    try {
-      const userDoc = doc(db, "users", profile.uid);
-      await updateDoc(userDoc, { ...profile });
-      return profile;
-    } catch (error) {
-      console.error("Error saving user profile:", error);
-      throw error;
-    }
+    console.error("Error saving user profile:", error);
+    throw error;
   }
 };
 

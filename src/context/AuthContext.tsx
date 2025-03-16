@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { 
   User,
@@ -10,7 +11,7 @@ import {
   AuthError,
 } from "firebase/auth";
 import { auth, googleProvider, facebookProvider } from "@/lib/firebase";
-import { db } from "@/lib/firebase"; // Import Firestore
+import { db } from "@/lib/firebase"; 
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -71,25 +72,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const createUserDocument = async (user: User) => {
     if (!user) return;
 
-    const userRef = doc(db, "users", user.uid);
-    const userSnapshot = await getDoc(userRef);
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userRef);
 
-    if (!userSnapshot.exists()) {
-      await setDoc(userRef, {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName || "",
-        photoURL: user.photoURL || "",
-        createdAt: serverTimestamp(),
-        preferences: {
-          darkMode: true,
-          language: "en",
-        },
-        subscription: {
-          level: "free",
-          expiresAt: serverTimestamp(),
-        },
-      });
+      if (!userSnapshot.exists()) {
+        console.log("Creating new user document for:", user.uid);
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || "",
+          photoURL: user.photoURL || "",
+          createdAt: serverTimestamp(),
+          preferences: {
+            darkMode: true,
+            language: "en",
+          },
+          subscription: {
+            level: "free",
+            expiresAt: serverTimestamp(),
+          },
+        });
+      } else {
+        console.log("User document already exists for:", user.uid);
+      }
+    } catch (error) {
+      console.error("Error creating user document:", error);
+      throw error;
     }
   };
 
@@ -124,6 +133,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
+      // Always try to create the user document
       await createUserDocument(result.user);
       toast({
         title: "Welcome back!",
@@ -138,7 +148,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUpWithEmail = async (email: string, password: string) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
+      // Update the user profile first
       await updateProfile(result.user, { displayName: email.split("@")[0] });
+      // Then create the user document
       await createUserDocument(result.user);
       toast({
         title: "Welcome!",
