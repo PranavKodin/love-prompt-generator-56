@@ -443,9 +443,8 @@ const RelationshipTimeline = () => {
                     <div className={cn(
                       "w-full max-w-xs sm:max-w-sm md:max-w-md", // Responsive max widths
                       "p-1", // Reduced padding for tighter layout
-                      isEven ?
-                        "ml-4 sm:ml-6 md:ml-8" : // Spacing from center
-                        "mr-4 sm:mr-6 md:mr-8",
+                      isEven ? "ml-8 sm:ml-12 md:ml-16" : "mr-8 sm:mr-12 md:mr-16"
+                      ,
                       // Force zigzag on mobile
                       isEven ? "self-end" : "self-start"
                     )}>
