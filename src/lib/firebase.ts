@@ -23,6 +23,7 @@ import {
   serverTimestamp,
   limit
 } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -38,6 +39,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Auth providers
 const googleProvider = new GoogleAuthProvider();
@@ -47,6 +49,8 @@ const facebookProvider = new FacebookAuthProvider();
 const complimentsCollection = collection(db, "compliments");
 const usersCollection = collection(db, "users");
 const commentsCollection = collection(db, "comments");
+const timelineEventsCollection = collection(db, "timelineEvents");
+const remindersCollection = collection(db, "reminders");
 
 // Constants
 export const ADMIN_EMAIL = "sunny.pranav2006@gmail.com";
@@ -93,6 +97,33 @@ export interface UserProfile {
     level: "free" | "premium";
     expiresAt: Timestamp;
   };
+}
+
+export interface TimelineEvent {
+  id?: string;
+  userId: string;
+  title: string;
+  date: string; // ISO date string
+  description: string;
+  imageUrl?: string;
+  color?: string;
+  iconColor?: string;
+  borderColor?: string;
+  createdAt: Timestamp;
+  isPublic: boolean;
+}
+
+export interface Reminder {
+  id?: string;
+  userId: string;
+  title: string;
+  date: string; // ISO date string
+  type: "anniversary" | "birthday" | "special";
+  reminderDays: number[]; // Days before to remind
+  notes?: string;
+  notificationMethod: ("app" | "email" | "sms")[];
+  createdAt: Timestamp;
+  lastReminded?: Timestamp;
 }
 
 // User profile functions
@@ -143,6 +174,196 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
     console.error("Error getting all users:", error);
     throw error;
   }
+};
+
+// Timeline functions
+export const addTimelineEvent = async (event: Omit<TimelineEvent, 'id' | 'createdAt'>): Promise<string> => {
+  try {
+    const docRef = await addDoc(timelineEventsCollection, {
+      ...event,
+      createdAt: serverTimestamp()
+    });
+    
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding timeline event:", error);
+    throw error;
+  }
+};
+
+export const updateTimelineEvent = async (id: string, updates: Partial<TimelineEvent>): Promise<boolean> => {
+  try {
+    const eventRef = doc(db, "timelineEvents", id);
+    await updateDoc(eventRef, updates);
+    return true;
+  } catch (error) {
+    console.error("Error updating timeline event:", error);
+    throw error;
+  }
+};
+
+export const deleteTimelineEvent = async (id: string): Promise<boolean> => {
+  try {
+    const eventRef = doc(db, "timelineEvents", id);
+    await deleteDoc(eventRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting timeline event:", error);
+    throw error;
+  }
+};
+
+export const getTimelineEvents = async (userId: string): Promise<TimelineEvent[]> => {
+  try {
+    const q = query(
+      timelineEventsCollection,
+      where("userId", "==", userId),
+      orderBy("date", "desc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...(doc.data() as TimelineEvent)
+    }));
+  } catch (error) {
+    console.error("Error getting timeline events:", error);
+    throw error;
+  }
+};
+
+export const getPublicTimelineEvents = async (): Promise<TimelineEvent[]> => {
+  try {
+    const q = query(
+      timelineEventsCollection,
+      where("isPublic", "==", true),
+      orderBy("date", "desc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...(doc.data() as TimelineEvent)
+    }));
+  } catch (error) {
+    console.error("Error getting public timeline events:", error);
+    throw error;
+  }
+};
+
+// Upload image function
+export const uploadTimelineImage = async (userId: string, file: File): Promise<string> => {
+  try {
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `timeline/${userId}/${Date.now()}.${fileExtension}`;
+    const storageRef = ref(storage, fileName);
+    
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+    
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error;
+  }
+};
+
+// Reminder functions
+export const addReminder = async (reminder: Omit<Reminder, 'id' | 'createdAt'>): Promise<string> => {
+  try {
+    const docRef = await addDoc(remindersCollection, {
+      ...reminder,
+      createdAt: serverTimestamp()
+    });
+    
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding reminder:", error);
+    throw error;
+  }
+};
+
+export const updateReminder = async (id: string, updates: Partial<Reminder>): Promise<boolean> => {
+  try {
+    const reminderRef = doc(db, "reminders", id);
+    await updateDoc(reminderRef, updates);
+    return true;
+  } catch (error) {
+    console.error("Error updating reminder:", error);
+    throw error;
+  }
+};
+
+export const deleteReminder = async (id: string): Promise<boolean> => {
+  try {
+    const reminderRef = doc(db, "reminders", id);
+    await deleteDoc(reminderRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting reminder:", error);
+    throw error;
+  }
+};
+
+export const getUserReminders = async (userId: string): Promise<Reminder[]> => {
+  try {
+    const q = query(
+      remindersCollection,
+      where("userId", "==", userId),
+      orderBy("date", "asc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...(doc.data() as Reminder)
+    }));
+  } catch (error) {
+    console.error("Error getting user reminders:", error);
+    throw error;
+  }
+};
+
+export const getUpcomingReminders = async (userId: string, days: number = 30): Promise<Reminder[]> => {
+  try {
+    const today = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(today.getDate() + days);
+    
+    const todayStr = today.toISOString().split('T')[0];
+    const futureDateStr = futureDate.toISOString().split('T')[0];
+    
+    const q = query(
+      remindersCollection,
+      where("userId", "==", userId),
+      where("date", ">=", todayStr),
+      where("date", "<=", futureDateStr),
+      orderBy("date", "asc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...(doc.data() as Reminder)
+    }));
+  } catch (error) {
+    console.error("Error getting upcoming reminders:", error);
+    throw error;
+  }
+};
+
+// SendEmail function (to be triggered via Cloud Functions in a production app)
+export const sendReminderEmail = async (to: string, subject: string, message: string) => {
+  // In a real app, you would use Firebase Cloud Functions 
+  // to securely send emails via a service like Sendgrid or Mailgun
+  
+  // For demo purposes, we'll simulate email sending
+  console.log(`Sending email to ${to}:`);
+  console.log(`Subject: ${subject}`);
+  console.log(`Message: ${message}`);
+  
+  // Return success to simulate email sent
+  return true;
 };
 
 // Compliment functions
@@ -350,4 +571,4 @@ export const deleteComment = async (commentId: string, complimentId: string) => 
 };
 
 // Export
-export { auth, db, googleProvider, facebookProvider, Timestamp };
+export { auth, db, googleProvider, facebookProvider, Timestamp, storage };

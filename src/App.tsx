@@ -23,9 +23,8 @@ import PublicCompliments from "./pages/PublicCompliments";
 import AdminUsers from "./pages/AdminUsers";
 import RelationshipTimeline from "./pages/RelationshipTimeline";
 import AnniversaryReminders from "./pages/AnniversaryReminders";
-import GiftIdeas from "./pages/GiftIdeas";
-import RelationshipChallenges from "./pages/RelationshipChallenges";
 import Surprises from "./pages/Surprises";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +46,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:userId" element={<UserProfile />} />
                 <Route path="/saved-compliments" element={<SavedCompliments />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/settings" element={<Settings />} />
@@ -54,8 +54,6 @@ const App = () => (
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/relationship-timeline" element={<RelationshipTimeline />} />
                 <Route path="/anniversary-reminders" element={<AnniversaryReminders />} />
-                <Route path="/gift-ideas" element={<GiftIdeas />} />
-                <Route path="/relationship-challenges" element={<RelationshipChallenges />} />
                 <Route path="/surprises" element={<Surprises />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, Heart, History, User, Settings, Bookmark, Shield, Calendar, Gift, Sparkles, Clock, Trophy } from "lucide-react";
+import { ChevronLeft, Heart, History, User, Settings, Bookmark, Shield, Calendar, Sparkles, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
@@ -36,8 +36,6 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
   const featureLinks = [
     { name: "Relationship Timeline", path: "/relationship-timeline", icon: <Clock className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "Anniversary Reminders", path: "/anniversary-reminders", icon: <Calendar className="mr-2 h-4 w-4" />, requiresAuth: true },
-    { name: "Gift Ideas", path: "/gift-ideas", icon: <Gift className="mr-2 h-4 w-4" />, requiresAuth: true },
-    { name: "Relationship Challenges", path: "/relationship-challenges", icon: <Trophy className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "Surprise Suggestions", path: "/surprises", icon: <Sparkles className="mr-2 h-4 w-4" />, requiresAuth: true },
     { name: "Settings", path: "/settings", icon: <Settings className="mr-2 h-4 w-4" />, requiresAuth: true },
   ];
