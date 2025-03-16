@@ -434,7 +434,7 @@ const RelationshipTimeline = () => {
                     <div className={cn(
                       "absolute h-0.5 bg-gradient-to-r z-10",
                       "w-8 sm:w-12", // Shorter connection line for closer cards
-                      isEven ?
+                      !isEven ?
                         "left-1/2 from-love-500 to-transparent" :
                         "right-1/2 from-transparent to-love-500"
                     )}></div>
@@ -450,7 +450,7 @@ const RelationshipTimeline = () => {
                       isEven ? "self-end" : "self-start"
                     )}>
                       <Card className={cn(
-                        "w-full transition-all duration-300 hover:scale-102 overflow-hidden",
+                        "relative z-50 w-full transition-all duration-300 hover:scale-102 overflow-hidden",
                         "shadow-md hover:shadow-xl",
                         isEven ?
                           "border-l-4 border-l-love-400 rounded-l-md" :
