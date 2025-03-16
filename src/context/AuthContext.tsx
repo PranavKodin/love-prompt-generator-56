@@ -169,7 +169,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Goodbye!",
         description: "Successfully signed out",
       });
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       handleAuthError(error as AuthError);
     }
