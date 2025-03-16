@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -8,12 +7,35 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Spinner } from "@/components/Spinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Clock, CalendarIcon, MapPin, ArrowLeft, User as UserIcon, Heart, Bookmark, History, Edit, Shield, Cake } from "lucide-react";
+import { 
+  Clock, 
+  CalendarIcon, 
+  MapPin, 
+  ArrowLeft, 
+  User as UserIcon, 
+  Heart, 
+  Bookmark, 
+  Edit, 
+  Cake, 
+  UserPlus, 
+  UserCheck, 
+  UserX,
+  Users,
+  Star
+} from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { getUserById } from "@/lib/firebase";
-import { TimelineEvent, getPublicTimelineEvents } from "@/lib/timelineService";
-import { Timestamp } from "@/lib/firebase";
+import { 
+  getUserProfile, 
+  Timestamp,
+  isFollowing,
+  followUser,
+  unfollowUser,
+  getFollowCounts
+} from "@/lib/firebase";
+import { getPublicTimelineEvents, TimelineEvent } from "@/lib/timelineService";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface UserData {
   uid: string;
@@ -25,6 +47,13 @@ interface UserData {
   location?: string;
   interests?: string[];
   birthdate?: Timestamp;
+  followersCount?: number;
+  followingCount?: number;
+  isPrivate?: boolean;
+  subscription?: {
+    level: "free" | "premium";
+    expiresAt: Timestamp;
+  };
 }
 
 const UserProfile = () => {
@@ -35,11 +64,20 @@ const UserProfile = () => {
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
+  const [isUserFollowing, setIsUserFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
+  const [followDialogOpen, setFollowDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<"followers" | "following">("followers");
+  const [followUsers, setFollowUsers] = useState<UserData[]>([]);
+  const [loadingFollowUsers, setLoadingFollowUsers] = useState(false);
   
   useEffect(() => {
     if (userId) {
       loadUserData();
       loadTimelineEvents();
+      loadFollowStatus();
+      loadFollowCounts();
     }
   }, [userId]);
   
@@ -47,7 +85,7 @@ const UserProfile = () => {
     if (!userId) return;
     
     try {
-      const fetchedUser = await getUserById(userId);
+      const fetchedUser = await getUserProfile(userId);
       
       if (fetchedUser) {
         setUserData(fetchedUser as UserData);
@@ -85,6 +123,93 @@ const UserProfile = () => {
       });
     }
   };
+
+  const loadFollowStatus = async () => {
+    if (!userId || !user) return;
+    
+    try {
+      const following = await isFollowing(user.uid, userId);
+      setIsUserFollowing(following);
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+    }
+  };
+
+  const loadFollowCounts = async () => {
+    if (!userId) return;
+    
+    try {
+      const counts = await getFollowCounts(userId);
+      setFollowCounts(counts);
+    } catch (error) {
+      console.error("Error loading follow counts:", error);
+    }
+  };
+  
+  const handleFollow = async () => {
+    if (!userId || !user) return;
+    
+    setFollowLoading(true);
+    try {
+      if (isUserFollowing) {
+        await unfollowUser(user.uid, userId);
+        setIsUserFollowing(false);
+        toast({
+          title: "Unfollowed",
+          description: `You are no longer following ${userData?.displayName}`
+        });
+      } else {
+        await followUser(user.uid, userId);
+        setIsUserFollowing(true);
+        toast({
+          title: "Following",
+          description: `You are now following ${userData?.displayName}`
+        });
+      }
+      // Refresh follow counts
+      loadFollowCounts();
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update follow status"
+      });
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const openFollowDialog = async (type: "followers" | "following") => {
+    if (!userId) return;
+    
+    setDialogType(type);
+    setFollowDialogOpen(true);
+    setLoadingFollowUsers(true);
+    
+    try {
+      // This would be implemented properly in firebase.ts
+      // This is a stub for now until we add the full implementation
+      // const users = await (type === "followers" ? getFollowers(userId) : getFollowing(userId));
+      // setFollowUsers(users as UserData[]);
+      
+      // Temporary stub
+      setFollowUsers([]);
+      toast({
+        title: "Coming soon",
+        description: "This feature is being implemented"
+      });
+    } catch (error) {
+      console.error(`Error loading ${type}:`, error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to load ${type}`
+      });
+    } finally {
+      setLoadingFollowUsers(false);
+    }
+  };
   
   // Format the initials for avatar fallback
   const getInitials = (name: string) => {
@@ -118,6 +243,8 @@ const UserProfile = () => {
       </div>
     );
   }
+
+  const isPremium = userData.subscription?.level === "premium";
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -126,7 +253,12 @@ const UserProfile = () => {
           <ArrowLeft className="mr-1 h-4 w-4" />
           Back to Public Compliments
         </Link>
-        <h1 className="text-3xl font-bold gradient-text">{userData.displayName}'s Profile</h1>
+        <h1 className="text-3xl font-bold gradient-text flex items-center gap-2">
+          {userData.displayName}'s Profile
+          {isPremium && (
+            <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+          )}
+        </h1>
       </div>
       
       <div className="flex flex-col md:flex-row gap-6">
@@ -148,6 +280,25 @@ const UserProfile = () => {
               )}
             </CardHeader>
             <CardContent className="text-center">
+              <div className="flex justify-center gap-6 mb-4">
+                <Button 
+                  variant="ghost" 
+                  className="flex flex-col items-center p-2 h-auto" 
+                  onClick={() => openFollowDialog("followers")}
+                >
+                  <span className="text-lg font-semibold">{followCounts.followers}</span>
+                  <span className="text-xs text-muted-foreground">Followers</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="flex flex-col items-center p-2 h-auto" 
+                  onClick={() => openFollowDialog("following")}
+                >
+                  <span className="text-lg font-semibold">{followCounts.following}</span>
+                  <span className="text-xs text-muted-foreground">Following</span>
+                </Button>
+              </div>
+              
               {userData.bio ? (
                 <p className="text-sm mb-4">{userData.bio}</p>
               ) : (
@@ -178,16 +329,24 @@ const UserProfile = () => {
                 </Button>
               ) : (
                 <Button 
-                  className="bg-gradient-love hover:opacity-90 transition-opacity"
-                  onClick={() => {
-                    toast({
-                      title: "Feature Coming Soon",
-                      description: "Following other users will be available soon!"
-                    });
-                  }}
+                  className={isUserFollowing 
+                    ? "bg-muted hover:bg-muted/90" 
+                    : "bg-gradient-love hover:opacity-90 transition-opacity"
+                  }
+                  onClick={handleFollow}
+                  disabled={followLoading}
                 >
-                  <Heart className="mr-2 h-4 w-4" />
-                  Follow
+                  {isUserFollowing ? (
+                    <>
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      Following
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Follow
+                    </>
+                  )}
                 </Button>
               )}
             </CardFooter>
@@ -289,8 +448,9 @@ const UserProfile = () => {
                   <div className="relative z-10 space-y-8">
                     {timelineEvents.map((event, index) => {
                       const isEven = index % 2 === 0;
-                      const eventDate = event.date instanceof Timestamp ? 
-                        event.date.toDate() : new Date(event.date);
+                      const eventDate = event.date instanceof Date 
+                        ? event.date 
+                        : (event.date as unknown as Timestamp).toDate();
                       
                       return (
                         <div key={event.id} className="flex items-center justify-center">
@@ -350,6 +510,68 @@ const UserProfile = () => {
           </Tabs>
         </div>
       </div>
+
+      {/* Follow Dialog */}
+      <Dialog open={followDialogOpen} onOpenChange={setFollowDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {dialogType === "followers" ? "Followers" : "Following"}
+            </DialogTitle>
+            <DialogDescription>
+              {dialogType === "followers" 
+                ? `People who follow ${userData.displayName}`
+                : `People whom ${userData.displayName} follows`}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {loadingFollowUsers ? (
+            <div className="flex justify-center py-8">
+              <Spinner />
+            </div>
+          ) : followUsers.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">
+                {dialogType === "followers" 
+                  ? `${userData.displayName} doesn't have any followers yet.`
+                  : `${userData.displayName} isn't following anyone yet.`}
+              </p>
+            </div>
+          ) : (
+            <div className="max-h-80 overflow-y-auto space-y-2">
+              {followUsers.map(followUser => (
+                <div key={followUser.uid} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={followUser.photoURL} alt={followUser.displayName} />
+                      <AvatarFallback>
+                        {followUser.displayName ? getInitials(followUser.displayName) : "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{followUser.displayName}</p>
+                      {followUser.location && (
+                        <p className="text-xs text-muted-foreground">{followUser.location}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    asChild
+                  >
+                    <Link to={`/profile/${followUser.uid}`}>
+                      View
+                    </Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
