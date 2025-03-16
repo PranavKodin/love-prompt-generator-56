@@ -434,8 +434,8 @@ const RelationshipTimeline = () => {
                     <div className={cn(
                       "absolute h-0.5 bg-gradient-to-r z-10",
                       "w-8 sm:w-12", // Shorter connection line for closer cards
-                      isEven ? 
-                        "left-1/2 from-love-500 to-transparent" : 
+                      isEven ?
+                        "left-1/2 from-love-500 to-transparent" :
                         "right-1/2 from-transparent to-love-500"
                     )}></div>
 
@@ -443,7 +443,7 @@ const RelationshipTimeline = () => {
                     <div className={cn(
                       "w-full max-w-xs sm:max-w-sm md:max-w-md", // Responsive max widths
                       "p-1", // Reduced padding for tighter layout
-                      isEven ? 
+                      isEven ?
                         "ml-4 sm:ml-6 md:ml-8" : // Spacing from center
                         "mr-4 sm:mr-6 md:mr-8",
                       // Force zigzag on mobile
@@ -452,8 +452,8 @@ const RelationshipTimeline = () => {
                       <Card className={cn(
                         "w-full transition-all duration-300 hover:scale-102 overflow-hidden",
                         "shadow-md hover:shadow-xl",
-                        isEven ? 
-                          "border-l-4 border-l-love-400 rounded-l-md" : 
+                        isEven ?
+                          "border-l-4 border-l-love-400 rounded-l-md" :
                           "border-r-4 border-r-love-400 rounded-r-md",
                         event.isPublic ? "border-green-200 dark:border-green-800/40" : ""
                       )}>
