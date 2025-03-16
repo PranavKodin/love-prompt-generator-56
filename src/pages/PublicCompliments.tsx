@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -9,6 +8,7 @@ import {
   addComment, 
   getComplimentComments,
   deleteComment,
+  getUserById,
   type Compliment,
   type Comment
 } from "@/lib/firebase";
@@ -26,6 +26,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/Spinner";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
@@ -39,7 +40,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const PublicCompliments = () => {
   const { user } = useAuth();
@@ -52,13 +53,40 @@ const PublicCompliments = () => {
   const [commentsByCompliment, setCommentsByCompliment] = useState<Record<string, Comment[]>>({});
   const [showCommentsFor, setShowCommentsFor] = useState<Record<string, boolean>>({});
   const [loadingComments, setLoadingComments] = useState<Record<string, boolean>>({});
+  const [userCache, setUserCache] = useState<Record<string, any>>({});
 
-  // Fetch public compliments
   useEffect(() => {
     const fetchCompliments = async () => {
       try {
         const publicCompliments = await getPublicCompliments();
         setCompliments(publicCompliments);
+        
+        // Fetch user data for each compliment
+        const userIds = publicCompliments
+          .map(comp => comp.userId)
+          .filter((id): id is string => !!id); // Filter out undefined/null
+        
+        const uniqueUserIds = [...new Set(userIds)];
+        const userPromises = uniqueUserIds.map(async (userId) => {
+          try {
+            const userData = await getUserById(userId);
+            return { userId, userData };
+          } catch (error) {
+            console.error(`Error fetching user data for ID ${userId}:`, error);
+            return { userId, userData: null };
+          }
+        });
+        
+        const usersData = await Promise.all(userPromises);
+        const newUserCache: Record<string, any> = {};
+        
+        usersData.forEach(({ userId, userData }) => {
+          if (userData) {
+            newUserCache[userId] = userData;
+          }
+        });
+        
+        setUserCache(prevCache => ({ ...prevCache, ...newUserCache }));
       } catch (error) {
         console.error("Error fetching compliments:", error);
         toast.error("Failed to load compliments");
@@ -70,7 +98,6 @@ const PublicCompliments = () => {
     fetchCompliments();
   }, []);
 
-  // Handle like toggle
   const handleLikeToggle = async (complimentId: string) => {
     if (!user) {
       toast.error("Please sign in to like compliments");
@@ -81,7 +108,6 @@ const PublicCompliments = () => {
     try {
       const liked = await toggleLikeCompliment(complimentId, user.uid);
       
-      // Update UI optimistically
       setCompliments(prevCompliments => 
         prevCompliments.map(comp => {
           if (comp.id === complimentId) {
@@ -113,7 +139,6 @@ const PublicCompliments = () => {
     }
   };
 
-  // Load comments for a compliment
   const loadComments = async (complimentId: string) => {
     if (loadingComments[complimentId]) return;
     
@@ -133,7 +158,6 @@ const PublicCompliments = () => {
     }
   };
 
-  // Toggle comments visibility
   const toggleComments = async (complimentId: string) => {
     const isCurrentlyShown = showCommentsFor[complimentId];
     
@@ -147,7 +171,6 @@ const PublicCompliments = () => {
     }
   };
 
-  // Handle comment submission
   const handleCommentSubmit = async (complimentId: string) => {
     if (!user) {
       toast.error("Please sign in to add comments");
@@ -169,14 +192,11 @@ const PublicCompliments = () => {
         content: commentText
       });
       
-      // Update UI and clear input
       setCommentText("");
       toast.success("Comment added successfully");
       
-      // Reload comments to show the new one
       await loadComments(complimentId);
       
-      // Update compliment's comment count
       setCompliments(prevCompliments => 
         prevCompliments.map(comp => {
           if (comp.id === complimentId) {
@@ -194,18 +214,15 @@ const PublicCompliments = () => {
     }
   };
 
-  // Handle comment deletion
   const handleDeleteComment = async (commentId: string, complimentId: string) => {
     try {
       await deleteComment(commentId, complimentId);
       
-      // Update UI
       setCommentsByCompliment(prev => ({
         ...prev,
         [complimentId]: prev[complimentId].filter(comment => comment.id !== commentId)
       }));
       
-      // Update compliment's comment count
       setCompliments(prevCompliments => 
         prevCompliments.map(comp => {
           if (comp.id === complimentId) {
@@ -225,7 +242,6 @@ const PublicCompliments = () => {
     }
   };
 
-  // Get initials for avatar
   const getInitials = (name: string) => {
     if (!name) return "?";
     return name.split(" ")
@@ -266,156 +282,178 @@ const PublicCompliments = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 max-w-3xl mx-auto">
-            {compliments.map(compliment => (
-              <Card key={compliment.id} className="backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30 overflow-hidden">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="text-sm text-muted-foreground">
-                        Shared publicly
-                      </div>
-                    </div>
-                    {compliment.recipient && (
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">To: </span>
-                        <span className="font-medium">{compliment.recipient}</span>
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-2">
-                  <p className="text-lg font-medium mb-2">{compliment.content}</p>
-                  
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {compliment.tone && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        {compliment.tone}
-                      </span>
-                    )}
-                    {compliment.mood && (
-                      <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full">
-                        {compliment.mood}
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-                
-                <CardFooter className="flex-col items-stretch pt-2">
-                  <div className="flex items-center justify-between border-t border-border pt-3 mb-2">
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className={`flex items-center gap-2 ${user && compliment.likedBy?.includes(user.uid) ? 'text-love-500 hover:text-love-600' : ''}`}
-                        onClick={() => compliment.id && handleLikeToggle(compliment.id)}
-                      >
-                        <Heart 
-                          className={`h-4 w-4 ${user && compliment.likedBy?.includes(user.uid) ? 'fill-love-500' : ''}`} 
-                        />
-                        <span>{compliment.likeCount || 0}</span>
-                      </Button>
-                      
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="flex items-center gap-2"
-                        onClick={() => compliment.id && toggleComments(compliment.id)}
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        <span>{compliment.commentCount || 0}</span>
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {compliment.id && showCommentsFor[compliment.id] && (
-                    <div className="w-full mt-2 border-t border-border pt-3">
-                      {loadingComments[compliment.id] ? (
-                        <div className="flex justify-center py-3">
-                          <Spinner size="sm" />
-                        </div>
-                      ) : (
-                        <>
-                          <div className="mb-3">
-                            {commentsByCompliment[compliment.id]?.length > 0 ? (
-                              <div className="space-y-3">
-                                {commentsByCompliment[compliment.id].map(comment => (
-                                  <div key={comment.id} className="flex gap-2 group">
-                                    <Avatar className="h-8 w-8">
-                                      <AvatarImage src={comment.userPhotoURL} alt={comment.userDisplayName} />
-                                      <AvatarFallback>{getInitials(comment.userDisplayName)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 bg-background/50 rounded-lg p-2 relative">
-                                      <div className="flex justify-between">
-                                        <div className="font-medium text-sm">{comment.userDisplayName}</div>
-                                        {user && comment.userId === user.uid && (
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity absolute top-1 right-1"
-                                            onClick={() => comment.id && handleDeleteComment(comment.id, compliment.id)}
-                                          >
-                                            <Trash2 className="h-3 w-3 text-destructive" />
-                                          </Button>
-                                        )}
-                                      </div>
-                                      <p className="text-sm">{comment.content}</p>
-                                    </div>
-                                  </div>
-                                ))}
+            {compliments.map(compliment => {
+              const complimentAuthor = compliment.userId ? userCache[compliment.userId] : null;
+              return (
+                <Card key={compliment.id} className="backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30 overflow-hidden">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {complimentAuthor ? (
+                          <Link to={`/profile/${compliment.userId}`} className="flex items-center space-x-2">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={complimentAuthor.photoURL} alt={complimentAuthor.displayName} />
+                              <AvatarFallback>{getInitials(complimentAuthor.displayName)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="text-sm font-medium flex items-center">
+                                {complimentAuthor.displayName || "Anonymous"}
+                                {complimentAuthor.subscription?.level === "premium" && (
+                                  <Badge variant="outline" className="ml-2 bg-gradient-love text-white border-0 px-1 text-xs">
+                                    Premium
+                                  </Badge>
+                                )}
                               </div>
-                            ) : (
-                              <p className="text-sm text-muted-foreground text-center py-2">
-                                No comments yet. Be the first to comment!
-                              </p>
-                            )}
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            Shared publicly
                           </div>
-                          
-                          {user ? (
-                            <div className="flex gap-2">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
-                                <AvatarFallback>{getInitials(user.displayName || "User")}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 flex">
-                                <Input
-                                  value={activeCommentId === compliment.id ? commentText : ""}
-                                  onChange={(e) => {
-                                    setCommentText(e.target.value);
-                                    setActiveCommentId(compliment.id || null);
-                                  }}
-                                  placeholder="Add a comment..."
-                                  className="rounded-r-none bg-background/50"
-                                />
-                                <Button 
-                                  variant="default" 
-                                  size="icon"
-                                  className="rounded-l-none bg-primary/80"
-                                  onClick={() => compliment.id && handleCommentSubmit(compliment.id)}
-                                  disabled={!commentText.trim() && activeCommentId === compliment.id}
-                                >
-                                  <Send className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex justify-center">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => navigate("/get-started")}
-                              >
-                                Sign in to comment
-                              </Button>
-                            </div>
-                          )}
-                        </>
+                        )}
+                      </div>
+                      {compliment.recipient && (
+                        <div className="text-sm">
+                          <span className="text-muted-foreground">To: </span>
+                          <span className="font-medium">{compliment.recipient}</span>
+                        </div>
                       )}
                     </div>
-                  )}
-                </CardFooter>
-              </Card>
-            ))}
+                  </CardHeader>
+                  
+                  <CardContent className="pt-2">
+                    <p className="text-lg font-medium mb-2">{compliment.content}</p>
+                    
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {compliment.tone && (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          {compliment.tone}
+                        </span>
+                      )}
+                      {compliment.mood && (
+                        <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full">
+                          {compliment.mood}
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
+                  
+                  <CardFooter className="flex-col items-stretch pt-2">
+                    <div className="flex items-center justify-between border-t border-border pt-3 mb-2">
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className={`flex items-center gap-2 ${user && compliment.likedBy?.includes(user.uid) ? 'text-love-500 hover:text-love-600' : ''}`}
+                          onClick={() => compliment.id && handleLikeToggle(compliment.id)}
+                        >
+                          <Heart 
+                            className={`h-4 w-4 ${user && compliment.likedBy?.includes(user.uid) ? 'fill-love-500' : ''}`} 
+                          />
+                          <span>{compliment.likeCount || 0}</span>
+                        </Button>
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="flex items-center gap-2"
+                          onClick={() => compliment.id && toggleComments(compliment.id)}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          <span>{compliment.commentCount || 0}</span>
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {compliment.id && showCommentsFor[compliment.id] && (
+                      <div className="w-full mt-2 border-t border-border pt-3">
+                        {loadingComments[compliment.id] ? (
+                          <div className="flex justify-center py-3">
+                            <Spinner size="sm" />
+                          </div>
+                        ) : (
+                          <>
+                            <div className="mb-3">
+                              {commentsByCompliment[compliment.id]?.length > 0 ? (
+                                <div className="space-y-3">
+                                  {commentsByCompliment[compliment.id].map(comment => (
+                                    <div key={comment.id} className="flex gap-2 group">
+                                      <Avatar className="h-8 w-8">
+                                        <AvatarImage src={comment.userPhotoURL} alt={comment.userDisplayName} />
+                                        <AvatarFallback>{getInitials(comment.userDisplayName)}</AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-1 bg-background/50 rounded-lg p-2 relative">
+                                        <div className="flex justify-between">
+                                          <div className="font-medium text-sm">{comment.userDisplayName}</div>
+                                          {user && comment.userId === user.uid && (
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity absolute top-1 right-1"
+                                              onClick={() => comment.id && handleDeleteComment(comment.id, compliment.id)}
+                                            >
+                                              <Trash2 className="h-3 w-3 text-destructive" />
+                                            </Button>
+                                          )}
+                                        </div>
+                                        <p className="text-sm">{comment.content}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-muted-foreground text-center py-2">
+                                  No comments yet. Be the first to comment!
+                                </p>
+                              )}
+                            </div>
+                            
+                            {user ? (
+                              <div className="flex gap-2">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
+                                  <AvatarFallback>{getInitials(user.displayName || "User")}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 flex">
+                                  <Input
+                                    value={activeCommentId === compliment.id ? commentText : ""}
+                                    onChange={(e) => {
+                                      setCommentText(e.target.value);
+                                      setActiveCommentId(compliment.id || null);
+                                    }}
+                                    placeholder="Add a comment..."
+                                    className="rounded-r-none bg-background/50"
+                                  />
+                                  <Button 
+                                    variant="default" 
+                                    size="icon"
+                                    className="rounded-l-none bg-primary/80"
+                                    onClick={() => compliment.id && handleCommentSubmit(compliment.id)}
+                                    disabled={!commentText.trim() && activeCommentId === compliment.id}
+                                  >
+                                    <Send className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex justify-center">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => navigate("/get-started")}
+                                >
+                                  Sign in to comment
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </CardFooter>
+                </Card>
+              );
+            })}
           </div>
         )}
       </main>
