@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Sidebar } from "@/components/Sidebar";
 import {
   getAllUsers,
   UserProfile,
@@ -20,24 +21,24 @@ const AdminUsers = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-  
+
   useEffect(() => {
     // Check if user is admin
     if (!user) {
       navigate("/");
       return;
     }
-    
+
     if (user.email !== ADMIN_EMAIL) {
       toast({
         variant: "destructive",
@@ -47,18 +48,18 @@ const AdminUsers = () => {
       navigate("/");
       return;
     }
-    
+
     // Fetch users
     fetchUsers();
   }, [user, navigate, toast]);
-  
+
   // Apply search filter when searchTerm changes
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredUsers(users);
       return;
     }
-    
+
     const term = searchTerm.toLowerCase();
     const filtered = users.filter(
       (user) =>
@@ -66,10 +67,10 @@ const AdminUsers = () => {
         user.email.toLowerCase().includes(term) ||
         (user.location && user.location.toLowerCase().includes(term))
     );
-    
+
     setFilteredUsers(filtered);
   }, [searchTerm, users]);
-  
+
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
@@ -87,72 +88,71 @@ const AdminUsers = () => {
       setIsLoading(false);
     }
   };
-  
+
   const clearSearch = () => {
     setSearchTerm("");
   };
-  
+
   const getUserInitials = (name: string) => {
     if (!name) return "U";
-    
+
     const nameParts = name.split(" ");
     if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
-    
+
     return (
-      nameParts[0].charAt(0).toUpperCase() + 
+      nameParts[0].charAt(0).toUpperCase() +
       nameParts[nameParts.length - 1].charAt(0).toUpperCase()
     );
   };
-  
+
   // Helper function to safely format date
   const formatDate = (dateField) => {
     try {
       if (!dateField) return "Unknown";
-      
+
       // Check if it's a Firebase timestamp (has toDate method)
       if (typeof dateField.toDate === 'function') {
         return dateField.toDate().toLocaleDateString();
       }
-      
+
       // If it's already a Date object
       if (dateField instanceof Date) {
         return dateField.toLocaleDateString();
       }
-      
+
       // If it's a string or number timestamp
       if (typeof dateField === 'string' || typeof dateField === 'number') {
         return new Date(dateField).toLocaleDateString();
       }
-      
+
       return "Unknown";
     } catch (error) {
       console.error("Error formatting date:", error);
       return "Unknown";
     }
   };
-  
+
   // Function to navigate to user profile
   const viewUserProfile = (userId: string) => {
     navigate(`/profile/${userId}`);
   };
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
-      
       <Navbar toggleSidebar={toggleSidebar} />
-      
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <main className="flex-1 container max-w-4xl mx-auto pt-28 pb-16 px-4">
         <div className="flex items-center mb-6">
           <Shield className="text-love-500 dark:text-love-400 mr-3 size-6" />
           <h1 className="text-3xl font-bold gradient-text">Admin Panel: User Management</h1>
         </div>
-        
+
         <div className="flex justify-between items-center mb-8">
           <p className="text-foreground/70">
             Total users: <span className="font-medium">{users.length}</span>
           </p>
-          
+
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
@@ -174,7 +174,7 @@ const AdminUsers = () => {
             )}
           </div>
         </div>
-        
+
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
@@ -182,8 +182,8 @@ const AdminUsers = () => {
         ) : filteredUsers.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             {filteredUsers.map((user, index) => (
-              <Card 
-                key={user.uid || index} 
+              <Card
+                key={user.uid || index}
                 className="overflow-hidden backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30 hover:shadow-md transition-shadow animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
@@ -191,9 +191,9 @@ const AdminUsers = () => {
                   <div className="flex gap-4">
                     <Link to={`/profile/${user.uid}`}>
                       <Avatar className="size-16 border-2 border-love-200 dark:border-love-800 cursor-pointer transition-transform hover:scale-105">
-                        <AvatarImage 
-                          src={user.photoURL || ""} 
-                          alt={user.displayName || "User"} 
+                        <AvatarImage
+                          src={user.photoURL || ""}
+                          alt={user.displayName || "User"}
                           className="object-cover"
                         />
                         <AvatarFallback className="bg-gradient-love text-white">
@@ -201,11 +201,11 @@ const AdminUsers = () => {
                         </AvatarFallback>
                       </Avatar>
                     </Link>
-                    
+
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">
-                        <Link 
-                          to={`/profile/${user.uid}`} 
+                        <Link
+                          to={`/profile/${user.uid}`}
                           className="hover:text-love-600 dark:hover:text-love-400 transition-colors"
                         >
                           {user.displayName || "No Name"}
@@ -250,7 +250,7 @@ const AdminUsers = () => {
           </div>
         )}
       </main>
-      
+
       <Footer />
     </div>
   );
