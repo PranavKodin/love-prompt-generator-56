@@ -277,9 +277,6 @@ const PublicCompliments = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
-
-      <Navbar toggleSidebar={toggleSidebar} />
-
       <main className="flex-1 container mx-auto pt-28 pb-16 px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">Public Compliments</h1>
