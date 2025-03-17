@@ -409,7 +409,7 @@ const UserProfile = () => {
           {/* Sidebar */}
           <div className="md:col-span-1 space-y-6">
             {/* User Stats Card */}
-            <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
+            <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-scale-in">
               <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
                 <CardTitle className="text-lg flex items-center">
                   <TrendingUp className="mr-2 h-4 w-4 text-love-500" />
@@ -457,7 +457,7 @@ const UserProfile = () => {
 
             {/* Interests Card */}
             {userData.interests && userData.interests.length > 0 && (
-              <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
+              <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-scale-in">
                 <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
                   <CardTitle className="text-lg flex items-center">
                     <Heart className="mr-2 h-4 w-4 text-love-500" />
@@ -486,7 +486,7 @@ const UserProfile = () => {
 
           {/* Main Content Tabs */}
           <div className="md:col-span-2">
-          <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
+          <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-scale-in">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="border-b">
                   <TabsList className="w-full justify-start rounded-none bg-transparent border-b h-auto p-0">
