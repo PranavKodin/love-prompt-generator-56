@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +43,7 @@ export function Hero() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [imageUploadDialogOpen, setImageUploadDialogOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -161,7 +163,7 @@ export function Hero() {
   };
 
   const handleImageClick = () => {
-    fileInputRef.current?.click();
+    setImageUploadDialogOpen(true);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -469,6 +471,37 @@ export function Hero() {
           <ChevronDown size={16} />
         </Button>
       </div>
+
+      {/* Image Upload Feature Coming Soon Dialog */}
+      <Dialog open={imageUploadDialogOpen} onOpenChange={setImageUploadDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-white/90 dark:bg-midnight-900/90 backdrop-blur-lg border border-love-200 dark:border-love-800">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-semibold gradient-text">Image Upload</DialogTitle>
+            <DialogDescription className="text-center">
+              Coming Soon!
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col items-center justify-center py-6">
+            <div className="w-20 h-20 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center mb-4">
+              <Image className="h-10 w-10 text-love-500 dark:text-love-400" />
+            </div>
+            
+            <p className="text-center mb-4">
+              We're working on image upload functionality for compliments!
+              <br />
+              This feature will be available in our next update.
+            </p>
+            
+            <Button 
+              onClick={() => setImageUploadDialogOpen(false)}
+              className="bg-gradient-love hover:opacity-90 transition-all duration-300 mt-2"
+            >
+              Got it
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

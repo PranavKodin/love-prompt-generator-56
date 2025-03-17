@@ -188,16 +188,13 @@ const UserProfile = () => {
     setLoadingFollowUsers(true);
     
     try {
-      // This would be implemented properly in firebase.ts
-      // This is a stub for now until we add the full implementation
-      // const users = await (type === "followers" ? getFollowers(userId) : getFollowing(userId));
-      // setFollowUsers(users as UserData[]);
-      
-      // Temporary stub
+      // This would be implemented properly in firebase.ts in the future
+      // For now, show a toast message
       setFollowUsers([]);
       toast({
-        title: "Coming soon",
-        description: "This feature is being implemented"
+        title: "Coming Soon!",
+        description: `The ability to view ${type} will be available in the next update.`,
+        variant: "default"
       });
     } catch (error) {
       console.error(`Error loading ${type}:`, error);
@@ -211,7 +208,6 @@ const UserProfile = () => {
     }
   };
   
-  // Format the initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -511,7 +507,7 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/* Follow Dialog */}
+      {/* Follow Dialog - Enhanced with coming soon message */}
       <Dialog open={followDialogOpen} onOpenChange={setFollowDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -525,51 +521,13 @@ const UserProfile = () => {
             </DialogDescription>
           </DialogHeader>
           
-          {loadingFollowUsers ? (
-            <div className="flex justify-center py-8">
-              <Spinner />
-            </div>
-          ) : followUsers.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">
-                {dialogType === "followers" 
-                  ? `${userData.displayName} doesn't have any followers yet.`
-                  : `${userData.displayName} isn't following anyone yet.`}
-              </p>
-            </div>
-          ) : (
-            <div className="max-h-80 overflow-y-auto space-y-2">
-              {followUsers.map(followUser => (
-                <div key={followUser.uid} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={followUser.photoURL} alt={followUser.displayName} />
-                      <AvatarFallback>
-                        {followUser.displayName ? getInitials(followUser.displayName) : "?"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{followUser.displayName}</p>
-                      {followUser.location && (
-                        <p className="text-xs text-muted-foreground">{followUser.location}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    asChild
-                  >
-                    <Link to={`/profile/${followUser.uid}`}>
-                      View
-                    </Link>
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="text-center py-8">
+            <Users className="h-12 w-12 mx-auto text-love-400 dark:text-love-600 mb-3" />
+            <h3 className="text-lg font-semibold mb-2 text-love-600 dark:text-love-400">Coming Soon!</h3>
+            <p className="text-muted-foreground max-w-xs mx-auto">
+              We're working on this feature and it will be available in our next update.
+            </p>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -292,14 +292,16 @@ const PublicCompliments = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         {complimentAuthor ? (
-                          <Link to={`/profile/${compliment.userId}`} className="flex items-center space-x-2">
-                            <Avatar className="h-8 w-8">
+                          <Link to={`/profile/${compliment.userId}`} className="flex items-center space-x-2 group">
+                            <Avatar className="h-8 w-8 ring-1 ring-love-200 dark:ring-love-800 transition-all group-hover:ring-love-500">
                               <AvatarImage src={complimentAuthor.photoURL} alt={complimentAuthor.displayName} />
-                              <AvatarFallback>{getInitials(complimentAuthor.displayName)}</AvatarFallback>
+                              <AvatarFallback className="bg-gradient-love text-white">{getInitials(complimentAuthor.displayName)}</AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="text-sm font-medium flex items-center">
-                                {complimentAuthor.displayName || "Anonymous"}
+                              <div className="font-medium flex items-center group-hover:text-love-600 dark:group-hover:text-love-400 transition-colors">
+                                <span className="bg-gradient-to-r from-love-600 to-love-400 bg-clip-text text-transparent font-semibold">
+                                  {complimentAuthor.displayName || "Anonymous"}
+                                </span>
                                 {complimentAuthor.subscription?.level === "premium" && (
                                   <Badge variant="outline" className="ml-2 bg-gradient-love text-white border-0 px-1 text-xs">
                                     Premium
