@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Search, X } from "lucide-react";
@@ -185,7 +185,9 @@ const AdminUsers = () => {
                         className="object-cover"
                       />
                       <AvatarFallback className="bg-gradient-love text-white">
+                        <Link to={`/profile/${user.uid}`} className="flex items-center space-x-2">
                         {getUserInitials(user.displayName || "")}
+                        </Link>
                       </AvatarFallback>
                     </Avatar>
                     

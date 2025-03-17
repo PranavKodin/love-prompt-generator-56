@@ -298,6 +298,7 @@ const PublicCompliments = () => {
               const complimentAuthor = compliment.userId ? userCache[compliment.userId] : null;
               return (
                 <Card key={compliment.id} className="backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30 overflow-hidden">
+                  <Navbar toggleSidebar={toggleSidebar} />
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
