@@ -652,14 +652,18 @@ export const getFollowers = async (userId: string): Promise<UserProfile[]> => {
     const querySnapshot = await getDocs(followersRef);
     
     const followers: UserProfile[] = [];
+    const fetchPromises: Promise<void>[] = [];
     
-    for (const doc of querySnapshot.docs) {
-      const followerProfile = await getUserProfile(doc.id);
-      if (followerProfile) {
-        followers.push(followerProfile);
-      }
-    }
+    querySnapshot.docs.forEach(doc => {
+      const fetchPromise = getUserProfile(doc.id).then(followerProfile => {
+        if (followerProfile) {
+          followers.push(followerProfile);
+        }
+      });
+      fetchPromises.push(fetchPromise);
+    });
     
+    await Promise.all(fetchPromises);
     return followers;
   } catch (error) {
     console.error("Error getting followers:", error);
@@ -673,14 +677,18 @@ export const getFollowing = async (userId: string): Promise<UserProfile[]> => {
     const querySnapshot = await getDocs(followingRef);
     
     const following: UserProfile[] = [];
+    const fetchPromises: Promise<void>[] = [];
     
-    for (const doc of querySnapshot.docs) {
-      const followingProfile = await getUserProfile(doc.id);
-      if (followingProfile) {
-        following.push(followingProfile);
-      }
-    }
+    querySnapshot.docs.forEach(doc => {
+      const fetchPromise = getUserProfile(doc.id).then(followingProfile => {
+        if (followingProfile) {
+          following.push(followingProfile);
+        }
+      });
+      fetchPromises.push(fetchPromise);
+    });
     
+    await Promise.all(fetchPromises);
     return following;
   } catch (error) {
     console.error("Error getting following:", error);

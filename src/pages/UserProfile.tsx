@@ -21,7 +21,8 @@ import {
   UserCheck, 
   UserX,
   Users,
-  Star
+  Star,
+  ExternalLink
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -31,11 +32,15 @@ import {
   isFollowing,
   followUser,
   unfollowUser,
-  getFollowCounts
+  getFollowCounts,
+  getFollowers,
+  getFollowing,
+  UserProfile as UserProfileType
 } from "@/lib/firebase";
 import { getPublicTimelineEvents, TimelineEvent } from "@/lib/timelineService";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface UserData {
   uid: string;
@@ -69,7 +74,7 @@ const UserProfile = () => {
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
   const [followDialogOpen, setFollowDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<"followers" | "following">("followers");
-  const [followUsers, setFollowUsers] = useState<UserData[]>([]);
+  const [followUsers, setFollowUsers] = useState<UserProfileType[]>([]);
   const [loadingFollowUsers, setLoadingFollowUsers] = useState(false);
   
   useEffect(() => {
@@ -188,14 +193,22 @@ const UserProfile = () => {
     setLoadingFollowUsers(true);
     
     try {
-      // This would be implemented properly in firebase.ts in the future
-      // For now, show a toast message
-      setFollowUsers([]);
-      toast({
-        title: "Coming Soon!",
-        description: `The ability to view ${type} will be available in the next update.`,
-        variant: "default"
-      });
+      let users: UserProfileType[] = [];
+      
+      if (type === "followers") {
+        users = await getFollowers(userId);
+      } else {
+        users = await getFollowing(userId);
+      }
+      
+      setFollowUsers(users);
+      
+      if (users.length === 0) {
+        toast({
+          title: "No users found",
+          description: `This user doesn't have any ${type} yet.`,
+        });
+      }
     } catch (error) {
       console.error(`Error loading ${type}:`, error);
       toast({
@@ -507,7 +520,7 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/* Follow Dialog - Enhanced with coming soon message */}
+      {/* Follow Dialog - Showing actual followers/following users */}
       <Dialog open={followDialogOpen} onOpenChange={setFollowDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -516,18 +529,60 @@ const UserProfile = () => {
             </DialogTitle>
             <DialogDescription>
               {dialogType === "followers" 
-                ? `People who follow ${userData.displayName}`
-                : `People whom ${userData.displayName} follows`}
+                ? `People who follow ${userData?.displayName}`
+                : `People whom ${userData?.displayName} follows`}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="text-center py-8">
-            <Users className="h-12 w-12 mx-auto text-love-400 dark:text-love-600 mb-3" />
-            <h3 className="text-lg font-semibold mb-2 text-love-600 dark:text-love-400">Coming Soon!</h3>
-            <p className="text-muted-foreground max-w-xs mx-auto">
-              We're working on this feature and it will be available in our next update.
-            </p>
-          </div>
+          <ScrollArea className="max-h-[400px] mt-2">
+            {loadingFollowUsers ? (
+              <div className="flex justify-center items-center py-8">
+                <Spinner size="md" />
+              </div>
+            ) : followUsers.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">
+                  No {dialogType} found.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4 p-1">
+                {followUsers.map((followUser) => (
+                  <div key={followUser.uid} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={followUser.photoURL || ""} />
+                        <AvatarFallback>
+                          {getInitials(followUser.displayName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{followUser.displayName}</p>
+                        {followUser.location && (
+                          <p className="text-xs text-muted-foreground flex items-center">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {followUser.location}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      asChild
+                      className="ml-auto"
+                    >
+                      <Link to={`/user/${followUser.uid}`}>
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        View
+                      </Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
