@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Rocket, Heart, Users, Image as ImageIcon } from "lucide-react";
+import { ChevronLeft, Rocket, Heart, Users, Image as ImageIcon, Palette } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Camera, Edit, MapPin, User } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { getFollowCounts } from "@/lib/firebase";
-import { BannerSelector } from "@/components/BannerSelector";
+import { BannerSelector, colorOptions } from "@/components/BannerSelector";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -27,14 +27,12 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Set form fields when profile loads or changes
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.displayName || "");
       setBio(profile.bio || "");
       setLocation(profile.location || "");
       
-      // Fetch follow counts
       if (user) {
         getFollowCounts(user.uid)
           .then(counts => setFollowCounts(counts))
@@ -83,12 +81,65 @@ const Profile = () => {
   };
 
   const handleBannerSelect = async (bannerUrl: string) => {
-    await updateBanner(bannerUrl);
+    try {
+      await updateBanner(bannerUrl);
+      toast({
+        title: "Success",
+        description: "Banner updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating banner:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update banner",
+      });
+    }
   };
 
   const renderBanner = () => {
+    const selectedColor = colorOptions.find(c => c.id === profile.bannerURL);
+    
+    if (selectedColor) {
+      return (
+        <div className="h-40 relative" style={{ background: selectedColor.gradient }}>
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
+          
+          {/* Banner edit button - always visible on top of the banner */}
+          <div className="absolute bottom-2 right-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setBannerSelectorOpen(true)}
+              className="bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md transition-all"
+            >
+              <Palette className="h-4 w-4 mr-2" />
+              Change Banner
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    
     if (!profile.bannerURL || profile.bannerURL === "gradient") {
-      return <div className="h-40 bg-gradient-love relative"></div>;
+      return (
+        <div className="h-40 bg-gradient-love relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/20 dark:from-white/5 dark:to-black/30"></div>
+          
+          {/* Banner edit button - always visible on top of the banner */}
+          <div className="absolute bottom-2 right-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setBannerSelectorOpen(true)}
+              className="bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md transition-all"
+            >
+              <Palette className="h-4 w-4 mr-2" />
+              Change Banner
+            </Button>
+          </div>
+        </div>
+      );
     }
     
     return (
@@ -99,6 +150,19 @@ const Profile = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
+        
+        {/* Banner edit button - always visible on top of the banner */}
+        <div className="absolute bottom-2 right-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setBannerSelectorOpen(true)}
+            className="bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md transition-all"
+          >
+            <Palette className="h-4 w-4 mr-2" />
+            Change Banner
+          </Button>
+        </div>
       </div>
     );
   };
@@ -116,7 +180,7 @@ const Profile = () => {
             {renderBanner()}
 
             <div className="px-6 sm:px-10">
-              <div className="relative -mt-20 sm:-mt-16 flex justify-center sm:justify-start">
+              <div className="relative -mt-20 sm:-mt-16 flex justify-between items-start">
                 <div className="relative">
                   <Avatar className="h-28 w-28 ring-4 ring-background border-2 border-love-400">
                     <AvatarImage src={profile.photoURL} alt={profile.displayName} />
@@ -134,18 +198,6 @@ const Profile = () => {
                     </Button>
                   )}
                 </div>
-                
-                {isEditing && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBannerSelectorOpen(true)}
-                    className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all"
-                  >
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    Change Banner
-                  </Button>
-                )}
               </div>
 
               <CardHeader className="pt-5 pb-0 px-0">
@@ -229,7 +281,18 @@ const Profile = () => {
                 </div>
               </CardContent>
 
-              {isEditing && (
+              {!isEditing ? (
+                <div className="px-0 pt-0 pb-6 flex justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 bg-background/80 backdrop-blur-sm hover:bg-background/90"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit Profile
+                  </Button>
+                </div>
+              ) : (
                 <CardFooter className="px-0 pt-0 pb-6 flex justify-end gap-2">
                   <Button
                     variant="outline"
