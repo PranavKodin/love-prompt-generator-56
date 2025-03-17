@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +23,13 @@ import {
   UserX,
   Users,
   Star,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  BookOpen,
+  Mail,
+  Globe,
+  TrendingUp,
+  MessageSquare
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -228,11 +235,18 @@ const UserProfile = () => {
       .join("")
       .toUpperCase();
   };
+
+  const isPremium = useMemo(() => {
+    return userData?.subscription?.level === "premium";
+  }, [userData]);
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner size="lg" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50">
+        <div className="text-center">
+          <Spinner size="lg" className="mb-4" />
+          <p className="text-muted-foreground animate-pulse">Loading profile...</p>
+        </div>
       </div>
     );
   }
@@ -240,283 +254,381 @@ const UserProfile = () => {
   if (!userData) {
     return (
       <div className="container mx-auto py-12 px-4 text-center">
-        <UserIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h1 className="text-2xl font-bold mb-4">User Not Found</h1>
-        <p className="text-muted-foreground mb-6">The user profile you're looking for doesn't exist or has been removed.</p>
-        <Button asChild>
-          <Link to="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Return to Home
-          </Link>
-        </Button>
+        <div className="max-w-md mx-auto">
+          <div className="rounded-full bg-muted w-20 h-20 mx-auto flex items-center justify-center mb-6 animate-bounce">
+            <UserIcon className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold mb-4">User Not Found</h1>
+          <p className="text-muted-foreground mb-8">The user profile you're looking for doesn't exist or has been removed.</p>
+          <Button asChild size="lg" className="animate-fade-in">
+            <Link to="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Return to Home
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const isPremium = userData.subscription?.level === "premium";
-  
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-6">
-        <Link to="/public-compliments" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors mb-4">
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Back to Public Compliments
-        </Link>
-        <h1 className="text-3xl font-bold gradient-text flex items-center gap-2">
-          {userData.displayName}'s Profile
-          {isPremium && (
-            <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-          )}
-        </h1>
-      </div>
-      
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="md:w-1/3 lg:w-1/4">
-          <Card>
-            <CardHeader className="flex flex-col items-center text-center">
-              <Avatar className="h-24 w-24 mb-2">
-                <AvatarImage src={userData.photoURL} alt={userData.displayName} />
-                <AvatarFallback className="text-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 pt-8 px-4">
+      <div className="container mx-auto max-w-6xl">
+        {/* Header with back button */}
+        <div className="mb-6 animate-fade-in-tablet">
+          <Link to="/public-compliments" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors mb-4">
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Back to Public Compliments
+          </Link>
+        </div>
+        
+        {/* Profile Header - Hero Section */}
+        <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-love p-1 animate-scale-in">
+          <div className="bg-card rounded-lg overflow-hidden">
+            <div className="relative h-32 md:h-48 bg-gradient-to-r from-love-200 to-love-400 dark:from-love-700 dark:to-love-900">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/20 dark:from-white/5 dark:to-black/30"></div>
+              {isPremium && (
+                <div className="absolute top-4 right-4 bg-yellow-500/90 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center shadow-lg animate-pulse-slow">
+                  <Star className="h-3 w-3 mr-1 fill-white" />
+                  Premium
+                </div>
+              )}
+            </div>
+            
+            <div className="px-4 md:px-8 relative -mt-12 md:-mt-16 flex flex-col md:flex-row md:items-end pb-4 gap-4">
+              <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-card shadow-xl animate-float">
+                <AvatarImage src={userData.photoURL} alt={userData.displayName} className="object-cover" />
+                <AvatarFallback className="text-3xl">
                   {userData.displayName ? getInitials(userData.displayName) : "?"}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle className="text-xl">{userData.displayName}</CardTitle>
-              {userData.location && (
-                <CardDescription className="flex items-center justify-center">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  {userData.location}
-                </CardDescription>
-              )}
-            </CardHeader>
-            <CardContent className="text-center">
-              <div className="flex justify-center gap-6 mb-4">
-                <Button 
-                  variant="ghost" 
-                  className="flex flex-col items-center p-2 h-auto" 
-                  onClick={() => openFollowDialog("followers")}
-                >
-                  <span className="text-lg font-semibold">{followCounts.followers}</span>
-                  <span className="text-xs text-muted-foreground">Followers</span>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  className="flex flex-col items-center p-2 h-auto" 
-                  onClick={() => openFollowDialog("following")}
-                >
-                  <span className="text-lg font-semibold">{followCounts.following}</span>
-                  <span className="text-xs text-muted-foreground">Following</span>
-                </Button>
+              
+              <div className="flex-1 pb-2">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                  <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 animate-text-fade">
+                    {userData.displayName}
+                    {isPremium && (
+                      <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 animate-pulse" />
+                    )}
+                  </h1>
+                  
+                  {userData.location && (
+                    <div className="flex items-center text-sm text-muted-foreground animate-text-slide">
+                      <MapPin className="h-4 w-4 mr-1 text-love-500" />
+                      {userData.location}
+                    </div>
+                  )}
+                </div>
+                
+                {userData.bio && (
+                  <p className="mt-2 text-muted-foreground max-w-xl animate-text-scale">
+                    {userData.bio}
+                  </p>
+                )}
+                
+                <div className="flex items-center gap-4 mt-4 flex-wrap">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all animate-fade-in"
+                    onClick={() => openFollowDialog("followers")}
+                  >
+                    <span className="font-semibold mr-1">{followCounts.followers}</span> Followers
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all animate-fade-in delay-100"
+                    onClick={() => openFollowDialog("following")}
+                  >
+                    <span className="font-semibold mr-1">{followCounts.following}</span> Following
+                  </Button>
+                  
+                  {userData.createdAt && (
+                    <div className="text-xs text-muted-foreground flex items-center animate-fade-in delay-200">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Joined {format(userData.createdAt.toDate(), "MMMM yyyy")}
+                    </div>
+                  )}
+                </div>
               </div>
               
-              {userData.bio ? (
-                <p className="text-sm mb-4">{userData.bio}</p>
-              ) : (
-                <p className="text-sm text-muted-foreground italic mb-4">No bio provided</p>
-              )}
-              
-              {userData.createdAt && (
-                <div className="flex items-center justify-center text-xs text-muted-foreground mb-2">
-                  <UserIcon className="h-3 w-3 mr-1" />
-                  Member since {format(userData.createdAt.toDate(), "MMMM yyyy")}
-                </div>
-              )}
-              
-              {userData.birthdate && (
-                <div className="flex items-center justify-center text-xs text-muted-foreground">
-                  <Cake className="h-3 w-3 mr-1" />
-                  Birthday: {format(userData.birthdate.toDate(), "MMMM d")}
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex justify-center">
-              {userId === user?.uid ? (
-                <Button asChild variant="outline">
-                  <Link to="/profile">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit My Profile
-                  </Link>
-                </Button>
-              ) : (
-                <Button 
-                  className={isUserFollowing 
-                    ? "bg-muted hover:bg-muted/90" 
-                    : "bg-gradient-love hover:opacity-90 transition-opacity"
-                  }
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                >
-                  {isUserFollowing ? (
-                    <>
-                      <UserCheck className="mr-2 h-4 w-4" />
-                      Following
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Follow
-                    </>
-                  )}
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
-          
-          {userData.interests && userData.interests.length > 0 && (
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle className="text-sm">Interests</CardTitle>
+              <div className="mt-2 md:mt-0 animate-fade-in delay-300">
+                {userId === user?.uid ? (
+                  <Button asChild variant="outline" className="w-full md:w-auto hover:scale-105 transition-transform">
+                    <Link to="/profile">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Profile
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button 
+                    className={cn(
+                      "w-full md:w-auto transition-all duration-300 hover:shadow-lg",
+                      isUserFollowing 
+                        ? "bg-muted hover:bg-muted/90" 
+                        : "bg-love-500 hover:bg-love-600 text-white"
+                    )}
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                  >
+                    {isUserFollowing ? (
+                      <>
+                        <UserCheck className="mr-2 h-4 w-4" />
+                        Following
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Follow
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Main Content */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Sidebar */}
+          <div className="md:col-span-1 space-y-6">
+            {/* User Stats Card */}
+            <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in">
+              <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
+                <CardTitle className="text-lg flex items-center">
+                  <TrendingUp className="mr-2 h-4 w-4 text-love-500" />
+                  Stats & Info
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {userData.interests.map((interest, index) => (
-                    <span 
-                      key={index}
-                      className="px-2 py-1 bg-muted rounded-full text-xs"
-                    >
-                      {interest}
-                    </span>
-                  ))}
+              <CardContent className="pt-4">
+                <div className="space-y-4">
+                  {userData.birthdate && (
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
+                        <Cake className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <div className="text-xs text-muted-foreground">Birthday</div>
+                        <div>{format(userData.birthdate.toDate(), "MMMM d")}</div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
+                      <BookOpen className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">Public Compliments</div>
+                      <Link to="/public-compliments" className="text-love-600 hover:underline dark:text-love-400">
+                        View their compliments
+                      </Link>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
+                      <Mail className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">Contact</div>
+                      <div>Private messaging coming soon</div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          )}
-        </div>
-        
-        <div className="md:w-2/3 lg:w-3/4">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="timeline">Public Timeline</TabsTrigger>
-            </TabsList>
             
-            <TabsContent value="profile" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <UserIcon className="mr-2 h-5 w-5" />
-                    About {userData.displayName}
+            {/* Interests Card */}
+            {userData.interests && userData.interests.length > 0 && (
+              <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
+                <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
+                  <CardTitle className="text-lg flex items-center">
+                    <Heart className="mr-2 h-4 w-4 text-love-500" />
+                    Interests
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  {userData.bio ? (
-                    <p>{userData.bio}</p>
-                  ) : (
-                    <p className="text-muted-foreground italic">No biography provided</p>
-                  )}
+                <CardContent className="pt-4">
+                  <div className="flex flex-wrap gap-2">
+                    {userData.interests.map((interest, index) => (
+                      <Badge 
+                        key={index}
+                        variant="outline"
+                        className="bg-muted/50 hover:bg-muted transition-colors cursor-default animate-fade-in"
+                        style={{ 
+                          animationDelay: `${index * 100}ms`,
+                        }}
+                      >
+                        {interest}
+                      </Badge>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-sm">
-                      <Heart className="mr-2 h-4 w-4 text-love-500" />
-                      Relationship Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground italic">Not shared</p>
-                  </CardContent>
-                </Card>
+            )}
+          </div>
+          
+          {/* Main Content Tabs */}
+          <div className="md:col-span-2">
+            <Card className="shadow-md overflow-hidden animate-scale-in">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <div className="border-b">
+                  <TabsList className="w-full justify-start rounded-none bg-transparent border-b h-auto p-0">
+                    <TabsTrigger 
+                      value="profile" 
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-love-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3 text-base"
+                    >
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      Profile
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="timeline" 
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-love-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3 text-base"
+                    >
+                      <Globe className="mr-2 h-4 w-4" />
+                      Timeline
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
                 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-sm">
-                      <Bookmark className="mr-2 h-4 w-4 text-amber-500" />
-                      Public Compliments
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>
-                      <Link to="/public-compliments" className="text-love-600 dark:text-love-400 hover:underline">
-                        View {userData.displayName}'s public compliments
-                      </Link>
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="timeline">
-              {timelineEvents.length === 0 ? (
-                <div className="text-center p-10 border border-dashed rounded-lg">
-                  <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No public timeline events</h3>
-                  <p className="text-muted-foreground">
-                    {userId === user?.uid 
-                      ? "You haven't made any timeline events public yet."
-                      : `${userData.displayName} hasn't shared any public timeline events yet.`
-                    }
-                  </p>
-                </div>
-              ) : (
-                <div className="relative">
-                  {/* Timeline line */}
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-border dark:bg-muted z-0" />
-                  
-                  <div className="relative z-10 space-y-8">
-                    {timelineEvents.map((event, index) => {
-                      const isEven = index % 2 === 0;
-                      const eventDate = event.date instanceof Date 
-                        ? event.date 
-                        : (event.date as unknown as Timestamp).toDate();
-                      
-                      return (
-                        <div key={event.id} className="flex items-center justify-center">
-                          <div 
-                            className={cn(
-                              "w-full md:w-5/12 p-1",
-                              isEven ? "md:mr-auto" : "md:ml-auto"
-                            )}
-                          >
-                            <Card className={cn(
-                              "w-full transition-all hover:shadow-md overflow-hidden",
-                              isEven ? "md:rounded-tr-3xl" : "md:rounded-tl-3xl"
-                            )}>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-xl">{event.title}</CardTitle>
-                                <CardDescription className="flex items-center gap-1">
-                                  <CalendarIcon className="h-3 w-3" />
-                                  {format(eventDate, "MMMM d, yyyy")}
-                                  
-                                  {event.location && (
-                                    <>
-                                      <span className="mx-1">•</span>
-                                      <MapPin className="h-3 w-3" />
-                                      {event.location}
-                                    </>
-                                  )}
-                                </CardDescription>
-                              </CardHeader>
-                              
-                              {event.imageUrl && (
-                                <div className="px-6">
-                                  <div className="w-full h-48 rounded-md overflow-hidden">
-                                    <img 
-                                      src={event.imageUrl} 
-                                      alt={event.title} 
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                              
-                              <CardContent>
-                                <p className="whitespace-pre-wrap">{event.description}</p>
-                              </CardContent>
-                            </Card>
-                          </div>
-                          
-                          {/* Timeline dot */}
-                          <div className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-love-500 border-2 border-background"></div>
-                        </div>
-                      );
-                    })}
+                <TabsContent value="profile" className="p-6 space-y-6 focus-visible:outline-none focus-visible:ring-0">
+                  <div className="space-y-3">
+                    <h2 className="text-xl font-semibold flex items-center">
+                      <Sparkles className="mr-2 h-5 w-5 text-love-500" />
+                      About {userData.displayName}
+                    </h2>
+                    
+                    {userData.bio ? (
+                      <p className="text-muted-foreground leading-relaxed">{userData.bio}</p>
+                    ) : (
+                      <p className="text-muted-foreground italic">No biography provided</p>
+                    )}
                   </div>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+                    <Card className="border border-border/50 shadow-sm hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center">
+                          <Heart className="mr-2 h-4 w-4 text-love-500" />
+                          Relationship Status
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground italic">Not shared</p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border border-border/50 shadow-sm hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center">
+                          <MessageSquare className="mr-2 h-4 w-4 text-love-500" />
+                          Public Compliments
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Link to="/public-compliments" className="text-love-600 dark:text-love-400 hover:underline inline-flex items-center">
+                          <Bookmark className="mr-2 h-4 w-4" />
+                          View their compliments
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="timeline" className="py-6 px-4 focus-visible:outline-none focus-visible:ring-0">
+                  {timelineEvents.length === 0 ? (
+                    <div className="text-center p-10 border border-dashed rounded-lg bg-muted/30">
+                      <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-pulse" />
+                      <h3 className="text-lg font-medium mb-2">No public timeline events</h3>
+                      <p className="text-muted-foreground">
+                        {userId === user?.uid 
+                          ? "You haven't made any timeline events public yet."
+                          : `${userData.displayName} hasn't shared any public timeline events yet.`
+                        }
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      {/* Timeline line */}
+                      <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-love-300 via-love-400 to-love-300 dark:from-love-800 dark:via-love-700 dark:to-love-800 z-0 opacity-50" />
+                      
+                      <div className="relative z-10 space-y-12">
+                        {timelineEvents.map((event, index) => {
+                          const isEven = index % 2 === 0;
+                          const eventDate = event.date instanceof Date 
+                            ? event.date 
+                            : (event.date as unknown as Timestamp).toDate();
+                          
+                          return (
+                            <div 
+                              key={event.id} 
+                              className="flex items-center justify-center"
+                              style={{ animationDelay: `${index * 150}ms` }}
+                            >
+                              <div 
+                                className={cn(
+                                  "w-full md:w-5/12 p-1 animate-fade-in",
+                                  isEven ? "md:mr-auto" : "md:ml-auto"
+                                )}
+                                style={{ animationDelay: `${index * 150}ms` }}
+                              >
+                                <Card className={cn(
+                                  "w-full transition-all hover:shadow-md overflow-hidden group",
+                                  isEven ? "md:rounded-tr-3xl" : "md:rounded-tl-3xl"
+                                )}>
+                                  <CardHeader className="pb-2 bg-gradient-to-r from-background to-muted/30 group-hover:from-background/80 group-hover:to-muted/50 transition-colors">
+                                    <CardTitle className="text-xl group-hover:text-love-600 dark:group-hover:text-love-400 transition-colors">
+                                      {event.title}
+                                    </CardTitle>
+                                    <CardDescription className="flex items-center gap-1">
+                                      <CalendarIcon className="h-3 w-3" />
+                                      {format(eventDate, "MMMM d, yyyy")}
+                                      
+                                      {event.location && (
+                                        <>
+                                          <span className="mx-1">•</span>
+                                          <MapPin className="h-3 w-3" />
+                                          {event.location}
+                                        </>
+                                      )}
+                                    </CardDescription>
+                                  </CardHeader>
+                                  
+                                  {event.imageUrl && (
+                                    <div className="px-6 pt-2">
+                                      <div className="w-full h-48 rounded-md overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
+                                        <img 
+                                          src={event.imageUrl} 
+                                          alt={event.title} 
+                                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  <CardContent>
+                                    <p className="whitespace-pre-wrap text-muted-foreground group-hover:text-foreground transition-colors">
+                                      {event.description}
+                                    </p>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                              
+                              {/* Timeline dot */}
+                              <div className="absolute left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-love-500 border-2 border-background shadow-lg animate-pulse z-10"></div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </Card>
+          </div>
         </div>
       </div>
 
@@ -524,8 +636,18 @@ const UserProfile = () => {
       <Dialog open={followDialogOpen} onOpenChange={setFollowDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {dialogType === "followers" ? "Followers" : "Following"}
+            <DialogTitle className="flex items-center">
+              {dialogType === "followers" ? (
+                <>
+                  <Users className="mr-2 h-5 w-5 text-love-500" />
+                  Followers
+                </>
+              ) : (
+                <>
+                  <UserPlus className="mr-2 h-5 w-5 text-love-500" />
+                  Following
+                </>
+              )}
             </DialogTitle>
             <DialogDescription>
               {dialogType === "followers" 
@@ -547,13 +669,17 @@ const UserProfile = () => {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4 p-1">
-                {followUsers.map((followUser) => (
-                  <div key={followUser.uid} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+              <div className="space-y-2 p-1">
+                {followUsers.map((followUser, index) => (
+                  <div 
+                    key={followUser.uid} 
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/80 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-10 w-10 border border-border shadow-sm">
                         <AvatarImage src={followUser.photoURL || ""} />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-love-100 text-love-800 dark:bg-love-900 dark:text-love-100">
                           {getInitials(followUser.displayName)}
                         </AvatarFallback>
                       </Avatar>
@@ -568,13 +694,13 @@ const UserProfile = () => {
                       </div>
                     </div>
                     <Button 
-                      variant="ghost" 
+                      variant="outline" 
                       size="sm" 
                       asChild
-                      className="ml-auto"
+                      className="ml-auto text-xs hover:bg-love-100 hover:text-love-800 dark:hover:bg-love-900/30 dark:hover:text-love-200 transition-colors"
                     >
-                      <Link to={`/user/${followUser.uid}`}>
-                        <ExternalLink className="h-4 w-4 mr-1" />
+                      <Link to={`/profile/${followUser.uid}`}>
+                        <ExternalLink className="h-3 w-3 mr-1" />
                         View
                       </Link>
                     </Button>
