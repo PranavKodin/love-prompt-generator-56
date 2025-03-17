@@ -291,8 +291,8 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" >
-      
+    <div className="min-h-screen to-muted/30 pt-8 px-4">
+      <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
       <div className="container mx-auto max-w-6xl">
         {/* Header with back button */}
         <div className="mb-6 animate-fade-in-tablet">
@@ -304,7 +304,7 @@ const UserProfile = () => {
 
         {/* Profile Header - Hero Section */}
         {/* Removed the bg-gradient-love class and p-1 padding that was creating the pink background */}
-        <Card className="glass overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+        <Card className="glass mb-8 overflow-hidden shadow-lg hover:shadow-xl transition-shadow animate-scale-in">
           <div className="bg-card rounded-lg overflow-hidden shadow-md">
             {renderBanner()}
 
@@ -409,7 +409,7 @@ const UserProfile = () => {
           {/* Sidebar */}
           <div className="md:col-span-1 space-y-6">
             {/* User Stats Card */}
-            <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in ">
+            <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
               <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
                 <CardTitle className="text-lg flex items-center">
                   <TrendingUp className="mr-2 h-4 w-4 text-love-500" />
@@ -486,7 +486,7 @@ const UserProfile = () => {
 
           {/* Main Content Tabs */}
           <div className="md:col-span-2">
-            <Card className="shadow-md overflow-hidden animate-scale-in">
+          <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="border-b">
                   <TabsList className="w-full justify-start rounded-none bg-transparent border-b h-auto p-0">
