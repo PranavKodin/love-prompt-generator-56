@@ -9,7 +9,6 @@ import {
   addComment, 
   getComplimentComments,
   deleteComment,
-  getUserById,
   type Compliment,
   type Comment
 } from "@/lib/firebase";
@@ -21,7 +20,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Avatar,
   AvatarFallback,
@@ -31,16 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/Spinner";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
-import { Heart, MessageCircle, Send, Trash2, X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { Heart, MessageCircle, Send, Trash2 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 
 const PublicCompliments = () => {
@@ -57,11 +46,6 @@ const PublicCompliments = () => {
   const [userCache, setUserCache] = useState<Record<string, any>>({});
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
-    story: false,
-    team: false,
-    mission: false
-  });
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -73,32 +57,26 @@ const PublicCompliments = () => {
         const publicCompliments = await getPublicCompliments();
         setCompliments(publicCompliments);
         
-        // Fetch user data for each compliment
         const userIds = publicCompliments
           .map(comp => comp.userId)
-          .filter((id): id is string => !!id); // Filter out undefined/null
+          .filter((id): id is string => !!id);
         
         const uniqueUserIds = [...new Set(userIds)];
-        const userPromises = uniqueUserIds.map(async (userId) => {
-          try {
-            const userData = await getUserById(userId);
-            return { userId, userData };
-          } catch (error) {
-            console.error(`Error fetching user data for ID ${userId}:`, error);
-            return { userId, userData: null };
+        
+        const updatedUserCache = { ...userCache };
+        
+        for (const compliment of publicCompliments) {
+          if (compliment.userId && compliment.userDisplayName) {
+            updatedUserCache[compliment.userId] = {
+              displayName: compliment.userDisplayName,
+              photoURL: compliment.userPhotoURL || null,
+              subscription: compliment.userSubscription || { level: "free" },
+              uid: compliment.userId
+            };
           }
-        });
+        }
         
-        const usersData = await Promise.all(userPromises);
-        const newUserCache: Record<string, any> = {};
-        
-        usersData.forEach(({ userId, userData }) => {
-          if (userData) {
-            newUserCache[userId] = userData;
-          }
-        });
-        
-        setUserCache(prevCache => ({ ...prevCache, ...newUserCache }));
+        setUserCache(updatedUserCache);
       } catch (error) {
         console.error("Error fetching compliments:", error);
         toast.error("Failed to load compliments");
@@ -265,7 +243,7 @@ const PublicCompliments = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar toggleSidebar={() => {}} />
+        <Navbar toggleSidebar={toggleSidebar} />
         <main className="flex-1 container mx-auto py-28 flex items-center justify-center">
           <Spinner size="lg" />
         </main>
@@ -277,6 +255,9 @@ const PublicCompliments = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
+      <Navbar toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      
       <main className="flex-1 container mx-auto pt-28 pb-16 px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">Public Compliments</h1>
@@ -295,7 +276,6 @@ const PublicCompliments = () => {
               const complimentAuthor = compliment.userId ? userCache[compliment.userId] : null;
               return (
                 <Card key={compliment.id} className="backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30 overflow-hidden">
-                  <Navbar toggleSidebar={toggleSidebar} />
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">

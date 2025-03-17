@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -24,6 +25,11 @@ const AdminUsers = () => {
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   
   useEffect(() => {
     // Check if user is admin
@@ -125,11 +131,16 @@ const AdminUsers = () => {
     }
   };
   
+  // Function to navigate to user profile
+  const viewUserProfile = (userId: string) => {
+    navigate(`/profile/${userId}`);
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
       
-      <Navbar toggleSidebar={() => {}} />
+      <Navbar toggleSidebar={toggleSidebar} />
       
       <main className="flex-1 container max-w-4xl mx-auto pt-28 pb-16 px-4">
         <div className="flex items-center mb-6">
@@ -178,22 +189,27 @@ const AdminUsers = () => {
               >
                 <CardContent className="p-6">
                   <div className="flex gap-4">
-                    <Avatar className="size-16 border-2 border-love-200 dark:border-love-800">
-                      <AvatarImage 
-                        src={user.photoURL || ""} 
-                        alt={user.displayName || "User"} 
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="bg-gradient-love text-white">
-                        <Link to={`/profile/${user.uid}`} className="flex items-center space-x-2">
-                        {getUserInitials(user.displayName || "")}
-                        </Link>
-                      </AvatarFallback>
-                    </Avatar>
+                    <Link to={`/profile/${user.uid}`}>
+                      <Avatar className="size-16 border-2 border-love-200 dark:border-love-800 cursor-pointer transition-transform hover:scale-105">
+                        <AvatarImage 
+                          src={user.photoURL || ""} 
+                          alt={user.displayName || "User"} 
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="bg-gradient-love text-white">
+                          {getUserInitials(user.displayName || "")}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
                     
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">
-                        {user.displayName || "No Name"}
+                        <Link 
+                          to={`/profile/${user.uid}`} 
+                          className="hover:text-love-600 dark:hover:text-love-400 transition-colors"
+                        >
+                          {user.displayName || "No Name"}
+                        </Link>
                       </h3>
                       <p className="text-sm text-muted-foreground mb-1">{user.email || "No Email"}</p>
                       {user.location && (
