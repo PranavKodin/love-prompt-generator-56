@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { UserProvider } from "@/context/UserContext";
+import InstagramRedirect from "./components/InstagramRedirect";  // ✅ Import the redirect component
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
@@ -35,8 +36,12 @@ const App = () => (
         <AuthProvider>
           <UserProvider>
             <TooltipProvider>
+              {/* ✅ Instagram Redirect (Runs First) */}
+              <InstagramRedirect />
+
               <Toaster />
               <Sonner />
+
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
