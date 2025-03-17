@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { Timestamp } from "firebase/firestore";
@@ -12,6 +11,7 @@ interface UserContextType {
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
   toggleDarkMode: () => Promise<void>;
   upgradeSubscription: () => Promise<void>;
+  updateBanner: (bannerUrl: string) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -38,6 +38,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               displayName: user.displayName || "",
               email: user.email || "",
               photoURL: user.photoURL || "",
+              bannerURL: "gradient", // Default banner
               createdAt: Timestamp.now(),
               preferences: {
                 darkMode: false,
@@ -187,12 +188,38 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updateBanner = async (bannerUrl: string) => {
+    if (!user || !profile) {
+      console.error("Cannot update banner: user or profile is null");
+      return;
+    }
+    
+    try {
+      await updateProfile({
+        bannerURL: bannerUrl
+      });
+      
+      toast({
+        title: "Banner updated",
+        description: "Your profile banner has been updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating banner:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update banner",
+      });
+    }
+  };
+
   const value = {
     profile,
     loading,
     updateProfile,
     toggleDarkMode,
     upgradeSubscription,
+    updateBanner,
   };
 
   return (

@@ -1,7 +1,13 @@
+<<<<<<< Updated upstream
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Rocket, Heart, Users } from "lucide-react";
+=======
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronLeft, Rocket, Heart, Users, Image as ImageIcon } from "lucide-react";
+>>>>>>> Stashed changes
 import { useAuth } from "@/context/AuthContext";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -13,16 +19,24 @@ import { Camera, Edit, MapPin, User } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { getFollowCounts } from "@/lib/firebase";
+<<<<<<< Updated upstream
+=======
+import { BannerSelector } from "@/components/BannerSelector";
+>>>>>>> Stashed changes
 
 const Profile = () => {
   const { user } = useAuth();
-  const { profile, updateProfile } = useUser();
+  const { profile, updateProfile, updateBanner } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
+<<<<<<< Updated upstream
+=======
+  const [bannerSelectorOpen, setBannerSelectorOpen] = useState(false);
+>>>>>>> Stashed changes
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -81,6 +95,27 @@ const Profile = () => {
     );
   };
 
+  const handleBannerSelect = async (bannerUrl: string) => {
+    await updateBanner(bannerUrl);
+  };
+
+  const renderBanner = () => {
+    if (!profile.bannerURL || profile.bannerURL === "gradient") {
+      return <div className="h-40 bg-gradient-love relative"></div>;
+    }
+    
+    return (
+      <div className="h-40 relative overflow-hidden">
+        <img 
+          src={profile.bannerURL} 
+          alt="Profile banner" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground hero-gradient">
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
@@ -91,19 +126,10 @@ const Profile = () => {
             Back to Home
           </Link>
           <Card className="glass overflow-hidden animate-scale-in">
-            <div className="h-40 bg-gradient-love relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-4 right-4 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30"
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                <Edit className="h-4 w-4 text-white" />
-              </Button>
-            </div>
+            {renderBanner()}
 
             <div className="px-6 sm:px-10">
-              <div className="relative -mt-16 flex justify-center sm:justify-start">
+              <div className="relative -mt-20 sm:-mt-16 flex justify-center sm:justify-start">
                 <div className="relative">
                   <Avatar className="h-28 w-28 ring-4 ring-background border-2 border-love-400">
                     <AvatarImage src={profile.photoURL} alt={profile.displayName} />
@@ -121,6 +147,18 @@ const Profile = () => {
                     </Button>
                   )}
                 </div>
+                
+                {isEditing && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setBannerSelectorOpen(true)}
+                    className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all"
+                  >
+                    <ImageIcon className="h-4 w-4 mr-2" />
+                    Change Banner
+                  </Button>
+                )}
               </div>
 
               <CardHeader className="pt-5 pb-0 px-0">
@@ -226,6 +264,13 @@ const Profile = () => {
           </Card>
         </div>
       </div>
+      
+      <BannerSelector
+        open={bannerSelectorOpen}
+        onOpenChange={setBannerSelectorOpen}
+        currentBanner={profile.bannerURL || "gradient"}
+        onSelect={handleBannerSelect}
+      />
     </div>
   );
 };

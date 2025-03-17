@@ -90,10 +90,13 @@ export interface UserProfile {
   uid: string;
   displayName: string;
   email: string;
-  photoURL?: string;
+  photoURL: string;
+  bannerURL?: string;
+  createdAt: Timestamp;
   bio?: string;
   location?: string;
-  createdAt: Timestamp;
+  birthdate?: Timestamp;
+  interests?: string[];
   preferences?: {
     darkMode: boolean;
     language: string;
