@@ -104,19 +104,6 @@ const Profile = () => {
       return (
         <div className="h-40 relative" style={{ background: selectedColor.gradient }}>
           <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]"></div>
-          
-          {/* Banner edit button - always visible on top of the banner */}
-          <div className="absolute bottom-2 right-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setBannerSelectorOpen(true)}
-              className="bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md transition-all"
-            >
-              <Palette className="h-4 w-4 mr-2" />
-              Change Banner
-            </Button>
-          </div>
         </div>
       );
     }
@@ -125,19 +112,6 @@ const Profile = () => {
       return (
         <div className="h-40 bg-gradient-love relative">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/20 dark:from-white/5 dark:to-black/30"></div>
-          
-          {/* Banner edit button - always visible on top of the banner */}
-          <div className="absolute bottom-2 right-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setBannerSelectorOpen(true)}
-              className="bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md transition-all"
-            >
-              <Palette className="h-4 w-4 mr-2" />
-              Change Banner
-            </Button>
-          </div>
         </div>
       );
     }
@@ -150,19 +124,6 @@ const Profile = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
-        
-        {/* Banner edit button - always visible on top of the banner */}
-        <div className="absolute bottom-2 right-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setBannerSelectorOpen(true)}
-            className="bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md transition-all"
-          >
-            <Palette className="h-4 w-4 mr-2" />
-            Change Banner
-          </Button>
-        </div>
       </div>
     );
   };
@@ -176,7 +137,17 @@ const Profile = () => {
             <ChevronLeft size={16} className="mr-1" />
             Back to Home
           </Link>
-          <Card className="glass overflow-hidden animate-scale-in">
+          <Card className="glass overflow-hidden animate-scale-in relative">
+            {/* Edit button in top right corner */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(!isEditing)}
+              className="absolute top-2 right-2 z-10 bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-md transition-all h-8 w-8 p-0 rounded-md"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            
             {renderBanner()}
 
             <div className="px-6 sm:px-10">
@@ -279,20 +250,23 @@ const Profile = () => {
                     </p>
                   </div>
                 </div>
+                
+                {/* Banner change option visible only when in edit mode */}
+                {isEditing && (
+                  <div className="mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setBannerSelectorOpen(true)}
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Palette className="h-4 w-4" />
+                      Change Banner
+                    </Button>
+                  </div>
+                )}
               </CardContent>
 
-              {!isEditing ? (
-                <div className="px-0 pt-0 pb-6 flex justify-end">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 bg-background/80 backdrop-blur-sm hover:bg-background/90"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit Profile
-                  </Button>
-                </div>
-              ) : (
+              {isEditing && (
                 <CardFooter className="px-0 pt-0 pb-6 flex justify-end gap-2">
                   <Button
                     variant="outline"
