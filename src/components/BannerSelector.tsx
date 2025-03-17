@@ -35,8 +35,44 @@ export const defaultBanners: BannerOption[] = [
     id: "banner4",
     url: "https://i.pinimg.com/736x/ae/d0/40/aed0408855402b98978c962832e3e0b7.jpg",
     type: "image"
+  },
+  {
+    id: "banner5",
+    url: "https://i.pinimg.com/736x/d3/a6/12/d3a612cea4451cd0d92bd20af1333b8d.jpg",
+    type: "image"
+  },
+  {
+    id: "banner6",
+    url: "https://i.pinimg.com/originals/7f/f9/a2/7ff9a27da311166cc40ccfd331d1c7e5.gif",
+    type: "image"
+  },
+  {
+    id: "banner7",
+    url: "https://i.pinimg.com/originals/e5/4a/fa/e54afabd75adb33464e85f2687b43f87.gif",
+    type: "image"
+  },
+  {
+    id: "banner8",
+    url: "https://i.pinimg.com/originals/1f/f0/a9/1ff0a97335c602f48ad7c08b8d3d0e88.gif",
+    type: "image"
+  },
+  {
+    id: "banner9",
+    url: "https://i.pinimg.com/originals/28/db/7b/28db7ba7a159bb00e8aa610b7a854a9c.gif",
+    type: "image"
+  },
+  {
+    id: "banner10",
+    url: "https://i.pinimg.com/originals/ab/32/b2/ab32b287d5bc96d3dafe9c3ae2311d76.gif",
+    type: "image"
+  },
+  {
+    id: "banner11",
+    url: "https://i.pinimg.com/originals/aa/47/d3/aa47d37995cde50719e37e2ab0ee7cf2.gif",
+    type: "image"
   }
 ];
+
 
 export const colorOptions = [
   { id: "love-500", color: "#e11d48", gradient: "linear-gradient(to right, #e11d48, #fb7185)" },
