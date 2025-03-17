@@ -1,13 +1,6 @@
-<<<<<<< Updated upstream
-
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Rocket, Heart, Users } from "lucide-react";
-=======
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Rocket, Heart, Users, Image as ImageIcon } from "lucide-react";
->>>>>>> Stashed changes
 import { useAuth } from "@/context/AuthContext";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -19,10 +12,7 @@ import { Camera, Edit, MapPin, User } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { getFollowCounts } from "@/lib/firebase";
-<<<<<<< Updated upstream
-=======
 import { BannerSelector } from "@/components/BannerSelector";
->>>>>>> Stashed changes
 
 const Profile = () => {
   const { user } = useAuth();
@@ -33,10 +23,7 @@ const Profile = () => {
   const [location, setLocation] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
-<<<<<<< Updated upstream
-=======
   const [bannerSelectorOpen, setBannerSelectorOpen] = useState(false);
->>>>>>> Stashed changes
   const navigate = useNavigate();
   const { toast } = useToast();
 
