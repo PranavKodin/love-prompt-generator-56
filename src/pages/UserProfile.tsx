@@ -408,51 +408,6 @@ const UserProfile = () => {
           {/* Sidebar */}
           <div className="md:col-span-1 space-y-6">
             {/* User Stats Card */}
-            <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in">
-              <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
-                <CardTitle className="text-lg flex items-center">
-                  <TrendingUp className="mr-2 h-4 w-4 text-love-500" />
-                  Stats & Info
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="space-y-4">
-                  {userData.birthdate && (
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
-                        <Cake className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted-foreground">Birthday</div>
-                        <div>{format(userData.birthdate.toDate(), "MMMM d")}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
-                      <BookOpen className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground">Public Compliments</div>
-                      <Link to="/public-compliments" className="text-love-600 hover:underline dark:text-love-400">
-                        View their compliments
-                      </Link>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
-                      <Mail className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground">Contact</div>
-                      <div>Private messaging coming soon</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Interests Card */}
             {userData.interests && userData.interests.length > 0 && (
