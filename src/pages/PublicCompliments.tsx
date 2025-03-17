@@ -10,7 +10,8 @@ import {
   getComplimentComments,
   deleteComment,
   type Compliment,
-  type Comment
+  type Comment,
+  getUserById
 } from "@/lib/firebase";
 import { 
   Card, 
@@ -66,13 +67,24 @@ const PublicCompliments = () => {
         const updatedUserCache = { ...userCache };
         
         for (const compliment of publicCompliments) {
-          if (compliment.userId && compliment.userDisplayName) {
-            updatedUserCache[compliment.userId] = {
-              displayName: compliment.userDisplayName,
-              photoURL: compliment.userPhotoURL || null,
-              subscription: compliment.userSubscription || { level: "free" },
-              uid: compliment.userId
-            };
+          if (compliment.userId) {
+            if (compliment.userDisplayName) {
+              updatedUserCache[compliment.userId] = {
+                displayName: compliment.userDisplayName,
+                photoURL: compliment.userPhotoURL || null,
+                subscription: compliment.userSubscription || { level: "free" },
+                uid: compliment.userId
+              };
+            } else if (!updatedUserCache[compliment.userId]) {
+              try {
+                const userData = await getUserById(compliment.userId);
+                if (userData) {
+                  updatedUserCache[compliment.userId] = userData;
+                }
+              } catch (error) {
+                console.error(`Error fetching user ${compliment.userId}:`, error);
+              }
+            }
           }
         }
         

@@ -78,6 +78,12 @@ export interface Compliment {
   mood?: string;
   isSaved?: boolean;
   commentCount?: number;
+  userDisplayName?: string;
+  userPhotoURL?: string;
+  userSubscription?: {
+    level: "free" | "premium";
+    expiresAt?: Timestamp;
+  };
 }
 
 export interface UserProfile {
