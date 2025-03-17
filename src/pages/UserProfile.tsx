@@ -7,18 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Spinner } from "@/components/Spinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Clock, 
-  CalendarIcon, 
-  MapPin, 
-  ArrowLeft, 
-  User as UserIcon, 
-  Heart, 
-  Bookmark, 
-  Edit, 
-  Cake, 
-  UserPlus, 
-  UserCheck, 
+import {
+  Clock,
+  CalendarIcon,
+  MapPin,
+  ArrowLeft,
+  User as UserIcon,
+  Heart,
+  Bookmark,
+  Edit,
+  Cake,
+  UserPlus,
+  UserCheck,
   UserX,
   Users,
   Star,
@@ -32,8 +32,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { 
-  getUserProfile, 
+import {
+  getUserProfile,
   Timestamp,
   isFollowing,
   followUser,
@@ -83,7 +83,7 @@ const UserProfile = () => {
   const [dialogType, setDialogType] = useState<"followers" | "following">("followers");
   const [followUsers, setFollowUsers] = useState<UserProfileType[]>([]);
   const [loadingFollowUsers, setLoadingFollowUsers] = useState(false);
-  
+
   useEffect(() => {
     if (userId) {
       loadUserData();
@@ -92,13 +92,13 @@ const UserProfile = () => {
       loadFollowCounts();
     }
   }, [userId]);
-  
+
   const loadUserData = async () => {
     if (!userId) return;
-    
+
     try {
       const fetchedUser = await getUserProfile(userId);
-      
+
       if (fetchedUser) {
         setUserData(fetchedUser as UserData);
       } else {
@@ -119,10 +119,10 @@ const UserProfile = () => {
       setLoading(false);
     }
   };
-  
+
   const loadTimelineEvents = async () => {
     if (!userId) return;
-    
+
     try {
       const events = await getPublicTimelineEvents(userId);
       setTimelineEvents(events);
@@ -138,7 +138,7 @@ const UserProfile = () => {
 
   const loadFollowStatus = async () => {
     if (!userId || !user) return;
-    
+
     try {
       const following = await isFollowing(user.uid, userId);
       setIsUserFollowing(following);
@@ -149,7 +149,7 @@ const UserProfile = () => {
 
   const loadFollowCounts = async () => {
     if (!userId) return;
-    
+
     try {
       const counts = await getFollowCounts(userId);
       setFollowCounts(counts);
@@ -157,10 +157,10 @@ const UserProfile = () => {
       console.error("Error loading follow counts:", error);
     }
   };
-  
+
   const handleFollow = async () => {
     if (!userId || !user) return;
-    
+
     setFollowLoading(true);
     try {
       if (isUserFollowing) {
@@ -194,22 +194,22 @@ const UserProfile = () => {
 
   const openFollowDialog = async (type: "followers" | "following") => {
     if (!userId) return;
-    
+
     setDialogType(type);
     setFollowDialogOpen(true);
     setLoadingFollowUsers(true);
-    
+
     try {
       let users: UserProfileType[] = [];
-      
+
       if (type === "followers") {
         users = await getFollowers(userId);
       } else {
         users = await getFollowing(userId);
       }
-      
+
       setFollowUsers(users);
-      
+
       if (users.length === 0) {
         toast({
           title: "No users found",
@@ -227,7 +227,7 @@ const UserProfile = () => {
       setLoadingFollowUsers(false);
     }
   };
-  
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -239,19 +239,19 @@ const UserProfile = () => {
   const isPremium = useMemo(() => {
     return userData?.subscription?.level === "premium";
   }, [userData]);
-  
+
   const renderBanner = () => {
     if (!userData?.bannerURL || userData.bannerURL === "gradient") {
       return <div className="relative h-32 md:h-48 bg-gradient-love">
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/20 dark:from-white/5 dark:to-black/30"></div>
       </div>;
     }
-    
+
     return (
       <div className="relative h-32 md:h-48 overflow-hidden">
-        <img 
-          src={userData.bannerURL} 
-          alt="Profile banner" 
+        <img
+          src={userData.bannerURL}
+          alt="Profile banner"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
@@ -269,7 +269,7 @@ const UserProfile = () => {
       </div>
     );
   }
-  
+
   if (!userData) {
     return (
       <div className="container mx-auto py-12 px-4 text-center">
@@ -300,12 +300,13 @@ const UserProfile = () => {
             Back to Public Compliments
           </Link>
         </div>
-        
+
         {/* Profile Header - Hero Section */}
-        <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-love p-1 animate-scale-in">
-          <div className="bg-card rounded-lg overflow-hidden">
+        {/* Removed the bg-gradient-love class and p-1 padding that was creating the pink background */}
+        <div className="relative mb-8 overflow-hidden rounded-xl animate-scale-in">
+          <div className="bg-card rounded-lg overflow-hidden shadow-md">
             {renderBanner()}
-            
+
             <div className="px-4 md:px-8 relative -mt-16 md:-mt-20 flex flex-col md:flex-row md:items-end pb-4 gap-4">
               <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-card shadow-xl animate-float">
                 <AvatarImage src={userData?.photoURL} alt={userData?.displayName} className="object-cover" />
@@ -313,7 +314,7 @@ const UserProfile = () => {
                   {userData?.displayName ? getInitials(userData.displayName) : "?"}
                 </AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1 pb-2 pt-4 md:pt-0">
                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                   <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 animate-text-fade">
@@ -322,7 +323,7 @@ const UserProfile = () => {
                       <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 animate-pulse" />
                     )}
                   </h1>
-                  
+
                   {userData?.location && (
                     <div className="flex items-center text-sm text-muted-foreground animate-text-slide">
                       <MapPin className="h-4 w-4 mr-1 text-love-500" />
@@ -330,32 +331,32 @@ const UserProfile = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {userData?.bio && (
                   <p className="mt-2 text-muted-foreground max-w-xl animate-text-scale">
                     {userData.bio}
                   </p>
                 )}
-                
+
                 <div className="flex items-center gap-4 mt-4 flex-wrap">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all animate-fade-in"
                     onClick={() => openFollowDialog("followers")}
                   >
                     <span className="font-semibold mr-1">{followCounts.followers}</span> Followers
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all animate-fade-in delay-100"
                     onClick={() => openFollowDialog("following")}
                   >
                     <span className="font-semibold mr-1">{followCounts.following}</span> Following
                   </Button>
-                  
+
                   {userData?.createdAt && (
                     <div className="text-xs text-muted-foreground flex items-center animate-fade-in delay-200">
                       <Clock className="h-3 w-3 mr-1" />
@@ -364,7 +365,7 @@ const UserProfile = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="mt-2 md:mt-0 animate-fade-in delay-300">
                 {userId === user?.uid ? (
                   <Button asChild variant="outline" className="w-full md:w-auto hover:scale-105 transition-transform">
@@ -374,11 +375,11 @@ const UserProfile = () => {
                     </Link>
                   </Button>
                 ) : (
-                  <Button 
+                  <Button
                     className={cn(
                       "w-full md:w-auto transition-all duration-300 hover:shadow-lg",
-                      isUserFollowing 
-                        ? "bg-muted hover:bg-muted/90" 
+                      isUserFollowing
+                        ? "bg-muted hover:bg-muted/90"
                         : "bg-love-500 hover:bg-love-600 text-white"
                     )}
                     onClick={handleFollow}
@@ -401,7 +402,7 @@ const UserProfile = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Sidebar */}
@@ -427,7 +428,7 @@ const UserProfile = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
                       <BookOpen className="h-5 w-5" />
@@ -439,7 +440,7 @@ const UserProfile = () => {
                       </Link>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center text-love-500">
                       <Mail className="h-5 w-5" />
@@ -452,7 +453,7 @@ const UserProfile = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Interests Card */}
             {userData.interests && userData.interests.length > 0 && (
               <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
@@ -465,11 +466,11 @@ const UserProfile = () => {
                 <CardContent className="pt-4">
                   <div className="flex flex-wrap gap-2">
                     {userData.interests.map((interest, index) => (
-                      <Badge 
+                      <Badge
                         key={index}
                         variant="outline"
                         className="bg-muted/50 hover:bg-muted transition-colors cursor-default animate-fade-in"
-                        style={{ 
+                        style={{
                           animationDelay: `${index * 100}ms`,
                         }}
                       >
@@ -481,22 +482,22 @@ const UserProfile = () => {
               </Card>
             )}
           </div>
-          
+
           {/* Main Content Tabs */}
           <div className="md:col-span-2">
             <Card className="shadow-md overflow-hidden animate-scale-in">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="border-b">
                   <TabsList className="w-full justify-start rounded-none bg-transparent border-b h-auto p-0">
-                    <TabsTrigger 
-                      value="profile" 
+                    <TabsTrigger
+                      value="profile"
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-love-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3 text-base"
                     >
                       <UserIcon className="mr-2 h-4 w-4" />
                       Profile
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="timeline" 
+                    <TabsTrigger
+                      value="timeline"
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-love-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3 text-base"
                     >
                       <Globe className="mr-2 h-4 w-4" />
@@ -504,21 +505,21 @@ const UserProfile = () => {
                     </TabsTrigger>
                   </TabsList>
                 </div>
-                
+
                 <TabsContent value="profile" className="p-6 space-y-6 focus-visible:outline-none focus-visible:ring-0">
                   <div className="space-y-3">
                     <h2 className="text-xl font-semibold flex items-center">
                       <Sparkles className="mr-2 h-5 w-5 text-love-500" />
                       About {userData.displayName}
                     </h2>
-                    
+
                     {userData.bio ? (
                       <p className="text-muted-foreground leading-relaxed">{userData.bio}</p>
                     ) : (
                       <p className="text-muted-foreground italic">No biography provided</p>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
                     <Card className="border border-border/50 shadow-sm hover:shadow-md transition-shadow">
                       <CardHeader className="pb-2">
@@ -531,7 +532,7 @@ const UserProfile = () => {
                         <p className="text-muted-foreground italic">Not shared</p>
                       </CardContent>
                     </Card>
-                    
+
                     <Card className="border border-border/50 shadow-sm hover:shadow-md transition-shadow">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium flex items-center">
@@ -548,14 +549,14 @@ const UserProfile = () => {
                     </Card>
                   </div>
                 </TabsContent>
-                
+
                 <TabsContent value="timeline" className="py-6 px-4 focus-visible:outline-none focus-visible:ring-0">
                   {timelineEvents.length === 0 ? (
                     <div className="text-center p-10 border border-dashed rounded-lg bg-muted/30">
                       <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-pulse" />
                       <h3 className="text-lg font-medium mb-2">No public timeline events</h3>
                       <p className="text-muted-foreground">
-                        {userId === user?.uid 
+                        {userId === user?.uid
                           ? "You haven't made any timeline events public yet."
                           : `${userData.displayName} hasn't shared any public timeline events yet.`
                         }
@@ -565,21 +566,21 @@ const UserProfile = () => {
                     <div className="relative">
                       {/* Timeline line */}
                       <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-love-300 via-love-400 to-love-300 dark:from-love-800 dark:via-love-700 dark:to-love-800 z-0 opacity-50" />
-                      
+
                       <div className="relative z-10 space-y-12">
                         {timelineEvents.map((event, index) => {
                           const isEven = index % 2 === 0;
-                          const eventDate = event.date instanceof Date 
-                            ? event.date 
+                          const eventDate = event.date instanceof Date
+                            ? event.date
                             : (event.date as unknown as Timestamp).toDate();
-                          
+
                           return (
-                            <div 
-                              key={event.id} 
+                            <div
+                              key={event.id}
                               className="flex items-center justify-center"
                               style={{ animationDelay: `${index * 150}ms` }}
                             >
-                              <div 
+                              <div
                                 className={cn(
                                   "w-full md:w-5/12 p-1 animate-fade-in",
                                   isEven ? "md:mr-auto" : "md:ml-auto"
@@ -597,7 +598,7 @@ const UserProfile = () => {
                                     <CardDescription className="flex items-center gap-1">
                                       <CalendarIcon className="h-3 w-3" />
                                       {format(eventDate, "MMMM d, yyyy")}
-                                      
+
                                       {event.location && (
                                         <>
                                           <span className="mx-1">•</span>
@@ -607,19 +608,19 @@ const UserProfile = () => {
                                       )}
                                     </CardDescription>
                                   </CardHeader>
-                                  
+
                                   {event.imageUrl && (
                                     <div className="px-6 pt-2">
                                       <div className="w-full h-48 rounded-md overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
-                                        <img 
-                                          src={event.imageUrl} 
-                                          alt={event.title} 
+                                        <img
+                                          src={event.imageUrl}
+                                          alt={event.title}
                                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
                                       </div>
                                     </div>
                                   )}
-                                  
+
                                   <CardContent>
                                     <p className="whitespace-pre-wrap text-muted-foreground group-hover:text-foreground transition-colors">
                                       {event.description}
@@ -627,7 +628,7 @@ const UserProfile = () => {
                                   </CardContent>
                                 </Card>
                               </div>
-                              
+
                               {/* Timeline dot */}
                               <div className="absolute left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-love-500 border-2 border-background shadow-lg animate-pulse z-10"></div>
                             </div>
@@ -661,12 +662,12 @@ const UserProfile = () => {
               )}
             </DialogTitle>
             <DialogDescription>
-              {dialogType === "followers" 
+              {dialogType === "followers"
                 ? `People who follow ${userData?.displayName}`
                 : `People whom ${userData?.displayName} follows`}
             </DialogDescription>
           </DialogHeader>
-          
+
           <ScrollArea className="max-h-[400px] mt-2">
             {loadingFollowUsers ? (
               <div className="flex justify-center items-center py-8">
@@ -682,8 +683,8 @@ const UserProfile = () => {
             ) : (
               <div className="space-y-2 p-1">
                 {followUsers.map((followUser, index) => (
-                  <div 
-                    key={followUser.uid} 
+                  <div
+                    key={followUser.uid}
                     className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/80 transition-colors animate-fade-in"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
@@ -704,9 +705,9 @@ const UserProfile = () => {
                         )}
                       </div>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       asChild
                       className="ml-auto text-xs hover:bg-love-100 hover:text-love-800 dark:hover:bg-love-900/30 dark:hover:text-love-200 transition-colors"
                     >
