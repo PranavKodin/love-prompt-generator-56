@@ -351,11 +351,11 @@ const Profile = () => {
                         >
                           <div className="bg-secondary/50 p-2 rounded-lg flex items-center justify-between">
                             <span>Posts</span>
-                            <span className="font-semibold">{Math.floor(Math.random() * 50)}</span>
+                            <span className="font-semibold">User can't post for now</span>
                           </div>
                           <div className="bg-secondary/50 p-2 rounded-lg flex items-center justify-between">
                             <span>Likes</span>
-                            <span className="font-semibold">{Math.floor(Math.random() * 500)}</span>
+                            <span className="font-semibold">No Post No Likes 🥲</span>
                           </div>
                         </motion.div>
                       )}
@@ -479,7 +479,7 @@ const Profile = () => {
                           <X className="h-4 w-4" />
                           Cancel
                         </Button>
-                        <Button 
+                        <motion.button 
                           onClick={handleSave} 
                           className="bg-gradient-love flex items-center gap-1"
                           whileHover={{ scale: 1.03 }}
@@ -487,7 +487,7 @@ const Profile = () => {
                         >
                           Save Changes
                           <ArrowRight className="h-4 w-4 ml-1" />
-                        </Button>
+                        </motion.button>
                       </CardFooter>
                     </motion.div>
                   )}
