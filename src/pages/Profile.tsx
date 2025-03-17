@@ -481,11 +481,12 @@ const Profile = () => {
                         </Button>
                         <Button
                           onClick={handleSave}
-                          className="bg-gradient-love flex items-center gap-1 px-4 py-2 rounded transition-transform duration-150 ease-in-out hover:scale-105 active:scale-95"
+                          className="bg-gradient-love flex items-center gap-1 transition-transform duration-150 ease-in-out hover:scale-105 active:scale-95"
                         >
                           Save Changes
                           <ArrowRight className="h-4 w-4 ml-1" />
                         </Button>
+
 
                       </CardFooter>
                     </motion.div>
