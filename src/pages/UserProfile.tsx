@@ -273,7 +273,6 @@ const UserProfile = () => {
   if (!userData) {
     return (
       <div className="container mx-auto py-12 px-4 text-center">
-        <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
         <div className="max-w-md mx-auto">
           <div className="rounded-full bg-muted w-20 h-20 mx-auto flex items-center justify-center mb-6 animate-bounce">
             <UserIcon className="h-10 w-10 text-muted-foreground" />
@@ -292,7 +291,8 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 pt-8 px-4">
+    <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" >
+
       <div className="container mx-auto max-w-6xl">
         {/* Header with back button */}
         <div className="mb-6 animate-fade-in-tablet">
