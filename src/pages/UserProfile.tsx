@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -52,6 +51,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface UserData {
   uid: string;
   displayName: string;
+  bannerURL?: string;
   email: string;
   photoURL: string;
   createdAt?: Timestamp;
@@ -240,6 +240,25 @@ const UserProfile = () => {
     return userData?.subscription?.level === "premium";
   }, [userData]);
   
+  const renderBanner = () => {
+    if (!userData?.bannerURL || userData.bannerURL === "gradient") {
+      return <div className="relative h-32 md:h-48 bg-gradient-love">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/20 dark:from-white/5 dark:to-black/30"></div>
+      </div>;
+    }
+    
+    return (
+      <div className="relative h-32 md:h-48 overflow-hidden">
+        <img 
+          src={userData.bannerURL} 
+          alt="Profile banner" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50">
@@ -285,34 +304,26 @@ const UserProfile = () => {
         {/* Profile Header - Hero Section */}
         <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-love p-1 animate-scale-in">
           <div className="bg-card rounded-lg overflow-hidden">
-            <div className="relative h-32 md:h-48 bg-gradient-to-r from-love-200 to-love-400 dark:from-love-700 dark:to-love-900">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/20 dark:from-white/5 dark:to-black/30"></div>
-              {isPremium && (
-                <div className="absolute top-4 right-4 bg-yellow-500/90 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center shadow-lg animate-pulse-slow">
-                  <Star className="h-3 w-3 mr-1 fill-white" />
-                  Premium
-                </div>
-              )}
-            </div>
+            {renderBanner()}
             
-            <div className="px-4 md:px-8 relative -mt-12 md:-mt-16 flex flex-col md:flex-row md:items-end pb-4 gap-4">
+            <div className="px-4 md:px-8 relative -mt-16 md:-mt-20 flex flex-col md:flex-row md:items-end pb-4 gap-4">
               <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-card shadow-xl animate-float">
-                <AvatarImage src={userData.photoURL} alt={userData.displayName} className="object-cover" />
+                <AvatarImage src={userData?.photoURL} alt={userData?.displayName} className="object-cover" />
                 <AvatarFallback className="text-3xl">
-                  {userData.displayName ? getInitials(userData.displayName) : "?"}
+                  {userData?.displayName ? getInitials(userData.displayName) : "?"}
                 </AvatarFallback>
               </Avatar>
               
-              <div className="flex-1 pb-2">
+              <div className="flex-1 pb-2 pt-4 md:pt-0">
                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                   <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 animate-text-fade">
-                    {userData.displayName}
+                    {userData?.displayName}
                     {isPremium && (
                       <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 animate-pulse" />
                     )}
                   </h1>
                   
-                  {userData.location && (
+                  {userData?.location && (
                     <div className="flex items-center text-sm text-muted-foreground animate-text-slide">
                       <MapPin className="h-4 w-4 mr-1 text-love-500" />
                       {userData.location}
@@ -320,7 +331,7 @@ const UserProfile = () => {
                   )}
                 </div>
                 
-                {userData.bio && (
+                {userData?.bio && (
                   <p className="mt-2 text-muted-foreground max-w-xl animate-text-scale">
                     {userData.bio}
                   </p>
@@ -345,7 +356,7 @@ const UserProfile = () => {
                     <span className="font-semibold mr-1">{followCounts.following}</span> Following
                   </Button>
                   
-                  {userData.createdAt && (
+                  {userData?.createdAt && (
                     <div className="text-xs text-muted-foreground flex items-center animate-fade-in delay-200">
                       <Clock className="h-3 w-3 mr-1" />
                       Joined {format(userData.createdAt.toDate(), "MMMM yyyy")}
