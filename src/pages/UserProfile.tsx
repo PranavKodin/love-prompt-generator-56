@@ -291,8 +291,8 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" >
-
+    <div className="min-h-screen fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" >
+      
       <div className="container mx-auto max-w-6xl">
         {/* Header with back button */}
         <div className="mb-6 animate-fade-in-tablet">
@@ -304,7 +304,7 @@ const UserProfile = () => {
 
         {/* Profile Header - Hero Section */}
         {/* Removed the bg-gradient-love class and p-1 padding that was creating the pink background */}
-        <div className="relative mb-8 overflow-hidden rounded-xl animate-scale-in">
+        <Card className="glass overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
           <div className="bg-card rounded-lg overflow-hidden shadow-md">
             {renderBanner()}
 
@@ -402,14 +402,14 @@ const UserProfile = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Sidebar */}
           <div className="md:col-span-1 space-y-6">
             {/* User Stats Card */}
-            <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in">
+            <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in ">
               <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
                 <CardTitle className="text-lg flex items-center">
                   <TrendingUp className="mr-2 h-4 w-4 text-love-500" />
@@ -457,7 +457,7 @@ const UserProfile = () => {
 
             {/* Interests Card */}
             {userData.interests && userData.interests.length > 0 && (
-              <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
+              <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-slide-in delay-100">
                 <CardHeader className="bg-gradient-to-r from-background to-muted/30 pb-3">
                   <CardTitle className="text-lg flex items-center">
                     <Heart className="mr-2 h-4 w-4 text-love-500" />
