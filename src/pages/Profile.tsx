@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Rocket, Heart } from "lucide-react";
+import { ChevronLeft, Rocket, Heart, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Camera, Edit, MapPin, User } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
-
-
+import { getFollowCounts } from "@/lib/firebase";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -24,6 +22,7 @@ const Profile = () => {
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -33,8 +32,15 @@ const Profile = () => {
       setDisplayName(profile.displayName || "");
       setBio(profile.bio || "");
       setLocation(profile.location || "");
+      
+      // Fetch follow counts
+      if (user) {
+        getFollowCounts(user.uid)
+          .then(counts => setFollowCounts(counts))
+          .catch(error => console.error("Error fetching follow counts:", error));
+      }
     }
-  }, [profile]);
+  }, [profile, user]);
 
   if (!user || !profile) {
     navigate("/get-started");
@@ -151,6 +157,19 @@ const Profile = () => {
                     )}
                   </CardDescription>
                 )}
+                
+                <CardDescription className="flex items-center mt-2 space-x-3">
+                  <div className="flex items-center">
+                    <Users className="mr-1 h-3 w-3" />
+                    <span className="font-semibold">{followCounts.followers}</span> 
+                    <span className="ml-1 text-xs">Followers</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Users className="mr-1 h-3 w-3" />
+                    <span className="font-semibold">{followCounts.following}</span> 
+                    <span className="ml-1 text-xs">Following</span>
+                  </div>
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="px-0 py-5">
@@ -206,7 +225,6 @@ const Profile = () => {
             </div>
           </Card>
         </div>
-
       </div>
     </div>
   );

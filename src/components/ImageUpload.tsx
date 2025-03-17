@@ -2,19 +2,21 @@
 import { useState, useRef } from "react";
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 export function ImageUpload() {
   const [image, setImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast: hookToast } = useToast();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      e.target.value = "";
+      toast.info("Feature coming soon!", {
+        description: "Image upload functionality will be available in the next update."
+      });
     }
   };
 
