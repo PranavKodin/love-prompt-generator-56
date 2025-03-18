@@ -76,7 +76,7 @@ export function Hero() {
     setIsSaved(false);
 
     try {
-      const prompt = `Generate a ${selectedStyle}, ${selectedTone} compliment based on the following description of the person: "${searchQuery}". Be creative and ensure the compliment fits the style and tone specified.`;
+      const prompt = `Generate a ${selectedStyle}, ${selectedTone} compliment based on the following description of the person: "${searchQuery}". Be creative and ensure the compliment fits the style and tone specified, tell me in less than 30 words.`;
 
       const gptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",

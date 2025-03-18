@@ -1,12 +1,12 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { UserProvider } from "@/context/UserContext";
-import { Analytics } from "@vercel/analytics/react"
 import InstagramRedirect from "./components/InstagramRedirect";  // ✅ Import the redirect component
 
 import Index from "./pages/Index";
@@ -56,7 +56,8 @@ const App = () => (
                 <Route path="/saved-compliments" element={<SavedCompliments />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/public-compliments" element={<PublicCompliments />} />
+                <Route path="/discover" element={<PublicCompliments />} />
+                <Route path="/public-compliments" element={<Navigate to="/discover" replace />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/relationship-timeline" element={<RelationshipTimeline />} />
                 <Route path="/following" element={<FollowingFeed />} />

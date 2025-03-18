@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
-// Animation type based on screen size
 const getAnimationByDevice = () => {
   if (typeof window === 'undefined') return 'animate-fade-in';
   
@@ -47,7 +46,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
       setAnimationClass(getAnimationByDevice());
     };
 
-    // Set initial animation class
     setAnimationClass(getAnimationByDevice());
 
     window.addEventListener("scroll", handleScroll);
@@ -63,7 +61,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
     await logout();
   };
 
-  // Get user initials for avatar fallback
   const getUserInitials = () => {
     if (!user || !user.displayName) return "U";
     
@@ -80,7 +77,7 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
     { name: "Home", href: "/", animation: "animate-text-fade" },
     { name: "About", href: "/about", animation: "animate-text-slide" },
     { name: "Features", href: "/features", animation: "animate-text-scale" },
-    { name: "Public Compliments", href: "/public-compliments", animation: "animate-text-pulse" },
+    { name: "Discover", href: "/discover", animation: "animate-text-pulse" },
     { name: "Contact", href: "/contact", animation: "animate-text-shimmer" },
   ];
 
@@ -106,7 +103,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
               <Menu size={20} />
             </Button>
             <Link to="/" className="flex items-center space-x-2 group">
-              {/* Corrected image path - removed /public prefix */}
               <img 
                 src="/loverprompt.png" 
                 alt="LoverPrompt Logo" 
@@ -115,7 +111,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <div className="flex space-x-1">
               {navLinks.map((link, index) => (
@@ -181,7 +176,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
             )}
           </div>
 
-          {/* Mobile Navigation Toggle */}
           <div className="flex items-center space-x-2 md:hidden">
             <ThemeToggle />
             {user ? (
@@ -235,7 +229,6 @@ export function Navbar({ toggleSidebar }: { toggleSidebar: () => void }) {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         <div 
           className={cn(
             "fixed inset-0 z-40 bg-white/80 dark:bg-midnight-900/80 backdrop-blur-xl transform transition-all duration-500 ease-in-out md:hidden",

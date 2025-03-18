@@ -40,7 +40,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (op
 
   // Updated compliment features from first code
   const complimentLinks = [
-    { name: "Discover Compliments", path: "/public-compliments", icon: <Sparkles className="mr-2 h-4 w-4" />, requiresAuth: false },
+    { name: "Discover Compliments", path: "/discover", icon: <Sparkles className="mr-2 h-4 w-4" />, requiresAuth: false },
     { name: "Following Feed", path: "/following", icon: <Users className="mr-2 h-4 w-4" />, requiresAuth: true },
   ];
 

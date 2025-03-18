@@ -7,6 +7,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { Spinner } from "@/components/Spinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Share, Clock, UserPlus, UserCheck, Users, Star } from "lucide-react";
 import { format } from "date-fns";
@@ -132,9 +134,11 @@ const FollowingFeed = () => {
   
   return (
     <div className="min-h-screen bg-background">
+      <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
+      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-28 px-4">
         <div className="mb-6">
           <h1 className="text-3xl font-bold gradient-text">Following Feed</h1>
           <p className="text-muted-foreground">
@@ -153,7 +157,7 @@ const FollowingFeed = () => {
               asChild
               className="bg-gradient-love hover:opacity-90 transition-opacity"
             >
-              <Link to="/public-compliments">
+              <Link to="/discover">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Find People to Follow
               </Link>
@@ -170,13 +174,13 @@ const FollowingFeed = () => {
               const isPremium = userDetail.subscription?.level === "premium";
               
               return (
-                <Card key={compliment.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                <Card key={compliment.id} className="overflow-hidden hover:shadow-md transition-shadow backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30">
                   <CardHeader className="p-4 pb-2">
                     <div className="flex items-center space-x-2">
                       <Link to={`/profile/${compliment.userId}`}>
-                        <Avatar>
+                        <Avatar className="ring-1 ring-love-200 dark:ring-love-800 transition-all hover:ring-love-500">
                           <AvatarImage src={userDetail.photoURL} alt={userDetail.displayName} />
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-gradient-love text-white">
                             {userDetail.displayName?.charAt(0) || "U"}
                           </AvatarFallback>
                         </Avatar>
@@ -184,7 +188,9 @@ const FollowingFeed = () => {
                       <div className="flex-1 min-w-0">
                         <Link to={`/profile/${compliment.userId}`} className="hover:underline">
                           <CardTitle className="text-base flex items-center gap-1">
-                            {userDetail.displayName || "User"}
+                            <span className="bg-gradient-to-r from-love-600 to-love-400 bg-clip-text text-transparent font-semibold">
+                              {userDetail.displayName || "User"}
+                            </span>
                             {isPremium && (
                               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                             )}
@@ -200,6 +206,21 @@ const FollowingFeed = () => {
                   
                   <CardContent className="p-4 pt-2">
                     <p className="whitespace-pre-wrap">{compliment.content}</p>
+                    
+                    {(compliment.tone || compliment.mood) && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {compliment.tone && (
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                            {compliment.tone}
+                          </span>
+                        )}
+                        {compliment.mood && (
+                          <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full">
+                            {compliment.mood}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </CardContent>
                   
                   <CardFooter className="p-4 pt-0 flex items-center justify-between">
@@ -208,7 +229,7 @@ const FollowingFeed = () => {
                         variant="ghost" 
                         size="sm"
                         className={isLiked ? "text-love-500" : ""}
-                        onClick={() => handleLike(compliment.id || "")}
+                        onClick={() => compliment.id && handleLike(compliment.id)}
                       >
                         <Heart className={`mr-1 h-4 w-4 ${isLiked ? "fill-love-500" : ""}`} />
                         <span>{compliment.likeCount || 0}</span>
@@ -219,7 +240,7 @@ const FollowingFeed = () => {
                         size="sm"
                         asChild
                       >
-                        <Link to={`/public-compliments?complimentId=${compliment.id}`}>
+                        <Link to={`/discover?complimentId=${compliment.id}`}>
                           <MessageCircle className="mr-1 h-4 w-4" />
                           <span>{compliment.commentCount || 0}</span>
                         </Link>
@@ -240,6 +261,8 @@ const FollowingFeed = () => {
           </div>
         )}
       </div>
+      
+      <Footer />
     </div>
   );
 };

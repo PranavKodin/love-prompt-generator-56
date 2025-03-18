@@ -272,7 +272,7 @@ const PublicCompliments = () => {
       
       <main className="flex-1 container mx-auto pt-28 pb-16 px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">Public Compliments</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">Discover Compliments</h1>
           <p className="text-xl text-foreground/80 mb-6 max-w-2xl mx-auto">
             Explore beautiful compliments shared by our community. Like your favorites and leave comments!
           </p>

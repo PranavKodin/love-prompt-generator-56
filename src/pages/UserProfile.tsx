@@ -306,8 +306,14 @@ const UserProfile = () => {
         {/* Removed the bg-gradient-love class and p-1 padding that was creating the pink background */}
         <Card className="glass mb-8 overflow-hidden shadow-lg hover:shadow-xl transition-shadow animate-scale-in">
           <div className="bg-card rounded-lg overflow-hidden shadow-md">
-            {renderBanner()}
-
+            <div className="relative">
+              {renderBanner()}
+              {/* Fixed gradient fade overlay */}
+              <div className="absolute bottom-0 left-0 right-0 h-32">
+                <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
+                <div className="absolute inset-0 bg-card opacity-5" />
+              </div>
+            </div>
             <div className="px-4 md:px-8 relative -mt-16 md:-mt-20 flex flex-col md:flex-row md:items-end pb-4 gap-4">
               <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-card shadow-xl animate-float">
                 <AvatarImage src={userData?.photoURL} alt={userData?.displayName} className="object-cover" />
@@ -389,7 +395,7 @@ const UserProfile = () => {
                     {isUserFollowing ? (
                       <>
                         <UserCheck className="mr-2 h-4 w-4" />
-                        Following
+                        Unfollow
                       </>
                     ) : (
                       <>
@@ -486,7 +492,7 @@ const UserProfile = () => {
 
           {/* Main Content Tabs */}
           <div className="md:col-span-2">
-          <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-scale-in">
+            <Card className="glass overflow-hidden shadow-md hover:shadow-lg transition-shadow animate-scale-in">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="border-b">
                   <TabsList className="w-full justify-start rounded-none bg-transparent border-b h-auto p-0">

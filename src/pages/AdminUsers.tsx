@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -17,6 +16,18 @@ import {
   ADMIN_EMAIL
 } from "@/lib/firebase";
 
+// Define color options locally instead of importing from firebase
+export const colorOptions = [
+  { id: "love-500", color: "#e11d48", gradient: "linear-gradient(to right, #e11d48, #fb7185)" },
+  { id: "pink-500", color: "#ec4899", gradient: "linear-gradient(to right, #ec4899, #f472b6)" },
+  { id: "purple-500", color: "#8b5cf6", gradient: "linear-gradient(to right, #8b5cf6, #a78bfa)" },
+  { id: "blue-500", color: "#3b82f6", gradient: "linear-gradient(to right, #3b82f6, #60a5fa)" },
+  { id: "green-500", color: "#22c55e", gradient: "linear-gradient(to right, #22c55e, #4ade80)" },
+  { id: "yellow-500", color: "#eab308", gradient: "linear-gradient(to right, #eab308, #facc15)" },
+  { id: "orange-500", color: "#f97316", gradient: "linear-gradient(to right, #f97316, #fb923c)" },
+  { id: "teal-500", color: "#14b8a6", gradient: "linear-gradient(to right, #14b8a6, #2dd4bf)" },
+];
+
 const AdminUsers = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -33,7 +44,6 @@ const AdminUsers = () => {
   };
 
   useEffect(() => {
-    // Check if user is admin
     if (!user) {
       navigate("/");
       return;
@@ -49,11 +59,9 @@ const AdminUsers = () => {
       return;
     }
 
-    // Fetch users
     fetchUsers();
   }, [user, navigate, toast]);
 
-  // Apply search filter when searchTerm changes
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredUsers(users);
@@ -105,22 +113,18 @@ const AdminUsers = () => {
     );
   };
 
-  // Helper function to safely format date
   const formatDate = (dateField) => {
     try {
       if (!dateField) return "Unknown";
 
-      // Check if it's a Firebase timestamp (has toDate method)
       if (typeof dateField.toDate === 'function') {
         return dateField.toDate().toLocaleDateString();
       }
 
-      // If it's already a Date object
       if (dateField instanceof Date) {
         return dateField.toLocaleDateString();
       }
 
-      // If it's a string or number timestamp
       if (typeof dateField === 'string' || typeof dateField === 'number') {
         return new Date(dateField).toLocaleDateString();
       }
@@ -132,9 +136,23 @@ const AdminUsers = () => {
     }
   };
 
-  // Function to navigate to user profile
-  const viewUserProfile = (userId: string) => {
-    navigate(`/profile/${userId}`);
+  const getBannerStyle = (bannerURL: string | undefined) => {
+    if (!bannerURL) return { background: "var(--gradient-love)" };
+    
+    if (bannerURL.startsWith('#')) {
+      return { backgroundColor: bannerURL };
+    }
+    
+    const colorOption = colorOptions.find(color => color.id === bannerURL);
+    if (colorOption) {
+      return { background: colorOption.gradient };
+    }
+    
+    return { 
+      backgroundImage: `url(${bannerURL})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    };
   };
 
   return (
@@ -142,7 +160,7 @@ const AdminUsers = () => {
       <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      <main className="flex-1 container max-w-4xl mx-auto pt-28 pb-16 px-4">
+      <main className="flex-1 container max-w-6xl mx-auto pt-28 pb-16 px-4">
         <div className="flex items-center mb-6">
           <Shield className="text-love-500 dark:text-love-400 mr-3 size-6" />
           <h1 className="text-3xl font-bold gradient-text">Admin Panel: User Management</h1>
@@ -180,17 +198,30 @@ const AdminUsers = () => {
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
           </div>
         ) : filteredUsers.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredUsers.map((user, index) => (
               <Card
                 key={user.uid || index}
                 className="overflow-hidden backdrop-blur-sm bg-white/20 dark:bg-midnight-900/20 border-white/20 dark:border-midnight-800/30 hover:shadow-md transition-shadow animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <CardContent className="p-6">
-                  <div className="flex gap-4">
+                <CardContent className="p-4">
+                <div 
+                        className="absolute inset-0 rounded-lg overflow-hidden"
+                        style={{ zIndex: -1 }}
+                      >
+                        <div 
+                          className="absolute inset-0 blur-[2px]" 
+                          style={{
+                            ...getBannerStyle(user.bannerURL),
+                            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 70%)',
+                            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 70%)'
+                          }}
+                        ></div>
+                      </div>
+                  <div className="flex gap-3">
                     <Link to={`/profile/${user.uid}`}>
-                      <Avatar className="size-16 border-2 border-love-200 dark:border-love-800 cursor-pointer transition-transform hover:scale-105">
+                      <Avatar className="size-14 border-2 border-love-200 dark:border-love-800 cursor-pointer transition-transform hover:scale-105 bg-background">
                         <AvatarImage
                           src={user.photoURL || ""}
                           alt={user.displayName || "User"}
@@ -202,8 +233,8 @@ const AdminUsers = () => {
                       </Avatar>
                     </Link>
 
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">
+                    <div className="flex-1 rounded-lg p-3 relative">
+                      <h3 className="font-semibold text-base">
                         <Link
                           to={`/profile/${user.uid}`}
                           className="hover:text-love-600 dark:hover:text-love-400 transition-colors"
@@ -211,28 +242,34 @@ const AdminUsers = () => {
                           {user.displayName || "No Name"}
                         </Link>
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-1">{user.email || "No Email"}</p>
+                      <p className="text-xs text-muted-foreground mb-1">{user.email || "No Email"}</p>
                       {user.location && (
-                        <p className="text-sm text-foreground/70">
+                        <p className="text-xs text-foreground/70">
                           Location: {user.location}
                         </p>
                       )}
-                      <div className="mt-2">
-                        {user.bio ? (
-                          <p className="text-sm line-clamp-2">{user.bio}</p>
-                        ) : (
-                          <p className="text-sm text-muted-foreground italic">No bio</p>
-                        )}
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        <span className="text-xs px-2 py-1 bg-foreground/5 rounded-full">
+                      
+                      {user.bio ? (
+                        <p className="text-xs line-clamp-2 mt-1">{user.bio}</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic mt-1">No bio</p>
+                      )}
+                      
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-foreground/5 rounded-full">
                           {user.subscription?.level === "premium" ? "Premium" : "Free"}
                         </span>
-                        <span className="text-xs px-2 py-1 bg-foreground/5 rounded-full">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-foreground/5 rounded-full">
                           {user.preferences?.darkMode ? "Dark mode" : "Light mode"}
                         </span>
-                        <span className="text-xs px-2 py-1 bg-foreground/5 rounded-full">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-foreground/5 rounded-full">
                           Joined: {formatDate(user.createdAt)}
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.5 bg-foreground/5 rounded-full">
+                          Followers: {user.followersCount || 0}
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.5 bg-foreground/5 rounded-full">
+                          Following: {user.followingCount || 0}
                         </span>
                       </div>
                     </div>
