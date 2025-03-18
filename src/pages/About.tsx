@@ -15,15 +15,15 @@ export default function About() {
     team: false,
     mission: false
   });
-  
+
   const storyRef = useRef<HTMLElement>(null);
   const teamRef = useRef<HTMLElement>(null);
   const missionRef = useRef<HTMLElement>(null);
-  
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-  
+
   useEffect(() => {
     const handleScroll = () => {
       // Check if sections are in viewport
@@ -31,14 +31,14 @@ export default function About() {
         if (ref.current) {
           const rect = ref.current.getBoundingClientRect();
           const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > 0;
-          
+
           setVisibleSections(prev => ({
             ...prev,
             [sectionId]: isVisible
           }));
         }
       };
-      
+
       checkSection(storyRef, 'story');
       checkSection(teamRef, 'team');
       checkSection(missionRef, 'mission');
@@ -47,27 +47,27 @@ export default function About() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     // Initial check
     setTimeout(handleScroll, 100);
-    
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
+
   // Define different animation classes for different screen sizes
   const getResponsiveAnimation = (isMobile: string, isTablet: string, isDesktop: string, isTV: string): string => {
     if (typeof window === 'undefined') return '';
-    
+
     const width = window.innerWidth;
     if (width < 640) return isMobile; // Mobile
     if (width < 1024) return isTablet; // Tablet
     if (width < 1536) return isDesktop; // Desktop
     return isTV; // Large screens/TVs
   };
-  
+
   // Team members data
   const teamMembers = [
     {
       name: "Pranav Kumar",
       role: "Founder & CEO",
-      bio: "Passionate about connecting hearts through technology. With over 10 years in AI development focused on emotional intelligence.",
+      bio: "Passionate about connecting hearts through technology.",
       avatar: "https://i.pinimg.com/280x280_RS/00/1c/e2/001ce2cc08062ef80c000b7e0be2fdad.jpg",
       delay: 0,
     },
@@ -78,7 +78,7 @@ export default function About() {
       avatar: "https://i.pinimg.com/736x/a6/ba/ce/a6bacee47f5781ebcbac4ea8e1bf8078.jpg",
       delay: 100,
     },
-];
+  ];
 
 
   return (
@@ -91,32 +91,34 @@ export default function About() {
             {/* Hero Section */}
             <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-b from-love-50/40 via-background to-background dark:from-midnight-900/20 dark:via-background dark:to-background z-0"></div>
-              
+
               {/* Floating elements */}
               <div className="absolute top-1/4 right-1/5 w-64 h-64 rounded-full bg-love-200/20 dark:bg-love-800/10 blur-3xl animate-float opacity-70"></div>
-              <div className="absolute bottom-1/3 left-1/5 w-56 h-56 rounded-full bg-love-300/20 dark:bg-love-700/20 blur-3xl animate-float opacity-60" style={{animationDelay: "2s"}}></div>
-              
+              <div className="absolute bottom-1/3 left-1/5 w-56 h-56 rounded-full bg-love-300/20 dark:bg-love-700/20 blur-3xl animate-float opacity-60" style={{ animationDelay: "2s" }}></div>
+
               <div className="container mx-auto relative z-10">
                 <div className="text-center max-w-3xl mx-auto">
                   <div className="inline-block rounded-full bg-love-100 dark:bg-love-900/30 px-4 py-1 mb-4 animate-fade-in">
                     <span className="text-sm font-medium text-love-600 dark:text-love-400 flex items-center justify-center">
                       <Heart size={14} className="mr-1.5 animate-pulse-slow" />
                       About Us
-                      <Heart size={14} className="ml-1.5 animate-pulse-slow" style={{animationDelay: "1s"}} />
+                      <Heart size={14} className="ml-1.5 animate-pulse-slow" style={{ animationDelay: "1s" }} />
                     </span>
                   </div>
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-text-shimmer">
-                    Our <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl gradient-text">Love Story</span>
+                    Our <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl gradient-text px-2">Journey</span>
                   </h1>
+
+
                   <p className="text-lg md:text-xl text-foreground/80 animate-text-fade">
                     We're on a mission to help people express their feelings through the perfect words.
                   </p>
                 </div>
               </div>
             </section>
-            
+
             {/* Our Story Section */}
-            <section 
+            <section
               id="story"
               ref={storyRef}
               className={cn(
@@ -129,9 +131,9 @@ export default function About() {
                   <div className={cn(
                     "bg-white/70 dark:bg-midnight-800/40 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/40 dark:border-white/5 shadow-card order-2 lg:order-1",
                     visibleSections.story ? getResponsiveAnimation(
-                      "animate-slide-in-mobile", 
-                      "animate-fade-in-tablet", 
-                      "animate-scale-in-desktop", 
+                      "animate-slide-in-mobile",
+                      "animate-fade-in-tablet",
+                      "animate-scale-in-desktop",
                       "animate-blur-in-tv"
                     ) : ""
                   )}>
@@ -141,7 +143,7 @@ export default function About() {
                       </div>
                       <h2 className="text-2xl md:text-3xl font-bold">Our Journey</h2>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <div className="flex">
                         <div className="mt-1 mr-4">
@@ -154,7 +156,7 @@ export default function About() {
                           <p className="text-foreground/70">It all started with a simple idea: help people express their feelings through words. We realized how many struggle to find the right words for their loved ones.</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex">
                         <div className="mt-1 mr-4">
                           <div className="w-8 h-8 rounded-full bg-love-100 dark:bg-love-900/40 flex items-center justify-center">
@@ -166,7 +168,7 @@ export default function About() {
                           <p className="text-foreground/70">We developed our first AI model specifically designed to understand emotions and generate heartfelt expressions tailored to relationships.</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex">
                         <div className="mt-1 mr-4">
                           <div className="w-8 h-8 rounded-full bg-love-100 dark:bg-love-900/40 flex items-center justify-center">
@@ -180,16 +182,16 @@ export default function About() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className={cn(
                     "relative order-1 lg:order-2 h-[400px] rounded-2xl overflow-hidden",
                     visibleSections.story ? getResponsiveAnimation(
-                      "animate-slide-in-mobile", 
-                      "animate-fade-in-tablet", 
-                      "animate-scale-in-desktop", 
+                      "animate-slide-in-mobile",
+                      "animate-fade-in-tablet",
+                      "animate-scale-in-desktop",
                       "animate-blur-in-tv"
                     ) : ""
-                  )} style={{animationDelay: "200ms"}}>
+                  )} style={{ animationDelay: "200ms" }}>
                     <div className="absolute inset-0 bg-gradient-radial from-love-100/40 to-transparent dark:from-love-900/20 dark:to-transparent"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center">
@@ -203,7 +205,7 @@ export default function About() {
                     </div>
                     {/* Floating hearts */}
                     {[...Array(10)].map((_, i) => (
-                      <div 
+                      <div
                         key={i}
                         className="absolute text-love-400/30 dark:text-love-600/20"
                         style={{
@@ -221,9 +223,9 @@ export default function About() {
                 </div>
               </div>
             </section>
-            
+
             {/* Team Section */}
-            <section 
+            <section
               id="team"
               ref={teamRef}
               className={cn(
@@ -246,7 +248,7 @@ export default function About() {
                     We're a passionate team of AI experts, relationship psychologists, and designers dedicated to helping people express their feelings.
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                   {teamMembers.map((member, index) => (
                     <div
@@ -255,9 +257,9 @@ export default function About() {
                         "bg-white/60 dark:bg-midnight-800/40 backdrop-blur-sm rounded-2xl p-6 border border-white/40 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-500",
                         "hover:transform hover:translate-y-[-5px] hover:border-love-200 dark:hover:border-love-800/30",
                         visibleSections.team ? getResponsiveAnimation(
-                          "animate-slide-in-mobile", 
-                          "animate-fade-in-tablet", 
-                          "animate-scale-in-desktop", 
+                          "animate-slide-in-mobile",
+                          "animate-fade-in-tablet",
+                          "animate-scale-in-desktop",
                           "animate-blur-in-tv"
                         ) : ""
                       )}
@@ -286,9 +288,9 @@ export default function About() {
                 </div>
               </div>
             </section>
-            
+
             {/* Mission Section */}
-            <section 
+            <section
               id="mission"
               ref={missionRef}
               className={cn(
@@ -301,9 +303,9 @@ export default function About() {
                   <div className={cn(
                     "bg-white/70 dark:bg-midnight-800/40 backdrop-blur-md rounded-2xl p-8 border border-white/40 dark:border-white/5 shadow-card",
                     visibleSections.mission ? getResponsiveAnimation(
-                      "animate-slide-in-mobile", 
-                      "animate-fade-in-tablet", 
-                      "animate-scale-in-desktop", 
+                      "animate-slide-in-mobile",
+                      "animate-fade-in-tablet",
+                      "animate-scale-in-desktop",
                       "animate-blur-in-tv"
                     ) : ""
                   )}>
@@ -317,7 +319,7 @@ export default function About() {
                         Connecting <span className="gradient-text">Hearts</span> Through Words
                       </h2>
                     </div>
-                    
+
                     <div className="space-y-6 text-lg">
                       <p>
                         At loverprompt, we believe that the right words can bridge hearts and strengthen bonds. Our mission is to help people express their deepest feelings when words fail them.
@@ -337,7 +339,7 @@ export default function About() {
                 </div>
               </div>
             </section>
-            
+
             <Footer />
           </div>
         </div>

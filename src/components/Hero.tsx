@@ -147,7 +147,7 @@ export function Hero() {
 
       await saveCompliment(complimentData);
       setIsSaved(true);
-      
+
       toast({
         title: "Compliment Saved",
         description: "Your compliment has been saved to your collection",
@@ -201,7 +201,9 @@ export function Hero() {
 
   return (
     <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-love-50/40 via-background to-love-100/20 dark:from-midnight-900/60 dark:via-background dark:to-love-900/10 z-0"></div>
+      <div className="fixed inset-0 backdrop-blur-3xl bg-background/80 -z-10 hero-gradient" />
+      {/* Replaced diagonal gradient with a radial/circular gradient */}
+      <div className="absolute inset-0 bg-radial-gradient from-love-50/40 via-background to-love-100/20 dark:from-midnight-900/60 dark:via-background dark:to-love-900/10 z-0"></div>
       <div className="absolute w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGwtb3BhY2l0eT0iLjA1IiBmaWxsPSJjdXJyZW50Q29sb3IiIGN4PSIxMCIgY3k9IjEwIiByPSIxIi8+PC9nPjwvc3ZnPg==')] opacity-50 dark:opacity-30 z-0"></div>
 
       <div className="absolute top-1/5 left-1/4 w-64 h-64 rounded-full bg-love-200/30 dark:bg-love-800/20 blur-3xl animate-float opacity-70"></div>
@@ -239,9 +241,8 @@ export function Hero() {
           </span>
         </div>
 
-        <h1 className={getAnimationClass("text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight mb-6 animate-text-shimmer", "md")}>
-          Create the <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl xl:text-8xl gradient-text animate-pulse-slow">Perfect Compliment</span>
-          <br className="md:hidden" /> for Someone Special
+        <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight mb-6 animate-fade-in duration-[5000ms] animate-slide-up">
+          Create the <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl xl:text-8xl gradient-text animate-pulse-slow animate-gradient-x px-3">Loving</span><br /><span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl xl:text-8xl gradient-text animate-pulse-slow animate-gradient-x px-2">Messages</span> <br className="md:hidden" /> for Someone Special
         </h1>
 
         <p className={getAnimationClass("text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-4 animate-fade-in", "lg")}>
@@ -487,19 +488,19 @@ export function Hero() {
               Coming Soon!
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex flex-col items-center justify-center py-6">
             <div className="w-20 h-20 rounded-full bg-love-100 dark:bg-love-900/30 flex items-center justify-center mb-4">
               <Image className="h-10 w-10 text-love-500 dark:text-love-400" />
             </div>
-            
+
             <p className="text-center mb-4">
               We're working on image upload functionality for compliments!
               <br />
               This feature will be available in our next update.
             </p>
-            
-            <Button 
+
+            <Button
               onClick={() => setImageUploadDialogOpen(false)}
               className="bg-gradient-love hover:opacity-90 transition-all duration-300 mt-2"
             >
@@ -509,8 +510,8 @@ export function Hero() {
         </DialogContent>
       </Dialog>
 
-      <LoginRequiredDialog 
-        open={showLoginDialog} 
+      <LoginRequiredDialog
+        open={showLoginDialog}
         onOpenChange={setShowLoginDialog}
         title="Login Required"
         description="You need to log in to generate compliments."

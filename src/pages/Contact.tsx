@@ -104,7 +104,7 @@ export default function Contact() {
                     </span>
                   </div>
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-text-shimmer">
-                    Let's <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl gradient-text">Connect</span>
+                    Let's <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl gradient-text px-2">Connect</span>
                   </h1>
                   <p className="text-lg md:text-xl text-foreground/80 animate-text-fade">
                     Have questions or feedback? We'd love to hear from you!

@@ -208,7 +208,7 @@ export default function Features() {
                     </span>
                   </div>
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-text-shimmer">
-                    Powerful <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl gradient-text">Features</span> to Express Your Love
+                    Powerful <span className="font-great-vibes text-5xl md:text-6xl lg:text-7xl gradient-text px-2">Features</span> to Express Your Love
                   </h1>
                   <p className="text-lg md:text-xl text-foreground/80 animate-text-fade">
                     Discover all the ways loverprompt can help you create heartfelt expressions of love.
