@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { saveCompliment, Compliment, Timestamp } from "@/lib/firebase";
 import { useNavigate } from "react-router-dom";
+import LoginRequiredDialog from "@/components/LoginRequiredDialog";
 
 const phrases = [
   "AI-Powered Compliment Generator",
@@ -44,7 +45,8 @@ export function Hero() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [imageUploadDialogOpen, setImageUploadDialogOpen] = useState(false);
-  const { user } = useAuth();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const { user, requireLogin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -65,6 +67,11 @@ export function Hero() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!requireLogin("You need to log in to generate compliments")) {
+      setShowLoginDialog(true);
+      return;
+    }
 
     if (!searchQuery) {
       setError("Please tell us what you like about the person!");
@@ -116,13 +123,8 @@ export function Hero() {
   };
 
   const handleSaveCompliment = async () => {
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to save compliments",
-        variant: "destructive"
-      });
-      navigate("/get-started");
+    if (!requireLogin("Please log in to save compliments")) {
+      setShowLoginDialog(true);
       return;
     }
 
@@ -190,6 +192,11 @@ export function Hero() {
     setComplimentGenerated(false);
     setCompliment("");
     setIsSaved(false);
+  };
+
+  const handleRedirectToLogin = () => {
+    navigate("/get-started");
+    setShowLoginDialog(false);
   };
 
   return (
@@ -472,7 +479,6 @@ export function Hero() {
         </Button>
       </div>
 
-      {/* Image Upload Feature Coming Soon Dialog */}
       <Dialog open={imageUploadDialogOpen} onOpenChange={setImageUploadDialogOpen}>
         <DialogContent className="sm:max-w-md bg-white/90 dark:bg-midnight-900/90 backdrop-blur-lg border border-love-200 dark:border-love-800">
           <DialogHeader>
@@ -502,6 +508,14 @@ export function Hero() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <LoginRequiredDialog 
+        open={showLoginDialog} 
+        onOpenChange={setShowLoginDialog}
+        title="Login Required"
+        description="You need to log in to generate compliments."
+        icon={Heart}
+      />
     </div>
   );
 }

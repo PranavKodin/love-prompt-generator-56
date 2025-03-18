@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -72,6 +72,8 @@ const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,10 +90,12 @@ const UserProfile = () => {
     if (userId) {
       loadUserData();
       loadTimelineEvents();
-      loadFollowStatus();
+      if (user) {
+        loadFollowStatus();
+      }
       loadFollowCounts();
     }
-  }, [userId]);
+  }, [userId, user]);
 
   const loadUserData = async () => {
     if (!userId) return;
@@ -159,7 +163,22 @@ const UserProfile = () => {
   };
 
   const handleFollow = async () => {
-    if (!userId || !user) return;
+    if (!userId) return;
+    
+    // Check if user is logged in
+    if (!user) {
+      // Store the current location to redirect back after login
+      const currentPath = location.pathname;
+      toast({
+        title: "Login Required",
+        description: "You need to log in to follow users",
+        variant: "default"
+      });
+      
+      // Redirect to login with a redirect parameter
+      navigate(`/get-started`);
+      return;
+    }
 
     setFollowLoading(true);
     try {
@@ -194,6 +213,21 @@ const UserProfile = () => {
 
   const openFollowDialog = async (type: "followers" | "following") => {
     if (!userId) return;
+    
+    // Check if user is logged in for viewing followers/following
+    if (!user) {
+      // Store the current location to redirect back after login
+      const currentPath = location.pathname;
+      toast({
+        title: "Login Required",
+        description: `You need to log in to view ${type}`,
+        variant: "default"
+      });
+      
+      // Redirect to login with a redirect parameter
+      navigate(`/get-started`);
+      return;
+    }
 
     setDialogType(type);
     setFollowDialogOpen(true);
@@ -303,7 +337,6 @@ const UserProfile = () => {
         </div>
 
         {/* Profile Header - Hero Section */}
-        {/* Removed the bg-gradient-love class and p-1 padding that was creating the pink background */}
         <Card className="glass mb-8 overflow-hidden shadow-lg hover:shadow-xl transition-shadow animate-scale-in">
           <div className="bg-card rounded-lg overflow-hidden shadow-md">
             <div className="relative">

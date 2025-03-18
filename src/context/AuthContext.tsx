@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { 
   User,
@@ -24,6 +23,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  requireLogin: (reason?: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -133,7 +133,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      // Always try to create the user document
       await createUserDocument(result.user);
       toast({
         title: "Welcome back!",
@@ -148,9 +147,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUpWithEmail = async (email: string, password: string) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      // Update the user profile first
       await updateProfile(result.user, { displayName: email.split("@")[0] });
-      // Then create the user document
       await createUserDocument(result.user);
       toast({
         title: "Welcome!",
@@ -175,6 +172,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const requireLogin = (reason?: string): boolean => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: reason || "Please log in to use this feature",
+        variant: "destructive",
+      });
+      navigate("/get-started");
+      return false;
+    }
+    return true;
+  };
+
   const value: AuthContextType = {
     user,
     loading,
@@ -183,6 +193,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signInWithEmail,
     signUpWithEmail,
     logout,
+    requireLogin,
   };
 
   return (
