@@ -137,8 +137,8 @@ export default function Contact() {
                           </div>
                           <div>
                             <h3 className="font-medium">Phone</h3>
-                            <p className="text-foreground/70 mt-1">+1 (555) 123-4567</p>
-                            <p className="text-foreground/70">Mon-Fri, 9am-5pm EST</p>
+                            <p className="text-foreground/70 mt-1">+91 9311398811</p>
+                            <p className="text-foreground/70">Always Free</p>
                           </div>
                         </div>
 
