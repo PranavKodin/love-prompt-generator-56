@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { UserProvider } from "@/context/UserContext";
+import { Analytics } from "@vercel/analytics/react"
 import InstagramRedirect from "./components/InstagramRedirect";  // ✅ Import the redirect component
 
 import Index from "./pages/Index";
